@@ -1,23 +1,44 @@
 "use client";
 
-import { useState } from "react";
-import { FaGoogle, FaTelegramPlane } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { FaGoogle } from "react-icons/fa";
 import { SiKakaotalk } from "react-icons/si";
 import { HiEye, HiEyeOff } from "react-icons/hi";
+import { useSession, signIn } from "next-auth/react";
+import { useRouter } from "next/navigation"; // ✅ App Router compatible
+import TelegramLoginButton from "@/components/Telegram/TelegramLoginBtn";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleGoogleLogin = () => {
+    signIn("google"); // or add callbackUrl if needed
+  };
+
+  // 🔁 Auto-redirect after login
+  useEffect(() => {
+    if (status === "authenticated") {
+      const isNewUser = (session?.user as any)?.isNewUser;
+
+      if (isNewUser) {
+        router.push("/auth/complete-profile");
+      } else {
+        router.push("/student");
+      }
+    }
+  }, [status, session, router]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4 pt-10">
       <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-12 py-12">
-
-        {/* Image */}
+        {/* Left Illustration */}
         <div className="hidden md:flex items-center justify-center">
           <img
             src="/images/auth/login.png"
@@ -26,11 +47,11 @@ export default function LoginPage() {
           />
         </div>
 
-        {/* Form */}
+        {/* Right Form Section */}
         <div className="w-full max-w-sm mx-auto">
           <h2 className="text-3xl font-extrabold mb-6 text-gray-900">Welcome Back</h2>
 
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
             {/* Email */}
             <div className="relative">
               <input
@@ -70,6 +91,7 @@ export default function LoginPage() {
               </button>
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold transition"
@@ -85,19 +107,28 @@ export default function LoginPage() {
             <hr className="flex-grow border-gray-300" />
           </div>
 
-          {/* Social Buttons */}
+          {/* Social Logins */}
           <div className="flex justify-center gap-4">
-            <button className="border rounded-lg p-3 hover:bg-gray-100 transition">
+            {/* Google */}
+            <button
+              onClick={handleGoogleLogin}
+              className="border rounded-lg p-3 hover:bg-gray-100 transition"
+            >
               <FaGoogle className="text-xl text-red-500" />
             </button>
-            <button className="border rounded-lg p-3 hover:bg-gray-100 transition">
-              <FaTelegramPlane className="text-xl text-blue-500" />
-            </button>
+
+            {/* Telegram */}
+            <div>
+              <TelegramLoginButton />
+            </div>
+
+            {/* Kakao */}
             <button className="border rounded-lg p-3 hover:bg-gray-100 transition">
               <SiKakaotalk className="text-xl text-yellow-500" />
             </button>
           </div>
 
+          {/* Sign Up Redirect */}
           <p className="text-sm text-center text-gray-700 mt-6">
             Don’t have an account?{" "}
             <a href="/auth/register" className="text-purple-600 font-semibold hover:underline">

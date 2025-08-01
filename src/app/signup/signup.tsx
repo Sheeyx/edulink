@@ -1,5 +1,6 @@
 "use client";
 
+import TelegramLoginButton from "@/components/Telegram/TelegramLoginBtn";
 import { FaGoogle, FaTelegram } from "react-icons/fa";
 
 export default function RegisterPage() {
