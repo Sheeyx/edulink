@@ -39,15 +39,19 @@ export default function CourseCard({
         <span className="text-gray-500">({course.ratingCount} ratings)</span>
         <span className="text-gray-500">{course.hours} total hours</span>
         <span className="text-gray-500">{course.lectures} lectures</span>
-        <span
-  className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-    course.level === "Beginner"
-      ? "bg-green-100 text-green-700"
-      : course.level === "Intermediate"
-      ? "bg-blue-100 text-blue-700"
-      : "bg-red-100 text-red-700"
+    <span
+  className={`px-2 py-0.5 rounded-full text-xs font-semibold text-white ${
+    course.level === "BEGINNER"
+      ? "bg-gradient-to-r from-green-400 to-green-600"
+      : course.level === "INTERMEDIATE"
+      ? "bg-gradient-to-r from-yellow-400 to-orange-500"
+      : "bg-gradient-to-r from-purple-500 to-indigo-600"
   }`}
->{course.level}</span>
+>
+  {course.level}
+</span>
+
+
       </div>
 
       <div className="flex items-center gap-2 font-semibold">
