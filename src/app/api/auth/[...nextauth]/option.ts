@@ -1,31 +1,29 @@
-// app/api/auth/[...nextauth]/route.ts
-import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import type { NextAuthOptions } from "next-auth";
 
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientId: process.env.GOOGLE_CLIENT_ID!,   // 👈 make sure env vars match your .env.local
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: { params: { prompt: "consent", access_type: "offline", response_type: "code" } },
     }),
   ],
+
   pages: {
-    signIn: "/auth/login",
+    signIn: "/auth/login", // keep your login page
   },
-  session: { strategy: "jwt" },
 
   callbacks: {
     async jwt({ token, account, profile }) {
-      // keep Google unique id (sub) on the JWT
+      // Save the Google "sub" (unique Google ID)
       if (account?.provider === "google" && profile?.sub) {
         token.sub = profile.sub;
       }
       return token;
     },
+
     async session({ session, token }) {
-      // expose sub to client session (session.user.sub / id)
+      // Expose Google ID to the client session
       if (token?.sub) {
         (session.user as any).sub = token.sub;
         (session.user as any).id = token.sub; // optional alias
@@ -34,6 +32,3 @@ export const authOptions: NextAuthOptions = {
     },
   },
 };
-
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };

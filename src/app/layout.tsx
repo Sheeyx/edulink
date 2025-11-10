@@ -1,8 +1,10 @@
+// src/app/layout.tsx
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import SessionProviderWrapper from "@/providers/SessionProviderWrapper";
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
+import { AuthProvider } from "@/providers/auth-context";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -10,9 +12,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen flex flex-col">
         <SessionProviderWrapper>
           <ReactQueryProvider>
-            <Navbar />
-            <main className="flex-grow">{children}</main>
-            <Footer />
+            <AuthProvider>
+              <Navbar />
+              <main className="flex-grow">{children}</main>
+              <Footer />
+            </AuthProvider>
           </ReactQueryProvider>
         </SessionProviderWrapper>
       </body>
