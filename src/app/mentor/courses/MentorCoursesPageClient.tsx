@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { gqlFetchAuth } from "@/libs/graphql";
-import CourseCard from "@/app/mentor/view-courses/components/CourseCard";
+import CourseCard from "@/app/mentor/courses/components/CourseCard";
 import { GET_MENTOR_COURSES } from "@/graphql/query/courses/courses";
 import { Plus } from "lucide-react";
 import Link from "next/link";

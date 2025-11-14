@@ -144,7 +144,7 @@ async function handleSubmit(e: React.FormEvent) {
       { withCredentials: true }
     );
 
-    router.push(`/mentor/view-courses/${courseId}`);
+    router.push(`/mentor/courses/${courseId}`);
   } catch (e: any) {
     setSaveErr(e.message);
   } finally {

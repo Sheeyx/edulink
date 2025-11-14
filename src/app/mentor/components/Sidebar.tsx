@@ -73,7 +73,7 @@ export default function Sidebar({
           {/* View My Courses (solid) */}
           <button
             type="button"
-            onClick={() => router.push("/mentor/view-courses")}
+            onClick={() => router.push("/mentor/courses")}
             className="
               w-full inline-flex items-center justify-center gap-3
               rounded-2xl border-2 border-violet-500 px-6 py-3.5

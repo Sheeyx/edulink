@@ -80,7 +80,7 @@ export default function MentorCourseCard({
       </div>
 
       {/* Thumbnail */}
-      <Link href={`/mentor/view-courses/${_id}`} className="block">
+      <Link href={`/mentor/courses/${_id}`} className="block">
         <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-gray-50">
           {courseImage ? (
             <Image
@@ -99,7 +99,7 @@ export default function MentorCourseCard({
 
       {/* Body */}
       <div className="mt-3 space-y-1.5">
-        <Link href={`/mentor/view-courses/${_id}`} className="block">
+        <Link href={`/mentor/courses/${_id}`} className="block">
           <h3 className="line-clamp-1 text-[15px] font-semibold text-gray-900 hover:text-violet-600 transition-colors">
             {courseTitle}
           </h3>
@@ -136,7 +136,7 @@ export default function MentorCourseCard({
         {/* Buttons */}
         <div className="mt-3 flex gap-2">
   <Link
-    href={`/mentor/view-courses/${_id}`}
+    href={`/mentor/courses/${_id}`}
     className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-3 py-2 text-[13px] font-semibold text-white shadow-sm transition-all hover:shadow-[0_0_10px_rgba(139,92,246,0.5)] focus:ring-2 focus:ring-violet-400"
   >
     <Eye className="h-4 w-4" />
