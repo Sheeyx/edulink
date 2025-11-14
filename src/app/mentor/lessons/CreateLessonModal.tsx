@@ -28,7 +28,7 @@ type Props = {
 
 export default function CreateLessonModal({ open, onClose, sectionId, onSuccess }: Props) {
   const [lessonTitle, setLessonTitle] = useState("");
-  const [lessonContentType, setLessonContentType] = useState<"TEXT" | "VIDEO" | "AUDIO">("TEXT");
+  const [lessonContentType, setLessonContentType] = useState("TEXT");
   const [lessonDuration, setLessonDuration] = useState<number>(0);
   const [lessonUrl, setLessonUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,30 +36,31 @@ export default function CreateLessonModal({ open, onClose, sectionId, onSuccess 
   if (!open) return null;
 
   const handleCreate = async () => {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      await gqlFetchAuth(
-        CREATE_LESSON,
-        {
-          input: {
-            sectionId,
-            lessonTitle,
-            lessonContentType,
-            lessonDuration,
-            lessonUrl,
-          },
-        }
-      );
+    await gqlFetchAuth<{ createLesson: any }>(
+      CREATE_LESSON,
+      {
+        input: {
+          sectionId,
+          lessonTitle,
+          lessonContentType,
+          lessonDuration,
+          lessonUrl,
+        },
+      }
+    );
 
-      if (onSuccess) onSuccess();
-      onClose();
-    } catch (err) {
-      console.error("Create lesson error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    if (onSuccess) onSuccess();
+    onClose();
+  } catch (err) {
+    console.error("Create lesson error:", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
@@ -81,7 +82,6 @@ export default function CreateLessonModal({ open, onClose, sectionId, onSuccess 
               className="w-full mt-1 rounded-lg border px-3 py-2"
               value={lessonTitle}
               onChange={(e) => setLessonTitle(e.target.value)}
-              placeholder="Live Korean Speaking"
             />
           </div>
 
@@ -90,9 +90,7 @@ export default function CreateLessonModal({ open, onClose, sectionId, onSuccess 
             <select
               className="w-full mt-1 border rounded-lg px-3 py-2"
               value={lessonContentType}
-              onChange={(e) =>
-                setLessonContentType(e.target.value as "TEXT" | "VIDEO" | "AUDIO")
-              }
+              onChange={(e) => setLessonContentType(e.target.value)}
             >
               <option value="TEXT">TEXT</option>
               <option value="VIDEO">VIDEO</option>
@@ -107,7 +105,6 @@ export default function CreateLessonModal({ open, onClose, sectionId, onSuccess 
               className="w-full mt-1 rounded-lg border px-3 py-2"
               value={lessonDuration}
               onChange={(e) => setLessonDuration(Number(e.target.value))}
-              placeholder="30"
             />
           </div>
 

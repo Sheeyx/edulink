@@ -28,25 +28,6 @@ const DELETE_SECTION = `
   mutation RemoveSection($input: String!) {
     removeSection(sectionId: $input) {
       _id
-      courseId
-      moduleTitle
-      moduleOrder
-      totalLessons
-      deletedAt
-      createdAt
-      updatedAt
-      lessons {
-        _id
-        sectionId
-        lessonTitle
-        lessonContentType
-        lessonDuration
-        lessonVideoUrl
-        deletedAt
-        createdAt
-        updatedAt
-      }
-      sectionStatus
     }
   }
 `;

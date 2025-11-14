@@ -28,3 +28,5 @@ export const GET_SECTIONS_BY_COURSE = gql/* GraphQL */ `
     }
   }
 `;
+
+

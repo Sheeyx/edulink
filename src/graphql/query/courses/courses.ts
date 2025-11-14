@@ -24,6 +24,7 @@ export const GET_COURSE = gql/* GraphQL */ `
         moduleTitle
         moduleOrder
         totalLessons
+        sectionStatus
         createdAt
         updatedAt
         lessons {
