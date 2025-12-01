@@ -14,15 +14,15 @@ export const GET_SECTIONS_BY_COURSE = gql/* GraphQL */ `
         createdAt
         updatedAt
         lessons {
-          _id
-          sectionId
-          lessonTitle
-          lessonContentType
-          lessonDuration
-          deletedAt
-          createdAt
-          updatedAt
-        }
+                _id
+                sectionId
+                lessonTitle
+                lessonContentType
+                lessonDuration
+                deletedAt
+                createdAt
+                updatedAt
+            }
       }
       metaCounter { total }
     }

@@ -1,20 +1,29 @@
+// app/mentor/courses/components/Sections/SectionsBlock.tsx
 "use client";
 
-import { FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
+import * as React from "react";
+import {
+  FiEdit2,
+  FiTrash2,
+  FiPlus,
+  FiChevronDown,
+  FiMove,
+} from "react-icons/fi";
 
-export type SectionUI = {
-  id: string;
-  title: string;
-  order: number;
-  lessonsCount: number;
-  status?: "ACTIVE" | "INACTIVE" | "DELETED"; // 👈 optional status
-};
+import type {
+  SectionUI,
+  LessonUI,
+} from "@/libs/types/course/types";
 
 type Props = {
   sections: SectionUI[];
-  onAddLesson: (id: string) => void;
-  onEditSection: (id: string) => void;
-  onDeleteSection: (id: string) => void;
+  onAddLesson: (sectionId: string) => void;
+  onEditSection: (sectionId: string) => void;
+  onDeleteSection: (sectionId: string) => void;
+
+  onEditLesson: (sectionId: string, lessonId: string) => void;
+  onDeleteLesson: (sectionId: string, lessonId: string) => void;
+  onReorderLessons: (sectionId: string, lessons: LessonUI[]) => void;
 };
 
 export default function SectionsBlock({
@@ -22,11 +31,18 @@ export default function SectionsBlock({
   onAddLesson,
   onEditSection,
   onDeleteSection,
+  onEditLesson,
+  onDeleteLesson,
+  onReorderLessons,
 }: Props) {
-  // only show ACTIVE sections
   const activeSections = sections.filter(
     (s) => !s.status || s.status === "ACTIVE"
   );
+
+  const [openSectionId, setOpenSectionId] = React.useState<string | null>(null);
+  const toggleSection = (id: string) => {
+    setOpenSectionId((prev) => (prev === id ? null : id));
+  };
 
   return (
     <section className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
@@ -51,9 +67,14 @@ export default function SectionsBlock({
             <SectionRow
               key={section.id}
               section={section}
+              isOpen={openSectionId === section.id}
+              onToggle={() => toggleSection(section.id)}
               onAddLesson={onAddLesson}
-              onEdit={onEditSection}
-              onDelete={onDeleteSection}
+              onEditSection={onEditSection}
+              onDeleteSection={onDeleteSection}
+              onEditLesson={onEditLesson}
+              onDeleteLesson={onDeleteLesson}
+              onReorderLessons={onReorderLessons}
             />
           ))}
         </div>
@@ -64,58 +85,189 @@ export default function SectionsBlock({
 
 function SectionRow({
   section,
+  isOpen,
+  onToggle,
   onAddLesson,
-  onEdit,
-  onDelete,
+  onEditSection,
+  onDeleteSection,
+  onEditLesson,
+  onDeleteLesson,
+  onReorderLessons,
 }: {
   section: SectionUI;
-  onAddLesson: (id: string) => void;
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
+  isOpen: boolean;
+  onToggle: () => void;
+  onAddLesson: (sectionId: string) => void;
+  onEditSection: (sectionId: string) => void;
+  onDeleteSection: (sectionId: string) => void;
+  onEditLesson: (sectionId: string, lessonId: string) => void;
+  onDeleteLesson: (sectionId: string, lessonId: string) => void;
+  onReorderLessons: (sectionId: string, lessons: LessonUI[]) => void;
 }) {
+  const [localLessons, setLocalLessons] = React.useState<LessonUI[]>(
+    section.lessons ?? []
+  );
+  const [draggedId, setDraggedId] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    setLocalLessons(section.lessons ?? []);
+  }, [section.lessons]);
+
+  const handleDragStart = (id: string) => (e: React.DragEvent) => {
+    setDraggedId(id);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (id: string) => (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = (id: string) => (e: React.DragEvent) => {
+    e.preventDefault();
+    if (!draggedId || draggedId === id) return;
+
+    setLocalLessons((prev) => {
+      const currentIndex = prev.findIndex((l) => l.id === draggedId);
+      const targetIndex = prev.findIndex((l) => l.id === id);
+      if (currentIndex === -1 || targetIndex === -1) return prev;
+
+      const updated = [...prev];
+      const [moved] = updated.splice(currentIndex, 1);
+      updated.splice(targetIndex, 0, moved);
+
+      onReorderLessons(section.id, updated);
+      return updated;
+    });
+
+    setDraggedId(null);
+  };
+
+  const lessons = localLessons;
+
   return (
-    <div className="flex flex-col gap-3 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-900 ring-1 ring-slate-100 md:flex-row md:items-center md:justify-between">
-      <div>
-        <h4 className="font-medium">{section.title}</h4>
-        <div className="mt-1 flex flex-wrap gap-2 text-xs text-slate-500">
-          <span className="rounded-full bg-white px-3 py-1 ring-1 ring-slate-200">
-            Order: {section.order}
+    <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-900 ring-1 ring-slate-100">
+      {/* Header row (accordion trigger) */}
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <button
+          type="button"
+          onClick={onToggle}
+          className="flex flex-1 items-start gap-2 text-left"
+        >
+          <span className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-white ring-1 ring-slate-200">
+            <FiChevronDown
+              className={`h-3 w-3 text-slate-500 transition-transform ${
+                isOpen ? "rotate-180" : ""
+              }`}
+            />
           </span>
-          <span className="rounded-full bg-white px-3 py-1 ring-1 ring-slate-200">
-            {section.lessonsCount} Lessons
-          </span>
+
+          <div>
+            <h4 className="font-medium">{section.title}</h4>
+            <div className="mt-1 flex flex-wrap gap-2 text-xs text-slate-500">
+              <span className="rounded-full bg-white px-3 py-1 ring-1 ring-slate-200">
+                Order: {section.order}
+              </span>
+              <span className="rounded-full bg-white px-3 py-1 ring-1 ring-slate-200">
+                {section.lessonsCount} Lessons
+              </span>
+            </div>
+          </div>
+        </button>
+
+        <div className="flex items-center gap-2 self-start md:self-auto">
+          <button
+            title="Add lesson"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddLesson(section.id);
+            }}
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100"
+          >
+            <FiPlus className="h-4 w-4" />
+          </button>
+
+          <button
+            title="Edit section"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditSection(section.id);
+            }}
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50 text-violet-600 hover:bg-violet-100"
+          >
+            <FiEdit2 className="h-4 w-4" />
+          </button>
+
+          <button
+            title="Delete section"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDeleteSection(section.id);
+            }}
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100"
+          >
+            <FiTrash2 className="h-4 w-4" />
+          </button>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 self-start md:self-auto">
-        {/* ADD LESSON BUTTON */}
-        <button
-          title="Add lesson"
-          onClick={() => onAddLesson(section.id)}
-          className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100"
-        >
-          <FiPlus className="h-4 w-4" />
-        </button>
+      {/* Accordion content: lessons */}
+      {isOpen && (
+        <div className="mt-3 border-t border-slate-200 pt-3">
+          {lessons.length === 0 ? (
+            <p className="text-xs italic text-slate-500">
+              No lessons yet. Use the “+” button to add one.
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {lessons.map((lesson) => (
+                <li
+                  key={lesson.id}
+                  draggable
+                  onDragStart={handleDragStart(lesson.id)}
+                  onDragOver={handleDragOver(lesson.id)}
+                  onDrop={handleDrop(lesson.id)}
+                  className={`flex items-center justify-between rounded-xl bg-white px-3 py-2 text-xs ring-1 ring-slate-100 ${
+                    draggedId === lesson.id ? "opacity-60" : ""
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                      <FiMove className="h-3 w-3" />
+                    </span>
+                    <div>
+                      <p className="font-medium text-slate-800">
+                        {lesson.title}
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-slate-500">
+                        {lesson.contentType ?? "CONTENT"} •{" "}
+                        {lesson.duration ?? "-"} min
+                      </p>
+                    </div>
+                  </div>
 
-        {/* EDIT SECTION */}
-        <button
-          title="Edit section"
-          onClick={() => onEdit(section.id)}
-          className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50 text-violet-600 hover:bg-violet-100"
-        >
-          <FiEdit2 className="h-4 w-4" />
-        </button>
-
-        {/* DELETE SECTION */}
-        <button
-          title="Delete section"
-          onClick={() => onDelete(section.id)}
-          className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100"
-        >
-          <FiTrash2 className="h-4 w-4" />
-        </button>
-      </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      title="Edit lesson"
+                      onClick={() => onEditLesson(section.id, lesson.id)}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100"
+                    >
+                      <FiEdit2 className="h-3 w-3" />
+                    </button>
+                    <button
+                      title="Delete lesson"
+                      onClick={() => onDeleteLesson(section.id, lesson.id)}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100"
+                    >
+                      <FiTrash2 className="h-3 w-3" />
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 }
-

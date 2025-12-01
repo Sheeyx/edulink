@@ -79,41 +79,17 @@ export type GetSectionsByCourseResponse = {
   };
 };
 
-/* ========= UI-safe types (for components) ========= */
-
-export type ULesson = {
-  _id: string;
-  title: string;
-  duration?: string;
-  kind?: string;
-};
+/* ========= UI-safe types (legacy USection – optional) ========= */
 
 export type USection = {
-  _id: string;
+  id: string;                // use id instead of _id in UI
   title: string;
   order?: number;
-  lessons?: ULesson[];
-
-  // new: for filtering / displaying badges in UI
+  lessons?: LessonUI[];
   status?: SectionStatus;
 };
 
-export type CourseUI = {
-  id: string;
-  title: string;
-  description: string;
-  status: CourseStatus;
-  modules: number;
-  lessons: number;
-  rating: number;
-  price: number;
-  currency: string;
-  image?: string | null;
-  sections: SectionUI[];
-};
-
-// app/mentor/courses/libs/courseTypes.ts
-
+/* ========= Types from app/mentor/courses/libs/courseTypes.ts ========= */
 
 export type SectionFromApi = {
   _id: string;
@@ -178,15 +154,6 @@ export type RemoveSectionResp = {
   } | null;
 };
 
-export type SectionUI = {
-  id: string;
-  title: string;
-  order: number;
-  lessonsCount: number;
-  status?: SectionStatus;
-};
-
-
 export type FormState = {
   courseTitle: string;
   courseDesc: string;
@@ -197,4 +164,82 @@ export type FormState = {
   coursePrice: string;        // string in UI; convert on submit
   maxStudents: string;        // string in UI; convert on submit
   courseStartDate: string;    // yyyy-mm-dd; convert to ISO on submit
+};
+
+/* ========= FINAL UI TYPES (for components, hooks) ========= */
+
+// ---- UI lesson type ---------------------------------------
+export type LessonUI = {
+  id: string;                 // UI-friendly id
+  title: string;
+  duration?: string;
+  contentType?: string;
+};
+
+// alias if some older code uses ULesson
+export type ULesson = LessonUI;
+
+// ---- UI section type --------------------------------------
+export type SectionUI = {
+  id: string;
+  title: string;
+  order: number;
+  lessonsCount: number;
+  status?: SectionStatus;
+  lessons?: LessonUI[];       // lessons displayed inside accordion
+};
+
+// ---- UI course type ---------------------------------------
+export type CourseUI = {
+  id: string;
+  title: string;
+  description: string;
+  status: CourseStatus;
+  modules: number;            // number of sections
+  lessons: number;            // number of lessons
+  rating: number;
+  price: number;
+  currency: string;
+  image?: string | null;
+
+  sections: SectionUI[];
+};
+
+// src/libs/types/course/types.ts
+
+export type UpdateLessonInput = {
+  _id: string;                   // 👈 MUST be "_id"
+  sectionId?: string;            // only if your backend DTO has it
+  lessonTitle: string;
+  lessonContentType: string;
+  lessonDuration: string | number;
+  lessonVideoUrl?: string | null;
+};
+
+export type UpdateLessonResponse = {
+  updateLesson: {
+    _id: string;
+    sectionId: string;
+    lessonTitle: string;
+    lessonContentType: string;
+    lessonDuration: string;
+    lessonVideoUrl?: string | null;
+    createdAt?: string;
+    updatedAt?: string;
+    deletedAt?: string | null;
+  } | null;
+};
+
+export type RemoveLessonResp = {
+  removeLesson: {
+    _id: string;
+    sectionId: string;
+    lessonTitle: string;
+    lessonContentType: string;
+    lessonDuration: string;
+    lessonVideoUrl?: string | null;
+    deletedAt?: string | null;
+    createdAt?: string;
+    updatedAt?: string;
+  } | null;
 };
