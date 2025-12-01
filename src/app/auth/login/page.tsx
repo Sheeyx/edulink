@@ -68,7 +68,7 @@ export default function LoginPage() {
   function resolveRedirect(roleRaw: string | null | undefined): string {
     const role = (roleRaw || "").toUpperCase();
     if (role === "MENTOR") return "/mentor";
-    if (role === "ADMIN") return "/admin";
+    if (role === "ADMIN") return "/dashboard";
     return "/user"; // default STUDENT/unknown -> /user
   }
 

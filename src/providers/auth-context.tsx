@@ -19,7 +19,7 @@ type AuthContextValue = {
   setUser: (u: AuthUser) => void;     // persists automatically
   logout: () => void;                 // clears tokens + user (all tabs sync)
   roleSafe: (r?: string | null) => MemberRole;
-  redirectByRole: (r?: string | null) => "/user" | "/mentor" | "/admin";
+  redirectByRole: (r?: string | null) => "/user" | "/mentor" | "/dashboard";
 };
 
 /* ===== Helpers ===== */
@@ -32,7 +32,7 @@ function roleSafe(r?: string | null): MemberRole {
 function redirectByRole(r?: string | null) {
   const v = roleSafe(r);
   if (v === "MENTOR") return "/mentor";
-  if (v === "ADMIN") return "/admin";
+  if (v === "ADMIN") return "/dashboard";
   return "/user";
 }
 

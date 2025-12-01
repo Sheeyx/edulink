@@ -67,7 +67,7 @@ const roleSafe = (v?: string | null): Role =>
 const redirectByRole = (v?: string | null) => {
   const r = (v ?? "").toUpperCase();
   if (r === "MENTOR") return "/mentor";
-  if (r === "ADMIN") return "/admin";
+  if (r === "ADMIN") return "/dashboard";
   return "/user";
 };
 

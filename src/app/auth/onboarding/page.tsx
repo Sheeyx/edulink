@@ -27,7 +27,7 @@ const PHONE_REGEX = /^[+0-9()\-\s]{7,20}$/;
 function redirectByRole(role?: string | null) {
   const r = (role || "").toUpperCase();
   if (r === "MENTOR") return "/mentor";
-  if (r === "ADMIN") return "/admin";
+  if (r === "ADMIN") return "/dashboard";
   return "/user";
 }
 

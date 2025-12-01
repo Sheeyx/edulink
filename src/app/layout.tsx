@@ -3,8 +3,7 @@ import "./globals.css";
 import SessionProviderWrapper from "@/providers/SessionProviderWrapper";
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
 import { AuthProvider } from "@/providers/auth-context";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import AppShell from "@/components/AppShell";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,9 +12,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SessionProviderWrapper>
           <ReactQueryProvider>
             <AuthProvider>
-              <Navbar />
-              <main className="flex-grow">{children}</main>
-              <Footer />
+              <AppShell>{children}</AppShell>
             </AuthProvider>
           </ReactQueryProvider>
         </SessionProviderWrapper>
