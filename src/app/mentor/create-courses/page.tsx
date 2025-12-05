@@ -1,9 +1,7 @@
-// src/app/mentor/courses/page.tsx
+// app/mentor/create-course/page.tsx
 
-import CreateCourseForm from "./CreateCourseForm";
+import CreateCourseClient from "./CreateCourseForm";
 
-
-
-export default function Page() {
-  return <CreateCourseForm />;
+export default function CreateCoursePage() {
+  return <CreateCourseClient />;
 }
