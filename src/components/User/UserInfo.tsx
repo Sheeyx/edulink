@@ -3,6 +3,8 @@
 import { useAuth } from "@/providers/auth-context";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { buildDownloadUrl } from "@/utils/buildDownloadUrl";
 
 export default function UserInfo() {
   const { user, logout } = useAuth();
@@ -12,14 +14,49 @@ export default function UserInfo() {
 
   if (!user) return null;
 
+  const displayName = user.name || user.email || "User";
+
   const initials =
-    (user.name?.trim() || user.email)
+    (displayName.trim())
       .split(" ")
       .map((p) => p[0]?.toUpperCase())
       .slice(0, 1)
       .join("") || "U";
 
-  // close dropdown when clicking outside
+  // ---- helpers ---------------------------------------------------------
+
+  function isFullUrl(value?: string | null): boolean {
+    if (!value) return false;
+    return value.startsWith("http://") || value.startsWith("https://");
+  }
+
+  function sanitizeKey(raw?: string | null): string {
+    if (!raw) return "";
+    // trim, remove trailing commas, remove leading slashes
+    return raw.trim().replace(/,+$/, "").replace(/^\/+/, "");
+  }
+
+  function getAvatarUrl(): string | null {
+    // Prefer explicit image field from auth user
+    const raw = (user as any).image || (user as any).memberImage || "";
+
+    const key = sanitizeKey(raw);
+    if (!key) return null;
+
+    // if already full URL (Google/Kakao/etc.)
+    if (isFullUrl(key)) {
+      return key;
+    }
+
+    // else treat as stored key like "members/xxx.png"
+    // and map to backend download URL
+    return buildDownloadUrl(key);
+  }
+
+  const avatarSrc = getAvatarUrl();
+
+  // ---- close dropdown when clicking outside ---------------------------
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -45,16 +82,28 @@ export default function UserInfo() {
       {/* Avatar button */}
       <button
         onClick={() => setOpen((p) => !p)}
-        className="w-9 h-9 rounded-full bg-[#8d6e63] text-white grid place-items-center font-semibold text-sm hover:opacity-90 transition"
+        className="w-9 h-9 rounded-full bg-[#8d6e63] text-white grid place-items-center font-semibold text-sm hover:opacity-90 transition overflow-hidden"
       >
-        {initials}
+        {avatarSrc ? (
+          <div className="relative w-9 h-9">
+            <Image
+              src={avatarSrc}
+              alt={displayName}
+              fill
+              className="object-cover rounded-full"
+              sizes="36px"
+            />
+          </div>
+        ) : (
+          initials
+        )}
       </button>
 
       {/* Dropdown */}
       {open && (
         <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-lg py-2 z-50">
           <p className="px-4 py-2 text-sm text-gray-700 font-medium border-b border-gray-100">
-            {user.name || "User"}
+            {displayName}
           </p>
 
           {/* My Profile */}

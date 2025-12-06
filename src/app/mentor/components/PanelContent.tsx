@@ -5,7 +5,6 @@ import React from "react";
 import { useSearchParams } from "next/navigation";
 import type { PanelType } from "@/app/mentor/MentorDashboardClient";
 import UpdateMemberForm from "@/app/mentor/edit-profile/components/UpdateMemberForm"; // your real form
-import CoursesPanel from "./Courses/myCourses";
 
 type PanelContentProps = {
   panel: Exclude<PanelType, null>;
