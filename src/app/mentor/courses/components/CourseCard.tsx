@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Eye, Pencil } from "lucide-react";
+import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 
 type CourseStatus =
   | "DRAFT"
@@ -25,7 +26,7 @@ export type MentorCourseCardProps = {
   _id: string;
   courseTitle: string;
   courseDesc: string;
-  courseImage?: string | null;
+  courseImage?: string | null; // B2 key like "courses-images/uuid.png" OR full URL
   courseLevel: CourseLevel;
   languageType: string;
   coursePrice: number;
@@ -71,6 +72,9 @@ export default function MentorCourseCard({
   courseRating = 0,
   memberData,
 }: MentorCourseCardProps) {
+  // 🔥 Turn B2 key → full URL (or keep as-is if already a URL)
+  const imageUrl = courseImage ? buildDownloadUrl(courseImage) : "";
+
   return (
     <div className="group relative w-full max-w-[280px] overflow-hidden rounded-2xl border border-gray-200 bg-white p-3 shadow-sm transition-all hover:shadow-lg hover:border-violet-200">
       {/* Status chip */}
@@ -82,9 +86,9 @@ export default function MentorCourseCard({
       {/* Thumbnail */}
       <Link href={`/mentor/courses/${_id}`} className="block">
         <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-gray-50">
-          {courseImage ? (
+          {imageUrl ? (
             <Image
-              src={courseImage}
+              src={imageUrl}
               alt={courseTitle}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -135,24 +139,22 @@ export default function MentorCourseCard({
 
         {/* Buttons */}
         <div className="mt-3 flex gap-2">
-  <Link
-    href={`/mentor/courses/${_id}`}
-    className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-3 py-2 text-[13px] font-semibold text-white shadow-sm transition-all hover:shadow-[0_0_10px_rgba(139,92,246,0.5)] focus:ring-2 focus:ring-violet-400"
-  >
-    <Eye className="h-4 w-4" />
-    View
-  </Link>
+          <Link
+            href={`/mentor/courses/${_id}`}
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-3 py-2 text-[13px] font-semibold text-white shadow-sm transition-all hover:shadow-[0_0_10px_rgba(139,92,246,0.5)] focus:ring-2 focus:ring-violet-400"
+          >
+            <Eye className="h-4 w-4" />
+            View
+          </Link>
 
-  {/* 🔥 Edit goes to /mentor/edit-course/[id] */}
-  <Link
-  href={`/mentor/edit-course/${_id}`}
-  className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 text-[13px] font-semibold text-gray-800 shadow-sm transition-all hover:border-violet-400 hover:text-violet-600 focus:ring-2 focus:ring-violet-400"
->
-  <Pencil className="h-4 w-4" />
-  Edit
-</Link>
-</div>
-
+          <Link
+            href={`/mentor/edit-course/${_id}`}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 text-[13px] font-semibold text-gray-800 shadow-sm transition-all hover:border-violet-400 hover:text-violet-600 focus:ring-2 focus:ring-violet-400"
+          >
+            <Pencil className="h-4 w-4" />
+            Edit
+          </Link>
+        </div>
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { GraduationCap, PencilLine, BookOpen } from "lucide-react";
 import React from "react";
-import { buildDownloadUrl } from "@/utils/buildDownloadUrl";
+import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 
 type SidebarProps = {
   name: string;

@@ -69,15 +69,17 @@ export function useCourseDetails(courseId: string) {
         description: api.courseDesc || "",
         status: api.courseStatus,
         modules: api.courseTotalModules ?? sections.length,
-        lessons:
-          api.courseTotalLessons ??
+        lessons: api.courseTotalLessons ??
           sections.reduce((sum, s) => sum + (s.lessonsCount || 0), 0),
         rating: api.courseRating ?? 0,
         price: api.coursePrice,
-        currency: "USD",
-        image: null,
+        currency: "USD", // change to "KRW" if needed
         sections,
+        image: api.courseImage ?? null
       };
+
+      console.log(api,"api");
+      
 
       setCourse(mapped);
     } catch (err: any) {

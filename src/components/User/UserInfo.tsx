@@ -4,7 +4,7 @@ import { useAuth } from "@/providers/auth-context";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { buildDownloadUrl } from "@/utils/buildDownloadUrl";
+import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 
 export default function UserInfo() {
   const { user, logout } = useAuth();

@@ -8,6 +8,7 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 
 type Course = {
+  courseImage: string | null ;
   _id: string;
   courseTitle: string;
   courseDesc: string;
@@ -162,6 +163,7 @@ export default function MentorCoursesList({
               key={c._id}
               _id={c._id}
               courseTitle={c.courseTitle}
+              courseImage={c.courseImage}
               courseDesc={c.courseDesc}
               courseLevel={c.courseLevel}
               languageType={c.languageType}

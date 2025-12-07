@@ -1,20 +1,32 @@
-export function buildDownloadUrl(relativePath: string): string {
+// src/utils/buildDownloadUrl.ts
+
+export function buildDownloadUrl(relativePath: unknown): string {
+  // If it's null, undefined, false, 0, empty → return ""
   if (!relativePath) return "";
 
-  // If already a full URL → return as is
-  if (relativePath.startsWith("http://") || relativePath.startsWith("https://")) {
-    return relativePath;
+  // Safe string conversion
+  const pathStr = String(relativePath || "").trim();
+
+  // If after converting it's empty → return ""
+  if (!pathStr) return "";
+
+  // If already a full URL → return unchanged
+  if (pathStr.startsWith("http://") || pathStr.startsWith("https://")) {
+    return pathStr;
   }
 
-  // remove leading slash
-  const clean = relativePath.replace(/^\/+/, "");
+  // Remove any leading slashes
+  const clean = pathStr.replace(/^\/+/, "");
 
   const base = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/+$/, "");
   const bucket = process.env.NEXT_PUBLIC_B2_BUCKET_NAME;
 
-  if (!base || !bucket) return relativePath;
+  if (!base || !bucket) {
+    console.warn("⚠️ Missing env vars for download URL:", { base, bucket });
+    return clean;
+  }
 
-  // Final required format:
-  // http://localhost:3003/api/s3/download/edu-storage/members/<fileName>
+  // Build final URL:
+  //  http://host/api/s3/download/<bucket>/<clean>
   return `${base}/api/s3/download/${bucket}/${clean}`;
 }

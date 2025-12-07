@@ -10,8 +10,8 @@ import { gqlFetchAuth } from "@/libs/graphql";
 import { useUpdateMember } from "@/hooks/mutations/useUpdateMember";
 import type { MemberUpdateInput } from "@/libs/types/member/types";
 import { uploadFilesToB2 } from "@/services/b2Upload";
-import { buildDownloadUrl } from "@/utils/buildDownloadUrl";
 import { Camera, Loader2 } from "lucide-react";
+import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 
 const GET_MEMBER = `
   query GetMember($id: String!) {

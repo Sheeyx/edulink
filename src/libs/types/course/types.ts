@@ -120,6 +120,7 @@ export type CourseStatus =
   | "PROGRESS";
 
 export type CourseFromApi = {
+  courseImage: null;
   _id: string;
   courseTitle: string;
   courseDesc: string;
@@ -191,6 +192,7 @@ export type SectionUI = {
 
 // ---- UI course type ---------------------------------------
 export type CourseUI = {
+  image: string | null;
   id: string;
   title: string;
   description: string;
@@ -200,8 +202,6 @@ export type CourseUI = {
   rating: number;
   price: number;
   currency: string;
-  image?: string | null;
-
   sections: SectionUI[];
 };
 

@@ -16,6 +16,7 @@ export const GET_COURSE = gql/* GraphQL */ `
       courseTotalLessons
       courseRating
       courseLikes
+      courseImage
       createdAt
       updatedAt
       sectionsWithLessons {
@@ -54,6 +55,7 @@ export const GET_MENTOR_COURSES = /* GraphQL */ `
       list {
         _id
         courseTitle
+        courseImage
         courseDesc
         courseCategory
         languageType
@@ -84,6 +86,7 @@ export const UPDATE_COURSE = /* GraphQL */ `
       courseTitle
       courseDesc
       courseCategory
+      courseImage
       languageType
       courseLevel
       coursePrice

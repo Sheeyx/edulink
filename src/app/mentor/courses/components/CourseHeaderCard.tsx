@@ -38,7 +38,10 @@ export default function CourseHeaderCard({
 }: {
   course: CourseUI;
   onAddSection: () => void;
+  
 }) {
+  console.log(course);
+  
   return (
     <section className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
       <div className="grid gap-6 p-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">

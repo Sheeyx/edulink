@@ -18,6 +18,7 @@ import {
   UpdateLessonInput,
   UpdateLessonResponse,
   RemoveLessonResp,
+  CourseUI,
 } from "@/libs/types/course/types";
 
 import CreateLessonModal from "../../lessons/CreateLessonModal";
@@ -26,6 +27,7 @@ import DeleteLessonModal from "../../lessons/DeleteLessonModal";
 
 import { gqlFetchAuth } from "@/libs/graphql";
 import { REMOVE_LESSON, UPDATE_LESSON } from "@/graphql/mutation/lessons/lesson";
+import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 
 export default function CourseDetailsClient({ courseId }: { courseId: string }) {
   const { course, loading, error, removeSectionById, reload } =
@@ -199,6 +201,26 @@ export default function CourseDetailsClient({ courseId }: { courseId: string }) 
     return sec.lessons.find((l) => l.id === deletingLesson.lessonId) || null;
   }, [course, deletingLesson]);
 
+  /* ───────── Transform course image (B2 key → full URL) ───────── */
+
+  const courseWithImageUrl: CourseUI | null = React.useMemo(() => {
+    if (!course) return null;
+console.log(course, "course.image");
+    
+    const imagePath =
+      typeof course.image === "string" && course.image.trim().length > 0
+        ? course.image
+        : "";
+
+    const imageUrl = imagePath ? buildDownloadUrl(imagePath) : "";
+console.log(imageUrl, "imageUrl");
+
+    return {
+      ...course,
+      image: imageUrl,
+    };
+  }, [course]);
+
   /* ───────── GraphQL helpers for lessons ───────── */
 
   const updateLesson = React.useCallback(
@@ -312,7 +334,7 @@ export default function CourseDetailsClient({ courseId }: { courseId: string }) 
     <PageShell onBack={handleBackClick}>
       <main className="mx-auto mt-6 max-w-6xl px-4 pb-10 lg:px-0">
         <CourseHeaderCard
-          course={course}
+          course={courseWithImageUrl || course}
           onAddSection={handleAddSectionClick}
         />
 
