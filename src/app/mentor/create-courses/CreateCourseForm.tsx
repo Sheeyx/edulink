@@ -2,168 +2,106 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { FiArrowLeft, FiCalendar } from "react-icons/fi";
+
 import { gqlFetchAuth } from "@/libs/graphql";
-import { FiArrowLeft } from "react-icons/fi";
 import { CREATE_COURSE } from "@/graphql/mutation/course/course";
 import { uploadFilesToB2 } from "@/services/b2Upload";
 import { getAccessToken } from "@/providers/auth-context";
+import { COURSE_LEVEL, COURSE_STATUS, LANGUAGE_OPTIONS, CATEGORY_OPTIONS, CourseLevel, CourseStatus } from "@/libs/enums/course.enums";
+import { CreateCourseResp, CreateFormState } from "@/libs/types/course/types";
 
-type CourseLevel =
-  | "BEGINNER"
-  | "ELEMENTARY"
-  | "INTERMEDIATE"
-  | "UPPER_INTERMEDIATE"
-  | "ADVANCED"
-  | "PROFICIENCY"
-  | "ALL_LEVELS";
 
-type CourseStatus =
-  | "DRAFT"
-  | "PUBLISHED"
-  | "ARCHIVED"
-  | "SUSPENDED"
-  | "COMPLETED"
-  | "PROGRESS";
+const LEVEL_OPTIONS = Object.values(COURSE_LEVEL);
+const STATUS_OPTIONS = Object.values(COURSE_STATUS);
+const LANG_OPTIONS = Object.values(LANGUAGE_OPTIONS);
+const CATEG_OPTIONS = Object.values(CATEGORY_OPTIONS);
 
-type CourseFromApi = {
-  _id: string;
-  courseTitle: string;
-  courseDesc: string;
-  courseCategory: string;
-  languageType: string;
-  courseLevel: CourseLevel;
-  coursePrice: number;
-  courseStatus: CourseStatus;
-  mentorId: string;
-  courseImage?: string | null;
-  courseEnrolledMembers?: number | null;
-  courseTotalModules?: number | null;
-  courseTotalLessons?: number | null;
-  courseRating?: number | null;
-  courseLikes?: number | null;
-  deletedAt?: string | null;
-  createdAt: string;
-  updatedAt: string;
+const INITIAL_FORM: CreateFormState = {
+  title: "",
+  description: "",
+  category: "",
+  languageType: "",
+  level: "BEGINNER",
+  status: "DRAFT",
+  price: "",
+  maxStudents: 10,
+  courseStartDate: null,
 };
 
-type CreateCourseResp = { createCourse: CourseFromApi };
+/* ─────────────────── Utils ─────────────────── */
 
-const LEVEL_OPTIONS: CourseLevel[] = [
-  "BEGINNER",
-  "ELEMENTARY",
-  "INTERMEDIATE",
-  "UPPER_INTERMEDIATE",
-  "ADVANCED",
-  "PROFICIENCY",
-  "ALL_LEVELS",
-];
+const getErrorMessage = (err: unknown): string =>
+  err instanceof Error ? err.message : "Something went wrong. Please try again.";
 
-const STATUS_OPTIONS: CourseStatus[] = [
-  "DRAFT",
-  "PUBLISHED",
-  "ARCHIVED",
-  "SUSPENDED",
-  "COMPLETED",
-  "PROGRESS",
-];
+const formatDate = (date: Date): string => {
+  return date.toLocaleDateString('en-US', { 
+    weekday: 'short',
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric' 
+  });
+};
 
 export default function CreateCourseClient() {
   const router = useRouter();
 
+  const [form, setForm] = React.useState<CreateFormState>(INITIAL_FORM);
+  const [imageFile, setImageFile] = React.useState<File | null>(null);
+  const [imagePreview, setImagePreview] = React.useState<string | null>(null);
+  const [showDatePicker, setShowDatePicker] = React.useState(false);
+
   const [saving, setSaving] = React.useState(false);
+  const [uploadingImage, setUploadingImage] = React.useState(false);
   const [saveErr, setSaveErr] = React.useState<string | null>(null);
   const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
 
-  const [form, setForm] = React.useState({
-    title: "",
-    description: "",
-    category: "",
-    languageType: "",
-    level: "BEGINNER" as CourseLevel,
-    status: "DRAFT" as CourseStatus, // UI-only, not sent to backend
-    price: "",
-  });
+  const datePickerRef = React.useRef<HTMLDivElement>(null);
 
-  // Image upload state
-  const [imageFile, setImageFile] = React.useState<File | null>(null);
-  const [imagePreview, setImagePreview] = React.useState<string | null>(null);
-  const [uploadingImage, setUploadingImage] = React.useState(false);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    setSaveErr(null);
-    setSuccessMsg(null);
-
-    try {
-      let courseImageUrl: string | null = null;
-
-      // 1) Upload to B2 if image selected
-      if (imageFile) {
-        setUploadingImage(true);
-
-        const token = getAccessToken();
-        if (!token) {
-          throw new Error("Not authenticated: missing access token.");
-        }
-
-        // Upload file(s) to backend → B2
-        const uploadedKeys = await uploadFilesToB2(
-          [imageFile],
-          "courses-images",
-          token
-        );
-        if (!uploadedKeys.length) {
-          throw new Error("File upload failed: empty response.");
-        }
-
-        // ✅ Backend expects only the key: "courses-images/....png"
-        courseImageUrl = uploadedKeys[0];
-
-        setUploadingImage(false);
+  /* ───────── Click outside to close date picker ───────── */
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
+        setShowDatePicker(false);
       }
+    };
 
-      // 2) Build GraphQL input (matching backend)
-      const input = {
-        courseTitle: form.title.trim(),
-        courseDesc: form.description.trim(),
-        courseCategory: form.category.trim(),
-        languageType: form.languageType.trim(),
-        courseLevel: form.level,
-        coursePrice: Number(form.price || 0),
-        courseImage: courseImageUrl, // e.g. "courses-images/uuid.png" or null
-      };
-
-      // Debug (optional)
-      // console.log("CREATE_COURSE input:", input);
-
-      const data = await gqlFetchAuth<CreateCourseResp>(
-        CREATE_COURSE,
-        { input },
-        undefined,
-        { withCredentials: true }
-      );
-
-      const created = data.createCourse;
-      setSuccessMsg("Course created successfully.");
-
-      router.push(`/mentor/courses/${created._id}`);
-    } catch (err: any) {
-      console.error("Create course error:", err);
-      setSaveErr(err.message || "Failed to create course.");
-    } finally {
-      setSaving(false);
-      setUploadingImage(false);
+    if (showDatePicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  };
+  }, [showDatePicker]);
+
+  /* ───────── Handlers ───────── */
+
+  const handleInputChange = React.useCallback(
+    (
+      field: keyof CreateFormState,
+      value: string | CourseLevel | CourseStatus | Date | null
+    ) => {
+      setForm((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    },
+    []
+  );
+
+  const handleImageChange = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    },
+    []
+  );
+
+  const handleDateSelect = React.useCallback((date: Date) => {
+    handleInputChange("courseStartDate", date);
+    setShowDatePicker(false);
+  }, [handleInputChange]);
 
   const isDisabled =
     saving ||
@@ -172,6 +110,83 @@ export default function CreateCourseClient() {
     !form.description.trim() ||
     !form.languageType.trim();
 
+  const handleSubmit = React.useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (isDisabled) return;
+
+      setSaving(true);
+      setSaveErr(null);
+      setSuccessMsg(null);
+
+      try {
+        let courseImageUrl: string | null = null;
+
+        // 1) Upload image to B2 (if selected)
+        if (imageFile) {
+          setUploadingImage(true);
+
+          const token = getAccessToken();
+          if (!token) {
+            throw new Error("Not authenticated: missing access token.");
+          }
+
+          const uploadedKeys = await uploadFilesToB2(
+            [imageFile],
+            "courses-images",
+            token
+          );
+
+          if (!uploadedKeys.length) {
+            throw new Error("File upload failed: empty response.");
+          }
+
+          courseImageUrl = uploadedKeys[0];
+          setUploadingImage(false);
+        }
+
+        const priceNumber = Number(form.price || 0);
+        const safePrice = Number.isFinite(priceNumber) ? priceNumber : 0;
+
+        const maxStudentsNumber = Number(form.maxStudents || 10);
+        const safeMaxStudents = Number.isFinite(maxStudentsNumber) && maxStudentsNumber >= 1 ? maxStudentsNumber : 10;
+
+        // 2) Build GraphQL input
+        const input = {
+          courseTitle: form.title.trim(),
+          courseDesc: form.description.trim(),
+          courseCategory: form.category.trim(),
+          languageType: form.languageType.trim(),
+          courseLevel: form.level,
+          coursePrice: safePrice,
+          courseImage: courseImageUrl,
+          maxStudents: safeMaxStudents,
+          courseStartDate: form.courseStartDate,
+        };
+
+        const data = await gqlFetchAuth<CreateCourseResp>(
+          CREATE_COURSE,
+          { input },
+          undefined,
+          { withCredentials: true }
+        );
+
+        const created = data.createCourse;
+        setSuccessMsg("Course created successfully.");
+        router.push(`/mentor/courses/${created._id}`);
+      } catch (err: unknown) {
+        console.error("Create course error:", err);
+        setSaveErr(getErrorMessage(err));
+      } finally {
+        setSaving(false);
+        setUploadingImage(false);
+      }
+    },
+    [form, imageFile, isDisabled, router]
+  );
+
+  /* ─────────────────── Render ─────────────────── */
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       {/* Top bar */}
@@ -179,8 +194,10 @@ export default function CreateCourseClient() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 lg:px-0">
           <div className="flex items-center gap-3">
             <button
+              type="button"
               className="flex h-9 w-9 items-center justify-center rounded-full border bg-white hover:bg-slate-50"
               onClick={() => router.back()}
+              aria-label="Go back"
             >
               <FiArrowLeft className="h-4 w-4" />
             </button>
@@ -257,15 +274,17 @@ export default function CreateCourseClient() {
 
           {/* Title */}
           <div>
-            <label className="text-xs font-medium text-slate-700">
+            <label
+              htmlFor="course-title"
+              className="text-xs font-medium text-slate-700"
+            >
               Course title
             </label>
             <input
-              className="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-violet-500"
+              id="course-title"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
               value={form.title}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, title: e.target.value }))
-              }
+              onChange={(e) => handleInputChange("title", e.target.value)}
               placeholder="IELTS Speaking for Beginners"
               required
             />
@@ -273,16 +292,18 @@ export default function CreateCourseClient() {
 
           {/* Description */}
           <div>
-            <label className="text-xs font-medium text-slate-700">
+            <label
+              htmlFor="course-description"
+              className="text-xs font-medium text-slate-700"
+            >
               Description
             </label>
             <textarea
-              className="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-violet-500"
+              id="course-description"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
               rows={4}
               value={form.description}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, description: e.target.value }))
-              }
+              onChange={(e) => handleInputChange("description", e.target.value)}
               placeholder="Short summary of what students will learn..."
               required
             />
@@ -291,49 +312,58 @@ export default function CreateCourseClient() {
           {/* Category + Language */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="text-xs font-medium text-slate-700">
-                Category
-              </label>
-              <input
-                className="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-violet-500"
+              <label className="text-xs font-medium text-slate-700">Category</label>
+              <select
+                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
                 value={form.category}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, category: e.target.value }))
-                }
-                placeholder="LANGUAGE / BUSINESS / ..."
-              />
+                onChange={(e) => handleInputChange("category", e.target.value)}
+              >
+                <option value="" disabled>
+                  Select category
+                </option>
+                {CATEG_OPTIONS.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
-              <label className="text-xs font-medium text-slate-700">
-                Language
-              </label>
-              <input
-                className="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-violet-500"
+              <label className="text-xs font-medium text-slate-700">Language</label>
+              <select
+                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
                 value={form.languageType}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, languageType: e.target.value }))
-                }
-                placeholder="ENGLISH / TOPIK / ..."
+                onChange={(e) => handleInputChange("languageType", e.target.value)}
                 required
-              />
+              >
+                <option value="" disabled>
+                  Select language
+                </option>
+                {LANGUAGE_OPTIONS.map((lng) => (
+                  <option key={lng} value={lng}>
+                    {lng}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
-          {/* Level + Status (status UI only, not sent on create) */}
+          {/* Level + Max Students */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="text-xs font-medium text-slate-700">
+              <label
+                htmlFor="course-level"
+                className="text-xs font-medium text-slate-700"
+              >
                 Level
               </label>
               <select
-                className="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-violet-500"
+                id="course-level"
+                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
                 value={form.level}
                 onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    level: e.target.value as CourseLevel,
-                  }))
+                  handleInputChange("level", e.target.value as CourseLevel)
                 }
               >
                 {LEVEL_OPTIONS.map((lvl) => (
@@ -345,49 +375,70 @@ export default function CreateCourseClient() {
             </div>
 
             <div>
-              <label className="text-xs font-medium text-slate-700">
-                Status (not used on create)
-              </label>
-              <select
-                className="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-violet-500"
-                value={form.status}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    status: e.target.value as CourseStatus,
-                  }))
-                }
+              <label
+                htmlFor="max-students"
+                className="text-xs font-medium text-slate-700"
               >
-                {STATUS_OPTIONS.map((st) => (
-                  <option key={st} value={st}>
-                    {st}
-                  </option>
-                ))}
-              </select>
-              <p className="mt-1 text-[11px] text-slate-400">
-                Status is managed after creation from the course edit page.
-              </p>
+                Max Students
+              </label>
+              <input
+                id="max-students"
+                type="number"
+                min={1}
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                value={form.maxStudents}
+                onChange={(e) => handleInputChange("maxStudents", e.target.value)}
+                placeholder="10"
+              />
             </div>
           </div>
 
-          {/* Price */}
-          <div>
-            <label className="text-xs font-medium text-slate-700">
-              Price (₩)
-            </label>
-            <input
-              type="number"
-              min={0}
-              className="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-violet-500"
-              value={form.price}
-              onChange={(e) =>
-                setForm((f) => ({
-                  ...f,
-                  price: e.target.value,
-                }))
-              }
-              placeholder="0"
-            />
+          {/* Price + Start Date */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label
+                htmlFor="course-price"
+                className="text-xs font-medium text-slate-700"
+              >
+                Price (₩)
+              </label>
+              <input
+                id="course-price"
+                type="number"
+                min={0}
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                value={form.price}
+                onChange={(e) => handleInputChange("price", e.target.value)}
+                placeholder="0"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-slate-700">
+                Course Start Date
+              </label>
+              <div className="relative" ref={datePickerRef}>
+                <button
+                  type="button"
+                  onClick={() => setShowDatePicker(!showDatePicker)}
+                  className="mt-1 flex w-full items-center justify-between rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition-colors hover:border-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                >
+                  <span className={form.courseStartDate ? "text-slate-900" : "text-slate-400"}>
+                    {form.courseStartDate ? formatDate(form.courseStartDate) : "Select start date"}
+                  </span>
+                  <FiCalendar className="h-4 w-4 text-slate-400" />
+                </button>
+
+                {showDatePicker && (
+                  <div className="absolute z-50 mt-2 rounded-xl border border-slate-200 bg-white p-4 shadow-lg">
+                    <DatePicker
+                      selectedDate={form.courseStartDate}
+                      onSelectDate={handleDateSelect}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Actions */}
@@ -395,14 +446,14 @@ export default function CreateCourseClient() {
             <button
               type="button"
               onClick={() => router.back()}
-              className="rounded-lg border px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
               disabled={saving || uploadingImage}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+              className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isDisabled}
             >
               {saving || uploadingImage ? "Creating..." : "Create course"}
@@ -410,6 +461,139 @@ export default function CreateCourseClient() {
           </div>
         </form>
       </main>
+    </div>
+  );
+}
+
+/* ─────────────────── Date Picker Component ─────────────────── */
+
+interface DatePickerProps {
+  selectedDate: Date | null;
+  onSelectDate: (date: Date) => void;
+}
+
+function DatePicker({ selectedDate, onSelectDate }: DatePickerProps) {
+  const [currentMonth, setCurrentMonth] = React.useState(
+    selectedDate ? new Date(selectedDate) : new Date()
+  );
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const daysInMonth = new Date(
+    currentMonth.getFullYear(),
+    currentMonth.getMonth() + 1,
+    0
+  ).getDate();
+
+  const firstDayOfMonth = new Date(
+    currentMonth.getFullYear(),
+    currentMonth.getMonth(),
+    1
+  ).getDay();
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  const previousMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+  };
+
+  const nextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+  };
+
+  const renderDays = () => {
+    const days = [];
+    const emptyDays = firstDayOfMonth;
+
+    // Empty cells before first day
+    for (let i = 0; i < emptyDays; i++) {
+      days.push(<div key={`empty-${i}`} className="h-9 w-9" />);
+    }
+
+    // Days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+      date.setHours(0, 0, 0, 0);
+      
+      const isSelected = selectedDate && 
+        date.getDate() === selectedDate.getDate() &&
+        date.getMonth() === selectedDate.getMonth() &&
+        date.getFullYear() === selectedDate.getFullYear();
+
+      const isToday = date.getTime() === today.getTime();
+      const isPast = date < today;
+
+      days.push(
+        <button
+          key={day}
+          type="button"
+          onClick={() => !isPast && onSelectDate(date)}
+          disabled={isPast}
+          className={`
+            h-9 w-9 rounded-lg text-sm font-medium transition-all
+            ${isSelected 
+              ? "bg-blue-600 text-white shadow-sm" 
+              : isPast
+              ? "text-slate-300 cursor-not-allowed"
+              : "text-slate-700 hover:bg-slate-100"
+            }
+            ${isToday && !isSelected ? "ring-2 ring-blue-200" : ""}
+          `}
+        >
+          {day}
+        </button>
+      );
+    }
+
+    return days;
+  };
+
+  return (
+    <div className="w-72">
+      {/* Header */}
+      <div className="mb-4 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={previousMonth}
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100"
+        >
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        
+        <div className="text-sm font-semibold text-slate-900">
+          {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+        </div>
+
+        <button
+          type="button"
+          onClick={nextMonth}
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100"
+        >
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Weekday headers */}
+      <div className="mb-2 grid grid-cols-7 gap-1">
+        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
+          <div key={day} className="flex h-9 w-9 items-center justify-center text-xs font-medium text-slate-500">
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {/* Days grid */}
+      <div className="grid grid-cols-7 gap-1">
+        {renderDays()}
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { CourseCategory, CourseLevel, LanguageType } from "@/libs/enums/course.enums";
+import { CourseCategory, CourseLevel, CourseStatus, LanguageType } from "@/libs/enums/course.enums";
 
 export type SectionStatus = "ACTIVE" | "INACTIVE" | "DELETED";
 
@@ -13,6 +13,24 @@ export type Lesson = {
   createdAt?: string;
   updatedAt?: string;
   deletedAt?: string | null;
+};
+
+export type CreateFormState = {
+  title: string;
+  description: string;
+  category: string;
+  languageType: string;
+
+  // using enum types
+  level: CourseLevel;
+  status: CourseStatus;
+  maxStudents: number
+  price: string; // keep string because input returns string
+  courseStartDate:any
+};
+
+export type CreateCourseResp = {
+  createCourse: CourseFromApi;
 };
 
 export type Section = {
@@ -111,15 +129,9 @@ export type SectionsByCourseResp = {
   };
 };
 
-export type CourseStatus =
-  | "DRAFT"
-  | "PUBLISHED"
-  | "ARCHIVED"
-  | "SUSPENDED"
-  | "COMPLETED"
-  | "PROGRESS";
 
 export type CourseFromApi = {
+  createCourse: any;
   courseImage: null;
   _id: string;
   courseTitle: string;
@@ -205,7 +217,8 @@ export type CourseUI = {
   sections: SectionUI[];
 };
 
-// src/libs/types/course/types.ts
+
+
 
 export type UpdateLessonInput = {
   _id: string;                   // 👈 MUST be "_id"

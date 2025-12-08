@@ -22,5 +22,28 @@ export const COURSE_STATUS = [
 ] as const;
 export type CourseStatus = (typeof COURSE_STATUS)[number];
 
+export const CATEGORY_OPTIONS = [
+  "LANGUAGE",
+  "BUSINESS",
+  "TECHNOLOGY",
+  "MARKETING",
+  "DESIGN",
+  "IELTS",
+  "SAT",
+  "KOREAN",
+] as const;
+export type CategoryOptions = (typeof CATEGORY_OPTIONS)[number];
+
+
+export const LANGUAGE_OPTIONS = [
+  'ENGLISH',
+	'TOPIK',
+	'EPS_TOPIK',
+	'VIP',
+] as const;
+export type LanguageOptions = (typeof LANGUAGE_OPTIONS)[number];
+
+
+
 export const LANGUAGE_TYPE = ["ENGLISH", "TOPIK", "EPS_TOPIK", "VIP"] as const;
 export type LanguageType = (typeof LANGUAGE_TYPE)[number];

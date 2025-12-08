@@ -17,6 +17,8 @@ export const GET_COURSE = gql/* GraphQL */ `
       courseRating
       courseLikes
       courseImage
+      maxStudents
+      courseStartDate
       createdAt
       updatedAt
       sectionsWithLessons {
