@@ -29,6 +29,9 @@ import { gqlFetchAuth } from "@/libs/graphql";
 import { REMOVE_LESSON, UPDATE_LESSON } from "@/graphql/mutation/lessons/lesson";
 import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 
+// 🔹 NEW: Assignment modal import
+import CreateAssignmentModal from "../../assignments/CreateAssignmentModal";
+
 export default function CourseDetailsClient({ courseId }: { courseId: string }) {
   const { course, loading, error, removeSectionById, reload } =
     useCourseDetails(courseId);
@@ -73,6 +76,14 @@ export default function CourseDetailsClient({ courseId }: { courseId: string }) 
   const [deleteLessonErr, setDeleteLessonErr] = React.useState<string | null>(
     null
   );
+
+  /* ───────── Assignment modal ───────── */
+
+  const [assignmentOpen, setAssignmentOpen] = React.useState(false);
+  const [assignmentContext, setAssignmentContext] = React.useState<{
+    sectionId?: string;
+    lessonId?: string;
+  } | null>(null);
 
   /* ───────── Navigation ───────── */
 
@@ -185,6 +196,32 @@ export default function CourseDetailsClient({ courseId }: { courseId: string }) 
     []
   );
 
+  /* ───────── Assignment handlers ───────── */
+
+  // 🔹 You can call this from SectionsBlock for section-only assignment
+  const handleCreateAssignmentForSection = React.useCallback(
+    (sectionId: string) => {
+      setAssignmentContext({ sectionId });
+      setAssignmentOpen(true);
+    },
+    []
+  );
+
+  // 🔹 Or this one for a specific lesson-level assignment
+  const handleCreateAssignmentForLesson = React.useCallback(
+    (sectionId: string, lessonId: string) => {
+      setAssignmentContext({ sectionId, lessonId });
+      setAssignmentOpen(true);
+    },
+    []
+  );
+
+  const handleAssignmentSuccess = React.useCallback(async () => {
+    await reload();
+    setAssignmentOpen(false);
+    setAssignmentContext(null);
+  }, [reload]);
+
   /* ───────── Locate current lesson objects ───────── */
 
   const lessonBeingEdited: LessonUI | null = React.useMemo(() => {
@@ -205,15 +242,13 @@ export default function CourseDetailsClient({ courseId }: { courseId: string }) 
 
   const courseWithImageUrl: CourseUI | null = React.useMemo(() => {
     if (!course) return null;
-console.log(course, "course.image");
-    
+
     const imagePath =
       typeof course.image === "string" && course.image.trim().length > 0
         ? course.image
         : "";
 
     const imageUrl = imagePath ? buildDownloadUrl(imagePath) : "";
-console.log(imageUrl, "imageUrl");
 
     return {
       ...course,
@@ -339,6 +374,7 @@ console.log(imageUrl, "imageUrl");
         />
 
         <SectionsBlock
+          courseId={courseId}
           sections={course.sections}
           onAddLesson={handleAddLesson}
           onEditSection={handleEditSection}
@@ -346,6 +382,9 @@ console.log(imageUrl, "imageUrl");
           onEditLesson={handleEditLesson}
           onDeleteLesson={handleDeleteLesson}
           onReorderLessons={handleReorderLessons}
+          // 🔹 NEW callbacks you can use inside SectionsBlock
+          onCreateAssignmentForSection={handleCreateAssignmentForSection}
+          onCreateAssignmentForLesson={handleCreateAssignmentForLesson}
         />
       </main>
 
@@ -416,6 +455,19 @@ console.log(imageUrl, "imageUrl");
           setDeleteLessonErr(null);
         }}
         onConfirm={handleConfirmDeleteLesson}
+      />
+
+      {/* 🔹 Assignment create */}
+      <CreateAssignmentModal
+        open={assignmentOpen && !!assignmentContext}
+        onClose={() => {
+          setAssignmentOpen(false);
+          setAssignmentContext(null);
+        }}
+        courseId={course.id}
+        sectionId={assignmentContext?.sectionId}
+        lessonId={assignmentContext?.lessonId}
+        onSuccess={handleAssignmentSuccess}
       />
     </PageShell>
   );
