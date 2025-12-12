@@ -53,7 +53,7 @@ export default function CourseHero({ course }: { course: CourseDetail }) {
 
         <span className="flex items-center gap-2 text-white/80">
           <Users className="h-4 w-4" />
-          {course.students.toLocaleString()} students
+          {course.students} students
         </span>
 
         <span className="text-white/60">•</span>

@@ -55,7 +55,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
         title: course.courseTitle,
         desc: course.courseDesc,
         rating: course.courseRating ?? 0,
-        students: course.courseEnrolledMembers ?? 0,
+        students: course.currentEnrolledMembers ?? 0,
         level: course.courseLevel ?? "BEGINNER",
         language: course.languageType ?? "ENGLISH",
         totalModules: course.courseTotalModules ?? sectionsUI.length,
