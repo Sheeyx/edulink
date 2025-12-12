@@ -59,6 +59,7 @@ export type Member = {
 };
 
 export type Course = {
+  courseImage: string;
   _id: string;
   courseTitle: string;
   courseDesc?: string;

@@ -7,7 +7,7 @@ import { useInfiniteCourses } from "@/hooks/useInfiniteCourses";
 
 import type { CourseFromApi } from "@/libs/types/course/types";
 import { toCourseCardModel } from "@/libs/CourseMapper";
-import { Lang, Level, Rating } from "./libs/filter.types";
+import { Lang, Level, Rating } from "./_libs/filter.types";
 
 export default function CoursesPage() {
   const [lang, setLang] = useState<Lang>("All");

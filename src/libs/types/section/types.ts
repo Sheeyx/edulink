@@ -1,4 +1,6 @@
 export type Lesson = {
+  kind: any;
+  contentType: any;
   _id: string;
   sectionId: string;
   lessonTitle?: string;

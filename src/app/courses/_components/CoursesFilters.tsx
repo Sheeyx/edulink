@@ -1,7 +1,7 @@
 "use client";
 
 import { pillsActive, pillsBase, pillsIdle } from "@/libs/constants";
-import { Lang, Level, Rating } from "../libs/filter.types";
+import { Lang, Level, Rating } from "../_libs/filter.types";
 
 
 type Props = {
