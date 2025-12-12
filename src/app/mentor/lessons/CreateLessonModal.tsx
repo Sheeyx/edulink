@@ -1,23 +1,20 @@
 // app/mentor/courses/[id]/components/Lessons/CreateLessonModal.tsx
 "use client";
 
-import React, { useState } from "react";
-import { FiX } from "react-icons/fi";
-import { gqlFetchAuth } from "@/libs/graphql";
-
-const CREATE_LESSON = `
-  mutation CreateLesson($input: LessonInput!) {
-    createLesson(input: $input) {
-      _id
-      sectionId
-      lessonTitle
-      lessonContentType
-      lessonDuration
-      createdAt
-      updatedAt
-    }
-  }
-`;
+import * as React from "react";
+import {
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@/components/ui/Modal";
+import {
+  TextInput,
+  Textarea,
+  FileInput,
+  ErrorAlert,
+} from "@/components/ui/form/FormFields";
+import { useCreateLesson } from "@/hooks/mutations/lessons/useCreateLesson";
 
 type Props = {
   open: boolean;
@@ -26,118 +23,153 @@ type Props = {
   onSuccess?: () => void;
 };
 
-export default function CreateLessonModal({ open, onClose, sectionId, onSuccess }: Props) {
-  const [lessonTitle, setLessonTitle] = useState("");
-  const [lessonContentType, setLessonContentType] = useState("TEXT");
-  const [lessonDuration, setLessonDuration] = useState<number>(0);
-  const [lessonUrl, setLessonUrl] = useState("");
-  const [loading, setLoading] = useState(false);
+export default function CreateLessonModal({
+  open,
+  onClose,
+  sectionId,
+  onSuccess,
+}: Props) {
+  const [lessonTitle, setLessonTitle] = React.useState("");
+  const [lessonContentType, setLessonContentType] =
+    React.useState<"TEXT" | "VIDEO" | "AUDIO">("TEXT");
+  const [lessonDuration, setLessonDuration] = React.useState("");
+  const [lessonUrl, setLessonUrl] = React.useState(""); // used for TEXT / AUDIO
+  const [videoFile, setVideoFile] = React.useState<File | null>(null);
+
+  const {
+    createLesson,
+    loading,
+    error,
+    setError,
+  } = useCreateLesson();
+
+  const labelId = "create-lesson-title";
 
   if (!open) return null;
 
-  const handleCreate = async () => {
-  try {
-    setLoading(true);
+  const handleSubmit = async () => {
+    try {
+      await createLesson({
+        sectionId,
+        lessonTitle,
+        lessonContentType,
+        lessonDuration: Number(lessonDuration),
+        lessonUrl,
+        videoFile,
+      });
 
-    await gqlFetchAuth<{ createLesson: any }>(
-      CREATE_LESSON,
-      {
-        input: {
-          sectionId,
-          lessonTitle,
-          lessonContentType,
-          lessonDuration,
-          lessonUrl,
-        },
-      }
-    );
+      onSuccess?.();
+      onClose();
+    } catch {
+      // error handled inside hook
+    }
+  };
 
-    if (onSuccess) onSuccess();
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return;
+    setVideoFile(e.target.files[0]);
+  };
+
+  const resetModal = () => {
+    if (loading) return;
+    setError(null);
     onClose();
-  } catch (err) {
-    console.error("Create lesson error:", err);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg bg-white rounded-xl shadow-xl p-6">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Create Lesson</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full">
-            <FiX size={20} />
-          </button>
-        </div>
+    <Modal open={open} onClose={resetModal} labelledBy={labelId}>
+      <ModalHeader id={labelId} title="Create Lesson" onClose={resetModal} />
 
-        {/* Form */}
-        <div className="space-y-4">
-          <div>
-            <label className="font-medium">Lesson Title</label>
-            <input
-              type="text"
-              className="w-full mt-1 rounded-lg border px-3 py-2"
-              value={lessonTitle}
-              onChange={(e) => setLessonTitle(e.target.value)}
-            />
-          </div>
+      <ModalBody>
+        {/* Lesson Title */}
+        <TextInput
+          id="lesson-title"
+          label="Lesson Title"
+          required
+          value={lessonTitle}
+          onChange={(e) => setLessonTitle(e.target.value)}
+          disabled={loading}
+        />
 
-          <div>
-            <label className="font-medium">Content Type</label>
-            <select
-              className="w-full mt-1 border rounded-lg px-3 py-2"
-              value={lessonContentType}
-              onChange={(e) => setLessonContentType(e.target.value)}
-            >
-              <option value="TEXT">TEXT</option>
-              <option value="VIDEO">VIDEO</option>
-              <option value="AUDIO">AUDIO</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="font-medium">Duration (minutes)</label>
-            <input
-              type="number"
-              className="w-full mt-1 rounded-lg border px-3 py-2"
-              value={lessonDuration}
-              onChange={(e) => setLessonDuration(Number(e.target.value))}
-            />
-          </div>
-
-          <div>
-            <label className="font-medium">Lesson URL (optional)</label>
-            <input
-              type="text"
-              className="w-full mt-1 rounded-lg border px-3 py-2"
-              value={lessonUrl}
-              onChange={(e) => setLessonUrl(e.target.value)}
-              placeholder="https://zoom.us/j/123456789"
-            />
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex justify-end gap-3 mt-6">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg border bg-gray-100 hover:bg-gray-200"
-          >
-            Cancel
-          </button>
-
-          <button
-            onClick={handleCreate}
+        {/* Content Type */}
+        <div className="space-y-1">
+          <label className="text-xs font-medium uppercase text-slate-500">
+            Content Type
+          </label>
+          <select
+            value={lessonContentType}
+            onChange={(e) =>
+              setLessonContentType(e.target.value as any)
+            }
             disabled={loading}
-            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
           >
-            {loading ? "Creating..." : "Create Lesson"}
-          </button>
+            <option value="TEXT">TEXT</option>
+            <option value="VIDEO">VIDEO</option>
+            <option value="AUDIO">AUDIO</option>
+          </select>
         </div>
-      </div>
-    </div>
+
+        {/* Duration */}
+        <TextInput
+          id="lesson-duration"
+          label="Duration (minutes)"
+          type="number"
+          value={lessonDuration}
+          onChange={(e) => setLessonDuration(e.target.value)}
+          disabled={loading}
+        />
+
+        {/* Conditional Input: VIDEO upload */}
+        {lessonContentType === "VIDEO" && (
+          <div className="space-y-1">
+            <FileInput
+              id="lesson-video"
+              label="Upload Video"
+              required
+              accept="video/*"
+              onChange={handleFileUpload}
+              disabled={loading}
+            />
+            {videoFile && (
+              <p className="text-xs text-slate-500">{videoFile.name}</p>
+            )}
+          </div>
+        )}
+
+        {/* Conditional Input: TEXT or AUDIO URL */}
+        {(lessonContentType === "TEXT" ||
+          lessonContentType === "AUDIO") && (
+          <TextInput
+            id="lesson-url"
+            label="Lesson URL"
+            placeholder="https://example.com/lesson"
+            value={lessonUrl}
+            onChange={(e) => setLessonUrl(e.target.value)}
+            disabled={loading}
+          />
+        )}
+
+        <ErrorAlert message={error} />
+      </ModalBody>
+
+      <ModalFooter>
+        <button
+          onClick={resetModal}
+          className="px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100"
+          disabled={loading}
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={handleSubmit}
+          className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+          disabled={loading}
+        >
+          {loading ? "Creating..." : "Create Lesson"}
+        </button>
+      </ModalFooter>
+    </Modal>
   );
 }

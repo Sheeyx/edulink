@@ -36,6 +36,7 @@ export const GET_COURSE = gql/* GraphQL */ `
           lessonTitle
           lessonContentType
           lessonDuration
+          lessonUrl
           createdAt
           updatedAt
         }

@@ -59,6 +59,7 @@ export function useCourseDetails(courseId: string) {
                 title: l.lessonTitle || "",
                 duration: l.lessonDuration,
                 contentType: l.lessonContentType,
+                lessonUrl: l.lessonUrl
               })
             ) ?? [],
         })) ?? [];

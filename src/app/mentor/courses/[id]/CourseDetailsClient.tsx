@@ -28,11 +28,16 @@ import DeleteLessonModal from "../../lessons/DeleteLessonModal";
 import { gqlFetchAuth } from "@/libs/graphql";
 import { REMOVE_LESSON, UPDATE_LESSON } from "@/graphql/mutation/lessons/lesson";
 import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
+import { getAccessToken } from "@/providers/auth-context";
+import { uploadFilesToB2 } from "@/services/b2Upload";
 
-// 🔹 NEW: Assignment modal import
-import CreateAssignmentModal from "../../assignments/CreateAssignmentModal";
+type CourseDetailsClientProps = {
+  courseId: string;
+};
 
-export default function CourseDetailsClient({ courseId }: { courseId: string }) {
+export default function CourseDetailsClient({
+  courseId,
+}: CourseDetailsClientProps) {
   const { course, loading, error, removeSectionById, reload } =
     useCourseDetails(courseId);
 
@@ -77,12 +82,11 @@ export default function CourseDetailsClient({ courseId }: { courseId: string }) 
     null
   );
 
-  /* ───────── Assignment modal ───────── */
+  /* ───────── Lesson video preview ───────── */
 
-  const [assignmentOpen, setAssignmentOpen] = React.useState(false);
-  const [assignmentContext, setAssignmentContext] = React.useState<{
-    sectionId?: string;
-    lessonId?: string;
+  const [previewLesson, setPreviewLesson] = React.useState<{
+    title: string;
+    videoUrl: string;
   } | null>(null);
 
   /* ───────── Navigation ───────── */
@@ -196,32 +200,6 @@ export default function CourseDetailsClient({ courseId }: { courseId: string }) 
     []
   );
 
-  /* ───────── Assignment handlers ───────── */
-
-  // 🔹 You can call this from SectionsBlock for section-only assignment
-  const handleCreateAssignmentForSection = React.useCallback(
-    (sectionId: string) => {
-      setAssignmentContext({ sectionId });
-      setAssignmentOpen(true);
-    },
-    []
-  );
-
-  // 🔹 Or this one for a specific lesson-level assignment
-  const handleCreateAssignmentForLesson = React.useCallback(
-    (sectionId: string, lessonId: string) => {
-      setAssignmentContext({ sectionId, lessonId });
-      setAssignmentOpen(true);
-    },
-    []
-  );
-
-  const handleAssignmentSuccess = React.useCallback(async () => {
-    await reload();
-    setAssignmentOpen(false);
-    setAssignmentContext(null);
-  }, [reload]);
-
   /* ───────── Locate current lesson objects ───────── */
 
   const lessonBeingEdited: LessonUI | null = React.useMemo(() => {
@@ -273,43 +251,76 @@ export default function CourseDetailsClient({ courseId }: { courseId: string }) 
     [reload]
   );
 
-  const handleSaveLesson = React.useCallback(
-    async (data: { title: string; contentType: string; duration: string }) => {
-      if (!editingLesson) return;
+ const handleSaveLesson = React.useCallback(
+  async (data: {
+    title: string;
+    contentType: string;
+    duration: string;
+    removeVideo?: boolean;
+    newVideoFile?: File | null;
+  }) => {
+    if (!editingLesson) return;
 
-      const durationNum = Number(data.duration);
-      if (!Number.isFinite(durationNum) || durationNum <= 0) {
-        throw new Error("Lesson duration must be a positive number.");
-      }
+    const durationNum = Number(data.duration);
+    if (!Number.isFinite(durationNum) || durationNum <= 0) {
+      throw new Error("Lesson duration must be a positive number.");
+    }
 
-      // find current lesson to keep its video URL (if any)
-      const current: LessonUI | null = (() => {
-        if (!course) return null;
-        const sec = course.sections.find(
-          (s) => s.id === editingLesson.sectionId
-        );
-        if (!sec?.lessons) return null;
-        return (
-          sec.lessons.find((l) => l.id === editingLesson.lessonId) || null
-        );
-      })();
+    // current lesson (existing lessonUrl)
+    const current: any = (() => {
+      if (!course) return null;
+      const sec = course.sections.find((s) => s.id === editingLesson.sectionId);
+      return sec?.lessons?.find((l) => l.id === editingLesson.lessonId) ?? null;
+    })();
 
-      await updateLesson({
-        _id: editingLesson.lessonId,
-        lessonTitle: data.title,
-        lessonContentType: data.contentType,
-        lessonDuration: durationNum,
-        lessonVideoUrl:
-          current && (current as any).videoUrl
-            ? (current as any).videoUrl
-            : undefined,
-      });
+    const existingLessonUrl: string | undefined =
+      current?.lessonUrl || current?.videoUrl || undefined;
 
-      setEditLessonOpen(false);
-      setEditingLesson(null);
-    },
-    [editingLesson, course, updateLesson]
-  );
+    let nextLessonUrl: string | null | undefined = existingLessonUrl;
+
+    // ✅ REPLACE: upload new video
+    if (data.newVideoFile) {
+      const token = await getAccessToken();
+      if (!token) throw new Error("Not authenticated. Please log in again.");
+
+      // upload to /lesson/video
+      const uploaded = await uploadFilesToB2(
+        [data.newVideoFile],
+        "lesson/video",
+        token
+      );
+
+      // B2 returns array of keys/paths
+      nextLessonUrl = uploaded?.[0] ?? existingLessonUrl ?? null;
+    }
+
+    // ✅ REMOVE (only if no new file selected)
+    if (!data.newVideoFile && data.removeVideo) {
+      nextLessonUrl = null; // if backend doesn't accept null -> use ""
+    }
+
+    const input: any = {
+      _id: editingLesson.lessonId,
+      lessonTitle: data.title,
+      lessonContentType: data.contentType,
+      lessonDuration: durationNum,
+    };
+
+    // Only set lessonUrl if we actually want to change it
+    // - replace -> string
+    // - remove -> null
+    if (data.newVideoFile || data.removeVideo) {
+      input.lessonUrl = nextLessonUrl; // null or string
+    }
+
+    await updateLesson(input);
+
+    setEditLessonOpen(false);
+    setEditingLesson(null);
+  },
+  [editingLesson, course, updateLesson]
+);
+
 
   const handleConfirmDeleteLesson = React.useCallback(async () => {
     if (!deletingLesson) return;
@@ -334,6 +345,37 @@ export default function CourseDetailsClient({ courseId }: { courseId: string }) 
       setDeleteLessonLoading(false);
     }
   }, [deletingLesson, reload]);
+
+  /* ───────── Lesson video preview handler ───────── */
+
+  const handlePreviewLesson = React.useCallback(
+    (sectionId: string, lessonId: string) => {
+      if (!course) return;
+
+      const sec = course.sections.find((s) => s.id === sectionId);
+      if (!sec?.lessons) return;
+
+      const lesson = sec.lessons.find((l) => l.id === lessonId);
+      if (!lesson) return;
+
+      const key =
+        ((lesson as any).lessonUrl as string | undefined) ||
+        ((lesson as any).videoUrl as string | undefined);
+
+      if (!key) {
+        alert("This lesson does not have a video.");
+        return;
+      }
+
+      const fullUrl = key.startsWith("http") ? key : buildDownloadUrl(key);
+
+      setPreviewLesson({
+        title: lesson.title,
+        videoUrl: fullUrl,
+      });
+    },
+    [course]
+  );
 
   /* ───────── Loading & error states ───────── */
 
@@ -382,9 +424,7 @@ export default function CourseDetailsClient({ courseId }: { courseId: string }) 
           onEditLesson={handleEditLesson}
           onDeleteLesson={handleDeleteLesson}
           onReorderLessons={handleReorderLessons}
-          // 🔹 NEW callbacks you can use inside SectionsBlock
-          onCreateAssignmentForSection={handleCreateAssignmentForSection}
-          onCreateAssignmentForLesson={handleCreateAssignmentForLesson}
+          onPreviewLesson={handlePreviewLesson}
         />
       </main>
 
@@ -438,9 +478,7 @@ export default function CourseDetailsClient({ courseId }: { courseId: string }) 
         onSave={handleSaveLesson}
         initialTitle={lessonBeingEdited?.title || ""}
         initialContentType={lessonBeingEdited?.contentType || "TEXT"}
-        initialDuration={
-          (lessonBeingEdited?.duration as string | number | undefined) ?? ""
-        }
+        initialDuration={lessonBeingEdited?.duration || ""}
       />
 
       {/* Lesson delete */}
@@ -457,18 +495,33 @@ export default function CourseDetailsClient({ courseId }: { courseId: string }) 
         onConfirm={handleConfirmDeleteLesson}
       />
 
-      {/* 🔹 Assignment create */}
-      <CreateAssignmentModal
-        open={assignmentOpen && !!assignmentContext}
-        onClose={() => {
-          setAssignmentOpen(false);
-          setAssignmentContext(null);
-        }}
-        courseId={course.id}
-        sectionId={assignmentContext?.sectionId}
-        lessonId={assignmentContext?.lessonId}
-        onSuccess={handleAssignmentSuccess}
-      />
+      {/* Lesson video preview modal */}
+      {previewLesson && (
+        <div className="fixed inset-0 z-[999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-3xl w-full overflow-hidden shadow-2xl relative">
+            <button
+              className="absolute right-4 top-4 text-slate-100 bg-black/40 rounded-full px-2 py-1 text-xs hover:bg-black/60"
+              onClick={() => setPreviewLesson(null)}
+            >
+              ✕
+            </button>
+
+            <div className="px-4 pt-4 pb-2 bg-slate-950 text-slate-50">
+              <h2 className="text-sm font-semibold truncate">
+                {previewLesson.title}
+              </h2>
+            </div>
+
+            <div className="bg-black">
+              <video
+                src={previewLesson.videoUrl}
+                controls
+                className="w-full max-h-[70vh] bg-black"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </PageShell>
   );
 }

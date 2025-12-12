@@ -14,8 +14,8 @@ import {
   FileInput,
   ErrorAlert,
 } from "@/components/ui/form/FormFields";
-import { useUpdateAssignment } from "@/hooks/mutations/useUpdateAssignment";
-import { useRemoveAssignmentAttachment } from "@/hooks/mutations/useRemoveAssignmentAttachment";
+import { useUpdateAssignment } from "@/hooks/mutations/assingments/useUpdateAssignment";
+import { useRemoveAssignmentAttachment } from "@/hooks/mutations/assingments/useRemoveAssignmentAttachment";
 
 /* ----------------------------------------------------
  * Local type: Only fields needed for editing

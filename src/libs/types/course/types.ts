@@ -5,6 +5,7 @@ export type SectionStatus = "ACTIVE" | "INACTIVE" | "DELETED";
 /* ========= Raw GraphQL types ========= */
 
 export type Lesson = {
+  lessonUrl: string | null | undefined;
   _id: string;
   sectionId: string;
   lessonTitle?: string;
@@ -187,6 +188,7 @@ export type LessonUI = {
   title: string;
   duration?: string;
   contentType?: string;
+  lessonUrl?: string | null;  
 };
 
 // alias if some older code uses ULesson

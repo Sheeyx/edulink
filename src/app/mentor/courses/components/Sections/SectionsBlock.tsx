@@ -8,6 +8,7 @@ import {
   FiPlus,
   FiChevronDown,
   FiMove,
+  FiPlay, // ▶️ for video preview
 } from "react-icons/fi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -160,6 +161,9 @@ type Props = {
 
   onCreateAssignmentForSection?: (sectionId: string) => void;
   onCreateAssignmentForLesson?: (sectionId: string, lessonId: string) => void;
+
+  // 🔹 NEW: video preview callback
+  onPreviewLesson?: (sectionId: string, lessonId: string) => void;
 };
 
 /* ─────────────────── Main component ─────────────────── */
@@ -175,6 +179,7 @@ export default function SectionsBlock({
   onReorderLessons,
   onCreateAssignmentForSection,
   onCreateAssignmentForLesson,
+  onPreviewLesson,
 }: Props) {
   const activeSections = sections.filter(
     (s) => !s.status || s.status === "ACTIVE"
@@ -275,6 +280,7 @@ export default function SectionsBlock({
               onReorderLessons={onReorderLessons}
               onCreateAssignmentForSection={onCreateAssignmentForSection}
               onCreateAssignmentForLesson={onCreateAssignmentForLesson}
+              onPreviewLesson={onPreviewLesson} // 🔹 pass down
               assignments={assignmentsBySection[section.id] ?? []}
             />
           ))}
@@ -299,6 +305,7 @@ function SectionRow({
   onReorderLessons,
   onCreateAssignmentForSection,
   onCreateAssignmentForLesson,
+  onPreviewLesson,
   assignments,
 }: {
   courseId: string;
@@ -313,6 +320,7 @@ function SectionRow({
   onReorderLessons: (sectionId: string, lessons: LessonUI[]) => void;
   onCreateAssignmentForSection?: (sectionId: string) => void;
   onCreateAssignmentForLesson?: (sectionId: string, lessonId: string) => void;
+  onPreviewLesson?: (sectionId: string, lessonId: string) => void;
   assignments?: AssignmentUI[];
 }) {
   const queryClient = useQueryClient();
@@ -324,7 +332,7 @@ function SectionRow({
   const [editingAssignment, setEditingAssignment] =
     React.useState<AssignmentUI | null>(null);
 
-  // 🔥 custom delete modal state
+  // custom delete modal state
   const [assignmentToDelete, setAssignmentToDelete] =
     React.useState<AssignmentUI | null>(null);
   const [deleteLoading, setDeleteLoading] = React.useState(false);
@@ -384,11 +392,12 @@ function SectionRow({
       setDeleteError(err?.message || "Failed to delete assignment");
     } finally {
       setDeleteLoading(false);
-    }
+      }
   };
 
   const lessons = localLessons;
   const sectionAssignments = assignments ?? [];
+  console.log("logsson", lessons)
 
   return (
     <>
@@ -517,6 +526,20 @@ function SectionRow({
                       </div>
 
                       <div className="flex items-center gap-2">
+                        {/* ▶️ Preview video (only for VIDEO lessons) */}
+                        {onPreviewLesson &&
+                          lesson.contentType === "VIDEO" && (
+                            <button
+                              title="Preview video"
+                              onClick={() =>
+                                onPreviewLesson(section.id, lesson.id)
+                              }
+                              className="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100"
+                            >
+                              <FiPlay className="h-3 w-3" />
+                            </button>
+                          )}
+
                         {/* Create assignment for this lesson */}
                         {onCreateAssignmentForLesson && (
                           <button
@@ -671,7 +694,7 @@ function SectionRow({
         />
       )}
 
-      {/* 🔥 Beautiful Delete Confirmation Modal */}
+      {/* Delete Assignment Modal */}
       {assignmentToDelete && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
           <div className="w-full max-w-sm rounded-2xl bg-slate-950 text-slate-50 shadow-xl border border-slate-800">

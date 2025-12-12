@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/providers/auth-context";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
@@ -17,45 +17,35 @@ export default function UserInfo() {
   const displayName = user.name || user.email || "User";
 
   const initials =
-    (displayName.trim())
+    displayName
+      .trim()
       .split(" ")
       .map((p) => p[0]?.toUpperCase())
       .slice(0, 1)
       .join("") || "U";
 
-  // ---- helpers ---------------------------------------------------------
-
   function isFullUrl(value?: string | null): boolean {
-    if (!value) return false;
-    return value.startsWith("http://") || value.startsWith("https://");
+    return !!value && (value.startsWith("http://") || value.startsWith("https://"));
   }
 
   function sanitizeKey(raw?: string | null): string {
     if (!raw) return "";
-    // trim, remove trailing commas, remove leading slashes
     return raw.trim().replace(/,+$/, "").replace(/^\/+/, "");
   }
 
-  function getAvatarUrl(): string | null {
-    // Prefer explicit image field from auth user
-    const raw = (user as any).image || (user as any).memberImage || "";
+  const avatarSrc = useMemo(() => {
+    const raw = ((user as any).image || (user as any).memberImage || "") as string;
+    if (!raw) return null;
 
+    // ✅ If it's already a full URL, don't sanitize it
+    if (isFullUrl(raw)) return raw;
+
+    // ✅ Otherwise treat it as a stored key
     const key = sanitizeKey(raw);
     if (!key) return null;
 
-    // if already full URL (Google/Kakao/etc.)
-    if (isFullUrl(key)) {
-      return key;
-    }
-
-    // else treat as stored key like "members/xxx.png"
-    // and map to backend download URL
     return buildDownloadUrl(key);
-  }
-
-  const avatarSrc = getAvatarUrl();
-
-  // ---- close dropdown when clicking outside ---------------------------
+  }, [user]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -70,43 +60,38 @@ export default function UserInfo() {
   const handleProfileClick = () => {
     setOpen(false);
     const role = (user.role || "").toUpperCase();
-    if (role === "MENTOR") {
-      router.push("/mentor");
-    } else {
-      router.push("/user");
-    }
+    router.push(role === "MENTOR" ? "/mentor" : "/user");
   };
 
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Avatar button */}
       <button
         onClick={() => setOpen((p) => !p)}
         className="w-9 h-9 rounded-full bg-[#8d6e63] text-white grid place-items-center font-semibold text-sm hover:opacity-90 transition overflow-hidden"
+        aria-haspopup="menu"
+        aria-expanded={open}
       >
         {avatarSrc ? (
-          <div className="relative w-9 h-9">
-            <Image
-              src={avatarSrc}
-              alt={displayName}
-              fill
-              className="object-cover rounded-full"
-              sizes="36px"
-            />
-          </div>
+          <Image
+  src={avatarSrc}
+  alt={displayName}
+  width={36}
+  height={36}
+  className="w-9 h-9 object-cover rounded-full"
+  unoptimized
+/>
+
         ) : (
           initials
         )}
       </button>
 
-      {/* Dropdown */}
       {open && (
         <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-lg py-2 z-50">
           <p className="px-4 py-2 text-sm text-gray-700 font-medium border-b border-gray-100">
             {displayName}
           </p>
 
-          {/* My Profile */}
           <button
             onClick={handleProfileClick}
             className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -114,7 +99,6 @@ export default function UserInfo() {
             My Profile
           </button>
 
-          {/* Log out */}
           <button
             onClick={() => {
               logout();
