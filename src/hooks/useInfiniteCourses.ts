@@ -5,11 +5,17 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { gql } from "graphql-request";
 import { graphql } from "@/libs/graphql-client";
 
-/* ===== Types (trimmed) ===== */
+export type CoursesHookInput = {
+  limit?: number;
+  language?: "English" | "TOPIK" | "Korean";
+  level?: "Beginner" | "Intermediate" | "Advanced";
+};
+
 export type APICourse = {
   _id: string;
   courseTitle: string;
   courseDesc?: string;
+  courseImage?: string | null;
   languageType?: string;
   courseLevel?: string;
   coursePrice?: number;
@@ -26,7 +32,6 @@ type GetCoursesResponse = {
 
 type PageData = GetCoursesResponse["getCourses"] & { page: number };
 
-/* ===== Query ===== */
 const GET_COURSES = gql/* GraphQL */ `
   query GetCouses($input: CoursesInquiry!) {
     getCourses(input: $input) {
@@ -34,6 +39,7 @@ const GET_COURSES = gql/* GraphQL */ `
         _id
         courseTitle
         courseDesc
+        courseImage
         languageType
         courseLevel
         coursePrice
@@ -48,10 +54,10 @@ const GET_COURSES = gql/* GraphQL */ `
   }
 `;
 
-/* ===== Helpers ===== */
 const LANG_MAP: Record<string, string> = {
   English: "ENGLISH",
-  Korean: "KOREAN",
+  TOPIK: "TOPIK",     // change to "KOREAN" if your backend uses KOREAN instead
+  Korean: "TOPIK",
 };
 
 const LEVEL_MAP: Record<string, string> = {
@@ -68,22 +74,17 @@ function clean<T extends Record<string, any>>(obj: T) {
   return out;
 }
 
-/** Build EXACT search shape the backend expects */
-function buildSearch(baseInput: Record<string, unknown>) {
-  const uiLang = baseInput.language as string | undefined;  // e.g. "English"
-  const uiLevel = baseInput.level as string | undefined;    // e.g. "Beginner"
+function buildSearch(baseInput: CoursesHookInput) {
+  const uiLang = baseInput.language;
+  const uiLevel = baseInput.level;
 
   return clean({
-    languageType: uiLang ? LANG_MAP[uiLang] : undefined,    // -> "ENGLISH"
-    courseLevel: uiLevel ? LEVEL_MAP[uiLevel] : undefined,  // -> "BEGINNER"
-    // Add other searchable fields here if needed:
-    // category: baseInput.category,
-    // keyword: baseInput.searchText,
+    languageType: uiLang ? LANG_MAP[uiLang] : undefined,
+    courseLevel: uiLevel ? LEVEL_MAP[uiLevel] : undefined,
   });
 }
 
-/* ===== Hook ===== */
-export function useInfiniteCourses(baseInput: Record<string, unknown>) {
+export function useInfiniteCourses(baseInput: CoursesHookInput) {
   const limit = Number(baseInput.limit ?? 12);
 
   return useInfiniteQuery<PageData>({
@@ -93,13 +94,12 @@ export function useInfiniteCourses(baseInput: Record<string, unknown>) {
         input: {
           page: Number(pageParam),
           limit,
-          search: buildSearch(baseInput), // ✅ { languageType: "ENGLISH" } etc.
+          search: buildSearch(baseInput),
         },
       };
 
       const data = await graphql.request<GetCoursesResponse>(GET_COURSES, variables);
-      const { getCourses } = data;
-      return { ...getCourses, page: Number(pageParam) };
+      return { ...data.getCourses, page: Number(pageParam) };
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
