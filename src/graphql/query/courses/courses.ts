@@ -94,15 +94,19 @@ export const UPDATE_COURSE = /* GraphQL */ `
       courseLevel
       coursePrice
       courseStatus
-      mentorId
-      courseEnrolledMembers
-      courseTotalModules
-      courseTotalLessons
-      courseRating
-      courseLikes
-      deletedAt
-      createdAt
       updatedAt
+    }
+  }
+`;
+
+
+
+export const UPDATE_COURSE_SETTINGS = /* GraphQL */ `
+  mutation UpdateCourseSettings($input: CourseSettingsUpdate!) {
+    updateCourseSettings(input: $input) {
+      courseId
+      maxStudents
+      courseStartDate
     }
   }
 `;

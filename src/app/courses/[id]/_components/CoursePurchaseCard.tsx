@@ -2,79 +2,53 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { Play, ShieldCheck, BadgeCheck } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Play, Loader2 } from "lucide-react";
+
+import { gqlFetchAuth } from "@/libs/graphql";
 import type { CourseDetail } from "./types";
 import { normalizeImageSrc } from "./utils/images";
+import { ENROLL_IN_COURSE } from "@/graphql/mutation/course/enrollInCourse";
 
-/* ───────────────────────────────────────────── */
-
-export default function CoursePurchaseCard({
+export default function PurchaseCardInner({
   course,
   onPreview,
 }: {
   course: CourseDetail;
   onPreview: () => void;
 }) {
-  const cardRef = React.useRef<HTMLDivElement>(null);
-  const [isStopped, setIsStopped] = React.useState(false);
-
-  React.useEffect(() => {
-    const onScroll = () => {
-      const footer = document.querySelector("footer");
-      const card = cardRef.current;
-
-      if (!footer || !card) return;
-
-      const footerTop = footer.getBoundingClientRect().top;
-      const cardHeight = card.offsetHeight;
-
-      // 24px = top offset
-      if (footerTop <= cardHeight + 24) {
-        setIsStopped(true);
-      } else {
-        setIsStopped(false);
-      }
-    };
-
-    window.addEventListener("scroll", onScroll);
-    window.addEventListener("resize", onScroll);
-    onScroll();
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, []);
-
-  return (
-    <aside className="lg:col-span-1 relative">
-      {/* DESKTOP */}
-      <div
-        ref={cardRef}
-        className={`
-          hidden lg:block
-          w-[360px]
-          z-30
-          ${isStopped ? "absolute bottom-0" : "fixed top-24"}
-          right-[calc(50%-640px)]
-        `}
-      >
-        <PurchaseCardInner course={course} onPreview={onPreview} />
-      </div>
-    </aside>
-  );
-}
-
-/* ───────────────────────────────────────────── */
-
-function PurchaseCardInner({
-  course,
-  onPreview,
-}: {
-  course: CourseDetail;
-  onPreview: () => void;
-}) {
+  const router = useRouter();
   const mediaImg = normalizeImageSrc(course.mediaImage);
+
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const isEnrolled = !!(course as any).isEnrolled; // ✅ vaqtincha (type qo‘shib olasan)
+
+  async function handlePrimaryAction() {
+    // ✅ already bought → go learn
+    if (isEnrolled) {
+      router.push(`/courses/${course.id}/learn`);
+      return;
+    }
+
+    // ✅ not bought → enroll
+    try {
+      setLoading(true);
+      setError(null);
+
+      await gqlFetchAuth(ENROLL_IN_COURSE, {
+        input: course.id,
+      });
+
+      // enroll bo‘lgach ham learning page’ga otkazamiz
+      router.push(`/courses/${course.id}/learn`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Enrollment failed");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="rounded-2xl overflow-hidden border border-black/10 bg-white shadow-xl">
@@ -95,13 +69,10 @@ function PurchaseCardInner({
           aria-label="Preview course"
           type="button"
         >
-          <span className="h-14 w-14 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition">
+          <span className="h-14 w-14 rounded-full bg-white flex items-center justify-center shadow-lg hover:scale-105 transition">
             <Play className="h-6 w-6 text-black ml-0.5" />
           </span>
         </button>
-        <div className="absolute bottom-3 left-3 text-xs text-white/90">
-          Preview this course
-        </div>
       </div>
 
       {/* Purchase */}
@@ -109,53 +80,36 @@ function PurchaseCardInner({
         <div className="flex items-end gap-3">
           <div className="text-3xl font-extrabold">{course.price}</div>
           {course.oldPrice && (
-            <div className="text-slate-400 line-through">
-              {course.oldPrice}
-            </div>
+            <div className="text-slate-400 line-through">{course.oldPrice}</div>
           )}
         </div>
 
+        {error && <div className="mt-3 text-sm text-red-600">{error}</div>}
+
         <div className="mt-4 space-y-2">
-          <button className="w-full bg-violet-600 hover:bg-violet-700 rounded-xl py-3 font-semibold text-white">
+          <button
+            disabled
+            className="w-full bg-slate-200 rounded-xl py-3 font-semibold text-slate-500 cursor-not-allowed"
+          >
             Add to cart
           </button>
-          <button className="w-full border border-slate-200 rounded-xl py-3 font-semibold hover:bg-slate-50">
-            Buy now
+
+          <button
+            onClick={handlePrimaryAction}
+            disabled={loading}
+            className="w-full bg-violet-600 hover:bg-violet-700 rounded-xl py-3 font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-70"
+          >
+            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+            {loading
+              ? "Please wait..."
+              : isEnrolled
+              ? "Continue / Start learning"
+              : "Buy now"}
           </button>
         </div>
 
         <div className="mt-4 text-xs text-slate-500 text-center">
           30-Day Money-Back Guarantee
-        </div>
-
-        <div className="mt-5">
-          <div className="text-sm font-semibold mb-3">
-            This course includes:
-          </div>
-          <ul className="space-y-2 text-sm text-slate-700">
-            <li className="flex gap-2">
-              <Play className="h-4 w-4" /> On-demand video
-            </li>
-            <li className="flex gap-2">
-              <ShieldCheck className="h-4 w-4" /> Full lifetime access
-            </li>
-            <li className="flex gap-2">
-              <BadgeCheck className="h-4 w-4" /> Certificate of completion
-            </li>
-          </ul>
-        </div>
-
-        <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-3">
-          <div className="text-xs text-slate-500 mb-2">Apply coupon</div>
-          <div className="flex gap-2">
-            <input
-              className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-violet-500"
-              placeholder="Enter coupon"
-            />
-            <button className="rounded-lg bg-slate-900 text-white px-4 text-sm font-semibold hover:bg-slate-800">
-              Apply
-            </button>
-          </div>
         </div>
       </div>
     </div>

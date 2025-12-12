@@ -1,7 +1,8 @@
+// ./types.ts
 export type CourseDetail = {
   id: string;
   title: string;
-  desc: any;
+  desc?: string | null;
   rating: number;
   students: number;
   level: string;
@@ -9,9 +10,12 @@ export type CourseDetail = {
   totalModules: number;
   totalLessons: number;
   price: string;
-  oldPrice?: string;
+  oldPrice?: string | null;
   updatedAt?: string | null;
-  instructor: { name: string; image: string | null };
+  instructor: {
+    name: string;
+    image: string | null;
+  };
   mediaImage: string | null;
 };
 

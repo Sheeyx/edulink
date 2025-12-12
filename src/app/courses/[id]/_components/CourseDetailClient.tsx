@@ -28,28 +28,36 @@ export default function CourseDetailClient({
 
   const scrollTo = (key: TabKey) => {
     setActiveTab(key);
+
     const el =
       key === "learn"
         ? learnRef.current
         : key === "content"
-          ? contentRef.current
-          : key === "reviews"
-            ? reviewsRef.current
-            : instructorRef.current;
+        ? contentRef.current
+        : key === "reviews"
+        ? reviewsRef.current
+        : instructorRef.current;
 
     el?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const instructorImg = normalizeImageSrc(course.instructor?.image);
+  // ✅ safe fallback for next/image
+  const instructorImg =
+    normalizeImageSrc(course.instructor?.image) || "/images/avatar.png";
+
+  const instructorName = course.instructor?.name || "Instructor";
 
   return (
     <div className="min-h-screen bg-white mt-16">
       {/* HERO */}
-      <section className="bg-slate-950 text-white h-120">
+      <section className="bg-slate-950 text-white">
         <div className="max-w-7xl mx-auto px-4 lg:px-6 py-6 lg:py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
             <CourseHero course={course} />
-            <CoursePurchaseCard course={course} onPreview={() => scrollTo("content")} />
+            <CoursePurchaseCard
+              course={course}
+              onPreview={() => scrollTo("content")}
+            />
           </div>
         </div>
       </section>
@@ -63,7 +71,9 @@ export default function CourseDetailClient({
 
               {/* Learn */}
               <div ref={learnRef} className="pt-8 scroll-mt-24">
-                <h2 className="text-2xl font-extrabold text-slate-900">What you’ll learn</h2>
+                <h2 className="text-2xl font-extrabold text-slate-900">
+                  What you’ll learn
+                </h2>
                 <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-6">
                   <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-slate-700">
                     <li>✅ Python basics</li>
@@ -78,7 +88,9 @@ export default function CourseDetailClient({
 
               {/* Curriculum */}
               <div ref={contentRef} className="pt-10 scroll-mt-24">
-                <h2 className="text-2xl font-extrabold text-slate-900">Course content</h2>
+                <h2 className="text-2xl font-extrabold text-slate-900">
+                  Course content
+                </h2>
                 <p className="text-sm text-slate-500 mt-1">
                   {course.totalModules} sections • {course.totalLessons} lectures
                 </p>
@@ -88,7 +100,9 @@ export default function CourseDetailClient({
 
               {/* Reviews */}
               <div ref={reviewsRef} className="pt-10 scroll-mt-24">
-                <h2 className="text-2xl font-extrabold text-slate-900">Reviews</h2>
+                <h2 className="text-2xl font-extrabold text-slate-900">
+                  Reviews
+                </h2>
                 <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-600">
                   Reviews UI goes here.
                 </div>
@@ -96,12 +110,14 @@ export default function CourseDetailClient({
 
               {/* Instructor */}
               <div ref={instructorRef} className="pt-10 scroll-mt-24">
-                <h2 className="text-2xl font-extrabold text-slate-900">Instructor</h2>
+                <h2 className="text-2xl font-extrabold text-slate-900">
+                  Instructor
+                </h2>
                 <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-6 flex items-center gap-4">
                   <div className="relative h-14 w-14 rounded-full overflow-hidden border">
                     <Image
                       src={instructorImg}
-                      alt={course.instructor?.name || "Instructor"}
+                      alt={instructorName}
                       fill
                       sizes="56px"
                       className="object-cover"
@@ -109,9 +125,11 @@ export default function CourseDetailClient({
                   </div>
                   <div>
                     <div className="font-bold text-slate-900">
-                      {course.instructor?.name || "Instructor"}
+                      {instructorName}
                     </div>
-                    <div className="text-sm text-slate-600">Mentor / Instructor</div>
+                    <div className="text-sm text-slate-600">
+                      Mentor / Instructor
+                    </div>
                   </div>
                 </div>
               </div>

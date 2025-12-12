@@ -1,32 +1,24 @@
-// app/mentor/edit-course/[id]/EditCourseClient.tsx
 "use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { FiArrowLeft, FiCalendar } from "react-icons/fi";
+
 import { gqlFetchAuth } from "@/libs/graphql";
-import { GET_COURSE, UPDATE_COURSE } from "@/graphql/query/courses/courses";
+import { GET_COURSE, UPDATE_COURSE, UPDATE_COURSE_SETTINGS } from "@/graphql/query/courses/courses";
 import { uploadFilesToB2 } from "@/services/b2Upload";
 import { getAccessToken } from "@/providers/auth-context";
-import { COURSE_LEVEL, LANGUAGE_OPTIONS, CATEGORY_OPTIONS } from "@/libs/enums/course.enums";
+import {
+  COURSE_LEVEL,
+  COURSE_STATUS,
+  LANGUAGE_OPTIONS,
+  CATEGORY_OPTIONS,
+  CourseLevel,
+  CourseStatus,
+} from "@/libs/enums/course.enums";
 import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 
-type CourseLevel =
-  | "BEGINNER"
-  | "ELEMENTARY"
-  | "INTERMEDIATE"
-  | "UPPER_INTERMEDIATE"
-  | "ADVANCED"
-  | "PROFICIENCY"
-  | "ALL_LEVELS";
-
-type CourseStatus =
-  | "DRAFT"
-  | "PUBLISHED"
-  | "ARCHIVED"
-  | "SUSPENDED"
-  | "COMPLETED"
-  | "PROGRESS";
+/* ───────────────────────────────────────────── */
 
 type CourseFromApi = {
   _id: string;
@@ -40,31 +32,39 @@ type CourseFromApi = {
   courseImage?: string | null;
   maxStudents?: number | null;
   courseStartDate?: string | null;
-  mentorId: string;
-  courseEnrolledMembers?: number | null;
-  courseTotalModules?: number | null;
-  courseTotalLessons?: number | null;
-  courseRating?: number | null;
-  courseLikes?: number | null;
-  deletedAt?: string | null;
-  createdAt: string;
-  updatedAt: string;
 };
 
 type GetCourseResp = { getCourse: CourseFromApi };
 type UpdateCourseResp = { updateCourse: CourseFromApi };
 
+type EditFormState = {
+  title: string;
+  description: string;
+  category: string;
+  languageType: string;
+  level: CourseLevel;
+  status: CourseStatus;
+  price: string;
+  maxStudents: number;
+  courseStartDate: Date | null;
+};
+
 const LEVEL_OPTIONS = Object.values(COURSE_LEVEL);
-const STATUS_OPTIONS: CourseStatus[] = [
-  "DRAFT",
-  "PUBLISHED",
-  "ARCHIVED",
-  "SUSPENDED",
-  "COMPLETED",
-  "PROGRESS",
-];
+const STATUS_OPTIONS = Object.values(COURSE_STATUS);
 const LANG_OPTIONS = Object.values(LANGUAGE_OPTIONS);
 const CATEG_OPTIONS = Object.values(CATEGORY_OPTIONS);
+
+const INITIAL_FORM: EditFormState = {
+  title: "",
+  description: "",
+  category: "",
+  languageType: "",
+  level: "BEGINNER",
+  status: "DRAFT",
+  price: "",
+  maxStudents: 10,
+  courseStartDate: null,
+};
 
 /* ─────────────────── Utils ─────────────────── */
 
@@ -72,40 +72,34 @@ const getErrorMessage = (err: unknown): string =>
   err instanceof Error ? err.message : "Something went wrong. Please try again.";
 
 const formatDate = (date: Date): string => {
-  return date.toLocaleDateString('en-US', { 
-    weekday: 'short',
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
+  return date.toLocaleDateString("en-US", {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
 };
+
+/* ───────────────────────────────────────────── */
 
 export default function EditCourseClient({ courseId }: { courseId: string }) {
   const router = useRouter();
 
   const [loading, setLoading] = React.useState(true);
-  const [err, setErr] = React.useState<string | null>(null);
+  const [loadErr, setLoadErr] = React.useState<string | null>(null);
+
+  const [form, setForm] = React.useState<EditFormState>(INITIAL_FORM);
+
+  const [imageFile, setImageFile] = React.useState<File | null>(null);
+  const [imagePreview, setImagePreview] = React.useState<string | null>(null);
+  const [existingImageKey, setExistingImageKey] = React.useState<string | null>(null);
+
+  const [showDatePicker, setShowDatePicker] = React.useState(false);
+
   const [saving, setSaving] = React.useState(false);
   const [uploadingImage, setUploadingImage] = React.useState(false);
   const [saveErr, setSaveErr] = React.useState<string | null>(null);
   const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
-
-  const [form, setForm] = React.useState({
-    title: "",
-    description: "",
-    category: "",
-    languageType: "",
-    level: "BEGINNER" as CourseLevel,
-    status: "DRAFT" as CourseStatus,
-    price: "",
-    maxStudents: "10",
-    courseStartDate: null as Date | null,
-  });
-
-  const [imageFile, setImageFile] = React.useState<File | null>(null);
-  const [imagePreview, setImagePreview] = React.useState<string | null>(null);
-  const [existingImageUrl, setExistingImageUrl] = React.useState<string | null>(null);
-  const [showDatePicker, setShowDatePicker] = React.useState(false);
 
   const datePickerRef = React.useRef<HTMLDivElement>(null);
 
@@ -118,94 +112,95 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
     };
 
     if (showDatePicker) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [showDatePicker]);
 
-  // ---- Load course on mount -------------------------------------------
-  async function loadCourse(id: string) {
-    setLoading(true);
-    setErr(null);
-    try {
-      const data = await gqlFetchAuth<GetCourseResp>(
-        GET_COURSE,
-        { input: id },
-        undefined,
-        { withCredentials: true }
-      );
-
-      const c = data.getCourse;
-      setForm({
-        title: c.courseTitle,
-        description: c.courseDesc,
-        category: c.courseCategory,
-        languageType: c.languageType,
-        level: c.courseLevel,
-        status: c.courseStatus,
-        price: String(c.coursePrice),
-        maxStudents: String(c.maxStudents || 10),
-        courseStartDate: c.courseStartDate ? new Date(c.courseStartDate) : null,
-      });
-
-      if (c.courseImage) {
-        const imageUrl = buildDownloadUrl(c.courseImage);
-        setExistingImageUrl(c.courseImage);
-        setImagePreview(imageUrl);
-      }
-    } catch (e: any) {
-      setErr(e.message || "Failed to load course.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
+  /* ───────── Load course ───────── */
   React.useEffect(() => {
     if (!courseId) return;
-    loadCourse(courseId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    (async () => {
+      setLoading(true);
+      setLoadErr(null);
+
+      try {
+        const data = await gqlFetchAuth<GetCourseResp>(
+          GET_COURSE,
+          { input: courseId },
+          undefined,
+          { withCredentials: true }
+        );
+
+        const c = data.getCourse;
+
+        setForm({
+          title: c.courseTitle ?? "",
+          description: c.courseDesc ?? "",
+          category: c.courseCategory ?? "",
+          languageType: c.languageType ?? "",
+          level: c.courseLevel ?? "BEGINNER",
+          status: c.courseStatus ?? "DRAFT",
+          price: String(c.coursePrice ?? 0),
+          maxStudents: Number(c.maxStudents ?? 10),
+          courseStartDate: c.courseStartDate ? new Date(c.courseStartDate) : null,
+        });
+
+        if (c.courseImage) {
+          setExistingImageKey(c.courseImage);
+          setImagePreview(buildDownloadUrl(c.courseImage));
+        } else {
+          setExistingImageKey(null);
+          setImagePreview(null);
+        }
+      } catch (err) {
+        setLoadErr(getErrorMessage(err));
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [courseId]);
 
   /* ───────── Handlers ───────── */
 
   const handleInputChange = React.useCallback(
     (
-      field: keyof typeof form,
-      value: string | CourseLevel | CourseStatus | Date | null
+      field: keyof EditFormState,
+      value: string | number | CourseLevel | CourseStatus | Date | null
     ) => {
-      setForm((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
+      setForm((prev) => ({ ...prev, [field]: value as any }));
     },
     []
   );
 
-  const handleImageChange = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
+  const handleImageChange = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  }, []);
+
+  const handleDateSelect = React.useCallback(
+    (date: Date) => {
+      handleInputChange("courseStartDate", date);
+      setShowDatePicker(false);
     },
-    []
+    [handleInputChange]
   );
-
-  const handleDateSelect = React.useCallback((date: Date) => {
-    handleInputChange("courseStartDate", date);
-    setShowDatePicker(false);
-  }, [handleInputChange]);
 
   const isDisabled =
     saving ||
     uploadingImage ||
     !form.title.trim() ||
     !form.description.trim() ||
+    !form.category.trim() || // ✅ important
     !form.languageType.trim();
 
-  // ---- Submit edit -----------------------------------------------------
-  async function handleSubmit(e: React.FormEvent) {
+  /* ───────── Submit ───────── */
+ const handleSubmit = React.useCallback(
+  async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isDisabled) return;
 
@@ -214,71 +209,89 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
     setSuccessMsg(null);
 
     try {
-      let courseImageUrl: string | null = existingImageUrl;
+      // 1) image key (existing or newly uploaded)
+      let courseImageKey: string | null = existingImageKey;
 
-      // 1) Upload new image to B2 (if selected)
       if (imageFile) {
         setUploadingImage(true);
+        try {
+          const token = getAccessToken();
+          if (!token) throw new Error("Not authenticated: missing access token.");
 
-        const token = getAccessToken();
-        if (!token) {
-          throw new Error("Not authenticated: missing access token.");
+          const uploadedKeys = await uploadFilesToB2([imageFile], "courses-images", token);
+          if (!uploadedKeys.length) throw new Error("File upload failed: empty response.");
+
+          courseImageKey = uploadedKeys[0];
+        } finally {
+          setUploadingImage(false);
         }
-
-        const uploadedKeys = await uploadFilesToB2(
-          [imageFile],
-          "courses-images",
-          token
-        );
-
-        if (!uploadedKeys.length) {
-          throw new Error("File upload failed: empty response.");
-        }
-
-        courseImageUrl = uploadedKeys[0];
-        setUploadingImage(false);
       }
 
+      // 2) safe numbers
       const priceNumber = Number(form.price || 0);
       const safePrice = Number.isFinite(priceNumber) ? priceNumber : 0;
 
       const maxStudentsNumber = Number(form.maxStudents || 10);
-      const safeMaxStudents = Number.isFinite(maxStudentsNumber) && maxStudentsNumber >= 1 ? maxStudentsNumber : 10;
+      const safeMaxStudents =
+        Number.isFinite(maxStudentsNumber) && maxStudentsNumber >= 1 ? maxStudentsNumber : 10;
 
-      // 2) Build GraphQL input
-      const input = {
+      // ✅ 3) updateCourse (CourseUpdate inputiga MOS fieldlar)
+      const courseInput = {
         _id: courseId,
         courseTitle: form.title.trim(),
         courseDesc: form.description.trim(),
-        courseCategory: form.category.trim(),
         languageType: form.languageType.trim(),
         courseLevel: form.level,
         coursePrice: safePrice,
-        courseStatus: form.status,
-        courseImage: courseImageUrl,
-        maxStudents: safeMaxStudents,
-        courseStartDate: form.courseStartDate,
+        courseImage: courseImageKey ?? null,
+        // ❌ courseCategory yubormaymiz (CourseUpdate’da yo‘q)
+        // ❌ courseStatus yubormaymiz (CourseUpdate’da yo‘q)
+        // ❌ maxStudents yubormaymiz (CourseUpdate’da yo‘q)
+        // ❌ courseStartDate yubormaymiz (CourseUpdate’da yo‘q)
       };
 
       await gqlFetchAuth<UpdateCourseResp>(
         UPDATE_COURSE,
-        { input },
+        { input: courseInput },
+        undefined,
+        { withCredentials: true }
+      );
+
+      // ✅ 4) updateCourseSettings (CourseSettingsUpdate)
+      const settingsInput = {
+        courseId,
+        maxStudents: safeMaxStudents,
+        courseStartDate: form.courseStartDate ? form.courseStartDate.toISOString() : null,
+      };
+
+      await gqlFetchAuth(
+        UPDATE_COURSE_SETTINGS,
+        { input: settingsInput },
         undefined,
         { withCredentials: true }
       );
 
       setSuccessMsg("Course updated successfully.");
       router.push(`/mentor/courses/${courseId}`);
-    } catch (e: any) {
-      console.error("Update course error:", e);
-      setSaveErr(getErrorMessage(e));
+    } catch (err: any) {
+      const msg =
+        err?.response?.errors?.[0]?.message ||
+        err?.errors?.[0]?.message ||
+        err?.message ||
+        getErrorMessage(err);
+
+      setSaveErr(msg);
     } finally {
       setSaving(false);
       setUploadingImage(false);
     }
-  }
+  },
+  [courseId, existingImageKey, form, imageFile, isDisabled, router]
+);
 
-  // ---- UI --------------------------------------------------------------
+
+  /* ─────────────────── UI ─────────────────── */
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -287,13 +300,12 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
             <button
               className="flex h-9 w-9 items-center justify-center rounded-full border bg-white"
               onClick={() => router.back()}
+              type="button"
             >
               <FiArrowLeft className="h-4 w-4" />
             </button>
             <div>
-              <h1 className="text-lg font-semibold tracking-tight lg:text-xl">
-                Edit Course
-              </h1>
+              <h1 className="text-lg font-semibold tracking-tight lg:text-xl">Edit Course</h1>
               <p className="text-xs text-slate-500">Loading...</p>
             </div>
           </div>
@@ -301,7 +313,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
         <main className="mx-auto mt-6 max-w-3xl px-4 pb-10 lg:px-0">
           <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
             <div className="flex items-center justify-center py-12">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600"></div>
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
             </div>
           </div>
         </main>
@@ -309,7 +321,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
     );
   }
 
-  if (err) {
+  if (loadErr) {
     return (
       <div className="min-h-screen bg-slate-50 text-slate-900">
         <header className="border-b bg-white/80 backdrop-blur">
@@ -317,19 +329,18 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
             <button
               className="flex h-9 w-9 items-center justify-center rounded-full border bg-white"
               onClick={() => router.back()}
+              type="button"
             >
               <FiArrowLeft className="h-4 w-4" />
             </button>
             <div>
-              <h1 className="text-lg font-semibold tracking-tight lg:text-xl">
-                Edit Course
-              </h1>
+              <h1 className="text-lg font-semibold tracking-tight lg:text-xl">Edit Course</h1>
             </div>
           </div>
         </header>
         <main className="mx-auto mt-6 max-w-3xl px-4 pb-10 lg:px-0">
           <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-rose-100">
-            <p className="text-sm text-rose-600">{err}</p>
+            <p className="text-sm text-rose-600">{loadErr}</p>
           </div>
         </main>
       </div>
@@ -351,12 +362,8 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
               <FiArrowLeft className="h-4 w-4" />
             </button>
             <div>
-              <h1 className="text-lg font-semibold tracking-tight lg:text-xl">
-                Edit Course
-              </h1>
-              <p className="text-xs text-slate-500">
-                Update your course information and publish when ready.
-              </p>
+              <h1 className="text-lg font-semibold tracking-tight lg:text-xl">Edit Course</h1>
+              <p className="text-xs text-slate-500">Update your course information and publish when ready.</p>
             </div>
           </div>
         </div>
@@ -369,32 +376,21 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
           className="space-y-5 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100"
         >
           {saveErr && (
-            <div className="rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-600">
-              {saveErr}
-            </div>
+            <div className="rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-600">{saveErr}</div>
           )}
-
           {successMsg && (
-            <div className="rounded-xl bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
-              {successMsg}
-            </div>
+            <div className="rounded-xl bg-emerald-50 px-3 py-2 text-xs text-emerald-700">{successMsg}</div>
           )}
 
           {/* Course image upload */}
           <div>
-            <label className="text-xs font-medium text-slate-700">
-              Course thumbnail
-            </label>
+            <label className="text-xs font-medium text-slate-700">Course thumbnail</label>
 
             <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-center">
               <div className="flex items-center gap-4">
                 <div className="relative h-20 w-20 overflow-hidden rounded-xl border border-dashed border-slate-300 bg-slate-50">
                   {imagePreview ? (
-                    <img
-                      src={imagePreview}
-                      alt="Course thumbnail preview"
-                      className="h-full w-full object-cover"
-                    />
+                    <img src={imagePreview} alt="Course thumbnail preview" className="h-full w-full object-cover" />
                   ) : (
                     <div className="flex h-full w-full flex-col items-center justify-center text-[10px] text-slate-400">
                       <span>Thumbnail</span>
@@ -405,17 +401,10 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
 
                 <div>
                   <label className="inline-flex cursor-pointer items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">
-                    <span>{imageFile || existingImageUrl ? "Change image" : "Upload image"}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleImageChange}
-                    />
+                    <span>{imageFile || existingImageKey ? "Change image" : "Upload image"}</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
                   </label>
-                  <p className="mt-1 text-[11px] text-slate-400">
-                    JPG, PNG, or WEBP. Recommended ratio ~16:9.
-                  </p>
+                  <p className="mt-1 text-[11px] text-slate-400">JPG, PNG, or WEBP. Recommended ratio ~16:9.</p>
                 </div>
               </div>
             </div>
@@ -423,10 +412,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
 
           {/* Title */}
           <div>
-            <label
-              htmlFor="course-title"
-              className="text-xs font-medium text-slate-700"
-            >
+            <label htmlFor="course-title" className="text-xs font-medium text-slate-700">
               Course title
             </label>
             <input
@@ -441,10 +427,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
 
           {/* Description */}
           <div>
-            <label
-              htmlFor="course-description"
-              className="text-xs font-medium text-slate-700"
-            >
+            <label htmlFor="course-description" className="text-xs font-medium text-slate-700">
               Description
             </label>
             <textarea
@@ -466,6 +449,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
                 className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
                 value={form.category}
                 onChange={(e) => handleInputChange("category", e.target.value)}
+                required
               >
                 <option value="" disabled>
                   Select category
@@ -483,7 +467,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
               <select
                 className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
                 value={form.languageType}
-                onChange={(e) => handleInputChange("languageType", e.target.value)}
+                onChange={(e) => handleInputChange("languageType", e.target.value as any)}
                 required
               >
                 <option value="" disabled>
@@ -501,19 +485,14 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
           {/* Level + Max Students */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label
-                htmlFor="course-level"
-                className="text-xs font-medium text-slate-700"
-              >
+              <label htmlFor="course-level" className="text-xs font-medium text-slate-700">
                 Level
               </label>
               <select
                 id="course-level"
                 className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
                 value={form.level}
-                onChange={(e) =>
-                  handleInputChange("level", e.target.value as CourseLevel)
-                }
+                onChange={(e) => handleInputChange("level", e.target.value as CourseLevel)}
               >
                 {LEVEL_OPTIONS.map((lvl) => (
                   <option key={lvl} value={lvl}>
@@ -524,10 +503,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
             </div>
 
             <div>
-              <label
-                htmlFor="max-students"
-                className="text-xs font-medium text-slate-700"
-              >
+              <label htmlFor="max-students" className="text-xs font-medium text-slate-700">
                 Max Students
               </label>
               <input
@@ -536,7 +512,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
                 min={1}
                 className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
                 value={form.maxStudents}
-                onChange={(e) => handleInputChange("maxStudents", e.target.value)}
+                onChange={(e) => handleInputChange("maxStudents", Number(e.target.value))}
                 placeholder="10"
               />
             </div>
@@ -545,15 +521,11 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
           {/* Status + Start Date */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="text-xs font-medium text-slate-700">
-                Status
-              </label>
+              <label className="text-xs font-medium text-slate-700">Status</label>
               <select
                 className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
                 value={form.status}
-                onChange={(e) =>
-                  handleInputChange("status", e.target.value as CourseStatus)
-                }
+                onChange={(e) => handleInputChange("status", e.target.value as CourseStatus)}
               >
                 {STATUS_OPTIONS.map((st) => (
                   <option key={st} value={st}>
@@ -564,9 +536,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
             </div>
 
             <div>
-              <label className="text-xs font-medium text-slate-700">
-                Course Start Date
-              </label>
+              <label className="text-xs font-medium text-slate-700">Course Start Date</label>
               <div className="relative" ref={datePickerRef}>
                 <button
                   type="button"
@@ -581,10 +551,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
 
                 {showDatePicker && (
                   <div className="absolute z-50 mt-2 rounded-xl border border-slate-200 bg-white p-4 shadow-lg">
-                    <DatePicker
-                      selectedDate={form.courseStartDate}
-                      onSelectDate={handleDateSelect}
-                    />
+                    <DatePicker selectedDate={form.courseStartDate} onSelectDate={handleDateSelect} />
                   </div>
                 )}
               </div>
@@ -593,10 +560,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
 
           {/* Price */}
           <div>
-            <label
-              htmlFor="course-price"
-              className="text-xs font-medium text-slate-700"
-            >
+            <label htmlFor="course-price" className="text-xs font-medium text-slate-700">
               Price (₩)
             </label>
             <input
@@ -649,17 +613,8 @@ function DatePicker({ selectedDate, onSelectDate }: DatePickerProps) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const daysInMonth = new Date(
-    currentMonth.getFullYear(),
-    currentMonth.getMonth() + 1,
-    0
-  ).getDate();
-
-  const firstDayOfMonth = new Date(
-    currentMonth.getFullYear(),
-    currentMonth.getMonth(),
-    1
-  ).getDay();
+  const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
+  const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay();
 
   const monthNames = [
     "January", "February", "March", "April", "May", "June",
@@ -675,20 +630,19 @@ function DatePicker({ selectedDate, onSelectDate }: DatePickerProps) {
   };
 
   const renderDays = () => {
-    const days = [];
+    const days: React.ReactNode[] = [];
     const emptyDays = firstDayOfMonth;
 
-    // Empty cells before first day
     for (let i = 0; i < emptyDays; i++) {
       days.push(<div key={`empty-${i}`} className="h-9 w-9" />);
     }
 
-    // Days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
       date.setHours(0, 0, 0, 0);
-      
-      const isSelected = selectedDate && 
+
+      const isSelected =
+        !!selectedDate &&
         date.getDate() === selectedDate.getDate() &&
         date.getMonth() === selectedDate.getMonth() &&
         date.getFullYear() === selectedDate.getFullYear();
@@ -704,8 +658,8 @@ function DatePicker({ selectedDate, onSelectDate }: DatePickerProps) {
           disabled={isPast}
           className={`
             h-9 w-9 rounded-lg text-sm font-medium transition-all
-            ${isSelected 
-              ? "bg-blue-600 text-white shadow-sm" 
+            ${isSelected
+              ? "bg-blue-600 text-white shadow-sm"
               : isPast
               ? "text-slate-300 cursor-not-allowed"
               : "text-slate-700 hover:bg-slate-100"
@@ -723,7 +677,6 @@ function DatePicker({ selectedDate, onSelectDate }: DatePickerProps) {
 
   return (
     <div className="w-72">
-      {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <button
           type="button"
@@ -734,7 +687,7 @@ function DatePicker({ selectedDate, onSelectDate }: DatePickerProps) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        
+
         <div className="text-sm font-semibold text-slate-900">
           {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
         </div>
@@ -750,7 +703,6 @@ function DatePicker({ selectedDate, onSelectDate }: DatePickerProps) {
         </button>
       </div>
 
-      {/* Weekday headers */}
       <div className="mb-2 grid grid-cols-7 gap-1">
         {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
           <div key={day} className="flex h-9 w-9 items-center justify-center text-xs font-medium text-slate-500">
@@ -759,10 +711,7 @@ function DatePicker({ selectedDate, onSelectDate }: DatePickerProps) {
         ))}
       </div>
 
-      {/* Days grid */}
-      <div className="grid grid-cols-7 gap-1">
-        {renderDays()}
-      </div>
+      <div className="grid grid-cols-7 gap-1">{renderDays()}</div>
     </div>
   );
 }

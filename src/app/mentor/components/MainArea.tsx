@@ -2,8 +2,8 @@
 "use client";
 
 import React from "react";
-import type { PanelType } from "@/app/mentor/MentorDashboardClient";
 import PanelContent from "./PanelContent";
+import { PanelType } from "../MentorDashboardClient";
 
 export type ActionItem = {
   icon: React.ReactNode;

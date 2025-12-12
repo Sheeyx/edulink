@@ -9,27 +9,44 @@ import { mapSectionsForUI } from "@/utils/section";
 
 import CourseDetailClient from "./_components/CourseDetailClient";
 
-type Params = Promise<{ id?: string }>;
+/* ───────────────────────────────────────────── */
 
-export default async function CourseDetailPage({ params }: { params: Params }) {
-  const { id: rawId } = await params;
-  const id = (rawId ?? "").trim();
+type PageProps = {
+  params: {
+    id: string;
+  };
+};
+
+/* ───────────────────────────────────────────── */
+
+export default async function CourseDetailPage({ params }: PageProps) {
+  const id = params.id.trim();
   if (!id) return notFound();
 
   const course = await getCourseById(id);
   if (!course) return notFound();
 
-  let sectionsUI: any[] = [];
+  let sectionsUI: unknown[] = [];
+
   try {
-    const { list } = await getSectionsByCourse({ courseId: course._id, page: 1, limit: 200 });
+    const { list } = await getSectionsByCourse({
+      courseId: course._id,
+      page: 1,
+      limit: 200,
+    });
     sectionsUI = mapSectionsForUI(list);
   } catch {
     sectionsUI = mapInlineSections(course.sectionsWithLessons);
   }
 
-  const instructorName = course.memberData?.memberFullName ?? "Instructor";
-  const instructorImg = course.memberData?.memberImage ?? null;
-  const mediaImage = course.courseImage ?? null;
+  const instructorName =
+    course.memberData?.memberFullName ?? "Instructor";
+
+  const instructorImg =
+    course.memberData?.memberImage ?? null;
+
+  const mediaImage =
+    course.courseImage ?? null;
 
   return (
     <CourseDetailClient
@@ -45,9 +62,13 @@ export default async function CourseDetailPage({ params }: { params: Params }) {
         totalLessons: course.courseTotalLessons ?? 0,
         price: formatPrice(course.coursePrice ?? 89000),
         oldPrice: "₩149,000",
-        updatedAt: course.updatedAt ?? null,
-        instructor: { name: instructorName, image: instructorImg },
+        updatedAt: course.updatedAt ?? "",
+        instructor: {
+          name: instructorName,
+          image: instructorImg,
+        },
         mediaImage,
+
       }}
       sections={sectionsUI}
     />
