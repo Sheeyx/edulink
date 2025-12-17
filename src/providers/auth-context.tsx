@@ -1,4 +1,3 @@
-// src/providers/auth-context.tsx
 "use client";
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
@@ -7,17 +6,44 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from "
 export type MemberRole = "STUDENT" | "MENTOR" | "ADMIN";
 
 export type AuthUser = {
+  // ✅ required basics
   id: string;
   email: string;
+
+  // ✅ optional basics
   name?: string | null;
   role?: MemberRole | null;
   image?: string | null;
+
+  // ✅ member fields (needed for profile panel)
+  _id?: string; // sometimes backend returns _id
+  memberFullName?: string | null;
+  memberPhone?: string | null;
+  memberBio?: string | null;
+  memberImage?: string | null;
+  memberStatus?: string | null;
+  memberAuth?: string | null;
+
+  // ✅ tokens (optional)
+  accessToken?: string | null;
+  refreshToken?: string | null;
+  accessTokenExpiresIn?: number | null;
+  refreshTokenExpiresIn?: number | null;
 } | null;
+
+type SetUserAction = AuthUser | ((prev: AuthUser) => AuthUser);
 
 type AuthContextValue = {
   user: AuthUser;
-  setUser: (u: AuthUser) => void;     // persists automatically
-  logout: () => void;                 // clears tokens + user (all tabs sync)
+
+  /**
+   * ✅ now supports:
+   * setUser(userObject)
+   * setUser(prev => ({...prev, ...patch}))
+   */
+  setUser: (u: SetUserAction) => void;
+
+  logout: () => void;
   roleSafe: (r?: string | null) => MemberRole;
   redirectByRole: (r?: string | null) => "/user" | "/mentor" | "/dashboard";
 };
@@ -29,6 +55,7 @@ function roleSafe(r?: string | null): MemberRole {
   const v = (r ?? "").toUpperCase();
   return (validRoles as readonly string[]).includes(v) ? (v as MemberRole) : "STUDENT";
 }
+
 function redirectByRole(r?: string | null) {
   const v = roleSafe(r);
   if (v === "MENTOR") return "/mentor";
@@ -36,7 +63,7 @@ function redirectByRole(r?: string | null) {
   return "/user";
 }
 
-function setTokens(access: string, refresh: string, accessSec: number, refreshSec: number) {
+export function setTokens(access: string, refresh: string, accessSec: number, refreshSec: number) {
   try {
     localStorage.setItem("accessToken", access || "");
     localStorage.setItem("refreshToken", refresh || "");
@@ -44,9 +71,10 @@ function setTokens(access: string, refresh: string, accessSec: number, refreshSe
     localStorage.setItem("refreshTokenExpiresAt", String(Date.now() + (refreshSec || 0) * 1000));
   } catch {}
 }
-function clearTokens() {
+
+export function clearTokens() {
   try {
-    ["accessToken","refreshToken","accessTokenExpiresAt","refreshTokenExpiresAt"].forEach(k =>
+    ["accessToken", "refreshToken", "accessTokenExpiresAt", "refreshTokenExpiresAt"].forEach((k) =>
       localStorage.removeItem(k)
     );
   } catch {}
@@ -65,47 +93,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const raw = localStorage.getItem("currentUser");
       if (!raw) return;
       const parsed = JSON.parse(raw);
-      if (parsed?.role && !validRoles.includes(parsed.role)) parsed.role = null;
+
+      // normalize role
+      if (parsed?.role) parsed.role = roleSafe(parsed.role);
+
       _setUser(parsed);
     } catch (err) {
       console.error("Failed to parse currentUser:", err);
       localStorage.removeItem("currentUser");
+      _setUser(null);
     }
   }, []);
 
-  // Cross-tab sync (login/logout in other tab)
+  // Cross-tab sync
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === "currentUser") {
         try {
           const parsed = e.newValue ? JSON.parse(e.newValue) : null;
+          if (parsed?.role) parsed.role = roleSafe(parsed.role);
           _setUser(parsed);
         } catch {
           _setUser(null);
         }
       }
+
       if (e.key === "accessToken" && e.newValue === null) {
-        // token cleared in another tab → ensure user is also cleared
+        // token cleared in another tab → ensure user cleared too
         const snapshot = localStorage.getItem("currentUser");
         if (!snapshot) _setUser(null);
       }
     };
+
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  // Persisting setter
-  const setUser = (u: AuthUser) => {
-    _setUser(u);
-    try {
-      if (u) localStorage.setItem("currentUser", JSON.stringify(u));
-      else localStorage.removeItem("currentUser");
-    } catch (err) {
-      console.error("Failed to persist currentUser:", err);
-    }
+  // Persisting setter (supports function updater)
+  const setUser = (action: SetUserAction) => {
+    _setUser((prev) => {
+      const next = typeof action === "function" ? (action as any)(prev) : action;
+
+      try {
+        if (next) localStorage.setItem("currentUser", JSON.stringify(next));
+        else localStorage.removeItem("currentUser");
+      } catch (err) {
+        console.error("Failed to persist currentUser:", err);
+      }
+
+      return next;
+    });
   };
 
-  // Logout: clear tokens + user + broadcast via localStorage
   const logout = () => {
     clearTokens();
     try {
@@ -131,9 +170,18 @@ export function useAuth(): AuthContextValue {
 
 /* ===== Optional exports for callers that need tokens ===== */
 export function getAccessToken(): string | null {
-  try { return localStorage.getItem("accessToken"); } catch { return null; }
+  try {
+    return localStorage.getItem("accessToken");
+  } catch {
+    return null;
+  }
 }
 export function getRefreshToken(): string | null {
-  try { return localStorage.getItem("refreshToken"); } catch { return null; }
+  try {
+    return localStorage.getItem("refreshToken");
+  } catch {
+    return null;
+  }
 }
-export { setTokens, clearTokens, redirectByRole, roleSafe };
+
+export { redirectByRole, roleSafe };
