@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import { ChevronLeft } from "lucide-react";
-import type { PanelType } from "./_types/types";
-import ProfilePanel from "./ProfilePanel/ProfilePanel";
+import { PanelType } from "../_components/_types/types";
+import ProfilePanel from "../_components/ProfilePanel/ProfilePanel";
 
 type Props = {
   panel: Exclude<PanelType, null>;
