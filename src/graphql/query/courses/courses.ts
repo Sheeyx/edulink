@@ -110,3 +110,51 @@ export const UPDATE_COURSE_SETTINGS = /* GraphQL */ `
     }
   }
 `;
+
+
+
+export const GET_MY_ENROLLED_COURSES = /* GraphQL */ `
+  query GetMyEnrolledCourses {
+    getMyEnrolledCourses {
+      _id
+      courseTitle
+      courseDesc
+      courseImage
+      courseCategory
+      languageType
+      courseLevel
+      coursePrice
+      courseStatus
+      courseEnrolledMembers
+      maxStudents
+      currentEnrolledMembers
+      isFull
+      courseTotalModules
+      courseTotalLessons
+      courseRating
+      updatedAt
+      sectionsWithLessons {
+        _id
+        sectionStatus
+        moduleTitle
+        moduleOrder
+        totalLessons
+        lessons {
+          _id
+          lessonTitle
+          lessonStatus
+          lessonContentType
+          lessonDuration
+          lessonUrl
+        }
+      }
+      memberData {
+        _id
+        memberFullName
+        memberImage
+        memberBio
+      }
+    }
+  }
+`;
+
