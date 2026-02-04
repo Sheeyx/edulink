@@ -7,7 +7,7 @@ import { Layers, Clock, PlayCircle, Users } from "lucide-react";
 import type { EnrolledCourse } from "../_types/courses.types";
 import { computeProgress } from "../_utils/progress";
 import RatingRow from "./RatingRow";
-import { buildDownloadUrl } from "@/libs/streamableUrl";
+import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 
 export default function CourseCard({ course }: { course: EnrolledCourse }) {
   const img =

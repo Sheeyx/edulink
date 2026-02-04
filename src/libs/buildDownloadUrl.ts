@@ -1,24 +1,31 @@
-// src/utils/buildDownloadUrl.ts
-export function buildDownloadUrl(relativePath: string): string {
+export function buildDownloadUrl(relativePath: unknown): string {
   if (!relativePath) return "";
 
-  // If already a full URL → return as is
-  if (
-    relativePath.startsWith("http://") ||
-    relativePath.startsWith("https://")
-  ) {
-    return relativePath;
+  const pathStr = String(relativePath).trim();
+  if (!pathStr) return "";
+
+  const bucket = process.env.NEXT_PUBLIC_B2_BUCKET_NAME;
+  if (!bucket) return "";
+
+  // ✅ 1) If it's a full backend URL, convert it to proxy path
+  // Example:
+  //  http://localhost:3003/api/s3/download/edu-storage/members-images/x.webp
+  // -> /api/s3/download/edu-storage/members-images/x.webp
+  if (pathStr.startsWith("http://") || pathStr.startsWith("https://")) {
+    // find "/api/s3/download/" inside
+    const marker = "/api/s3/download/";
+    const idx = pathStr.indexOf(marker);
+
+    if (idx !== -1) {
+      const after = pathStr.slice(idx + marker.length); // edu-storage/...
+      return `/api/s3/download/${after}`;
+    }
+
+    // external (ui-avatars, google, etc.) return as is
+    return pathStr;
   }
 
-  // remove leading slash
-  const clean = relativePath.replace(/^\/+/, "");
-
-  const base = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/+$/, "");
-  const bucket = process.env.NEXT_PUBLIC_B2_BUCKET_NAME;
-
-  if (!base || !bucket) return relativePath;
-
-  // Final required format:
-  // http://localhost:3003/api/s3/download/edu-storage/members/<fileName>
-  return `${base}/api/s3/download/${bucket}/${clean}`;
+  // ✅ 2) Relative key -> proxy
+  const clean = pathStr.replace(/^\/+/, "");
+  return `/api/s3/download/${bucket}/${clean}`;
 }

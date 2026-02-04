@@ -12,6 +12,7 @@ function sortSections(sections: Section[]) {
 export default function ModulesAccordion({ course }: { course: EnrolledCourseDetails }) {
   const sections = sortSections(course.sectionsWithLessons || []);
   const [openId, setOpenId] = React.useState<string | null>(sections[0]?._id || null);
+console.log(course, "course");
 
   return (
     <div className="rounded-3xl border border-gray-100 bg-white shadow-[0_10px_35px_rgba(99,99,160,0.08)] p-6">
@@ -47,9 +48,7 @@ export default function ModulesAccordion({ course }: { course: EnrolledCourseDet
                         ? `Module ${s.moduleOrder}: ${s.moduleTitle}`
                         : `Module ${idx + 1}: ${s.moduleTitle}`}
                     </div>
-                    <div className="text-sm text-gray-600">
-                      {lessons.length} lessons
-                    </div>
+                    <div className="text-sm text-gray-600">{lessons.length} lessons</div>
                   </div>
 
                   <ChevronDown
@@ -63,13 +62,16 @@ export default function ModulesAccordion({ course }: { course: EnrolledCourseDet
                 {opened && (
                   <div className="bg-gray-50 p-4">
                     {lessons.length === 0 ? (
-                      <div className="text-sm text-gray-600">
-                        No lessons in this module yet.
-                      </div>
+                      <div className="text-sm text-gray-600">No lessons in this module yet.</div>
                     ) : (
                       <div className="space-y-2">
                         {lessons.map((l, i) => (
-                          <LessonRow key={l._id} index={i + 1} lesson={l} />
+                          <LessonRow
+                            key={l._id}
+                            index={i + 1}
+                            lesson={l}
+                            courseId={course._id}   // ✅ PASS COURSE ID
+                          />
                         ))}
                       </div>
                     )}

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { BadgeCheck, Layers, Clock, Star, Users } from "lucide-react";
 import type { EnrolledCourseDetails } from "../_types/courseDetails.types";
-import { buildDownloadUrl } from "@/libs/streamableUrl";
+import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 
 export default function CourseMeta({
   course,

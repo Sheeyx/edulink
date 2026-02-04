@@ -6,7 +6,6 @@ import { Loader2, Eye, EyeOff } from "lucide-react";
 import { gqlFetchAuth } from "@/libs/graphql";
 import { uploadFilesToB2 } from "@/services/b2Upload";
 import { getAccessToken, useAuth } from "@/providers/auth-context";
-import { buildDownloadUrl } from "@/libs/streamableUrl";
 
 import { FALLBACK_AVATAR } from "./constants";
 import type { ToastKind, UpdateMemberResp } from "./types";
@@ -15,7 +14,7 @@ import { UPDATE_MEMBER } from "@/graphql/mutation/member/mutations";
 import TopRightToast from "./TopRightToast";
 import AvatarPicker from "./AvatarPicker";
 import Field from "./Field";
-
+import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 
 export default function ProfilePanel() {
   const { user, setUser } = useAuth();
@@ -27,14 +26,17 @@ export default function ProfilePanel() {
   const [toastMsg, setToastMsg] = React.useState<string | null>(null);
   const toastTimerRef = React.useRef<number | null>(null);
 
-  const showToast = React.useCallback((kind: ToastKind, title: string, msg?: string | null) => {
-    if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
-    setToastKind(kind);
-    setToastTitle(title);
-    setToastMsg(msg ?? null);
-    setToastOpen(true);
-    toastTimerRef.current = window.setTimeout(() => setToastOpen(false), 3000);
-  }, []);
+  const showToast = React.useCallback(
+    (kind: ToastKind, title: string, msg?: string | null) => {
+      if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
+      setToastKind(kind);
+      setToastTitle(title);
+      setToastMsg(msg ?? null);
+      setToastOpen(true);
+      toastTimerRef.current = window.setTimeout(() => setToastOpen(false), 3000);
+    },
+    []
+  );
 
   React.useEffect(() => {
     return () => {
@@ -50,14 +52,26 @@ export default function ProfilePanel() {
     );
   }
 
-  const initialAvatarUrl = buildDownloadUrl(
-    (user as any).memberImage ?? (user as any).image ?? ""
-  );
+  // ✅ RAW avatar key/url from user
+  const rawAvatar =
+    (user as any).memberImage ?? (user as any).image ?? "";
+
+  // ✅ build final URL
+  const initialAvatarUrl = buildDownloadUrl(rawAvatar);
+
+  // ✅ DEBUG (runs every render)
+  console.log("🧑‍🎓 USER OBJECT:", user);
+  console.log("🖼️ RAW AVATAR (memberImage/image):", rawAvatar);
+  console.log("🔗 RESOLVED AVATAR URL:", initialAvatarUrl);
+  console.log("🪣 ENV bucket:", process.env.NEXT_PUBLIC_B2_BUCKET_NAME);
+  console.log("🌐 ENV backend:", process.env.NEXT_PUBLIC_BACKEND_URL);
 
   const [fullName, setFullName] = React.useState<string>(
     (user as any).memberFullName ?? (user as any).name ?? ""
   );
-  const [phone, setPhone] = React.useState<string>((user as any).memberPhone ?? "");
+  const [phone, setPhone] = React.useState<string>(
+    (user as any).memberPhone ?? ""
+  );
   const [bio, setBio] = React.useState<string>((user as any).memberBio ?? "");
 
   const [password, setPassword] = React.useState<string>("");
@@ -71,6 +85,13 @@ export default function ProfilePanel() {
   const [saving, setSaving] = React.useState(false);
   const disabled = saving || !fullName.trim();
 
+  // ✅ If initial avatar changes (user hydrated, role change, etc.)
+  React.useEffect(() => {
+    console.log("🔁 initialAvatarUrl changed -> set preview:", initialAvatarUrl);
+    setAvatarPreview(initialAvatarUrl || FALLBACK_AVATAR);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialAvatarUrl]);
+
   // cleanup blob url
   React.useEffect(() => {
     if (!avatarFile) return;
@@ -81,6 +102,7 @@ export default function ProfilePanel() {
   }, [avatarFile, avatarPreview]);
 
   const onPickAvatar = (file: File) => {
+    console.log("📦 picked file:", file.name, file.type, file.size);
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
   };
@@ -96,13 +118,24 @@ export default function ProfilePanel() {
         ((user as any).image as string | null) ??
         null;
 
+      console.log("🟣 onSave start -> current imageKey:", imageKey);
+
       if (avatarFile) {
         const token = getAccessToken();
+        console.log("🔐 accessToken exists?:", !!token);
+
         if (!token) throw new Error("Not authenticated (missing access token).");
+
+        console.log("⬆️ uploading avatar to B2...");
         const uploaded = await uploadFilesToB2([avatarFile], "members-images", token);
+
+        console.log("✅ upload result:", uploaded);
+
         if (!uploaded?.length) throw new Error("Avatar upload failed.");
         imageKey = uploaded[0];
       }
+
+      console.log("🧾 final imageKey to send:", imageKey);
 
       const input: Record<string, any> = {
         _id: (user as any)._id ?? (user as any).id,
@@ -114,6 +147,8 @@ export default function ProfilePanel() {
 
       if (password.trim()) input.memberPassword = password.trim();
 
+      console.log("📤 sending UPDATE_MEMBER input:", input);
+
       const data = await gqlFetchAuth<UpdateMemberResp>(
         UPDATE_MEMBER,
         { input },
@@ -121,19 +156,26 @@ export default function ProfilePanel() {
         { withCredentials: true }
       );
 
+      console.log("📥 UPDATE_MEMBER response:", data);
+
       const updated = data.updateMember;
 
       // Keep your current AuthUser shape (basic)
-      setUser({
+      const nextUser = {
         id: (user as any).id ?? updated._id,
         email: updated.memberEmail ?? (user as any).email ?? "",
         name: updated.memberFullName ?? (user as any).name ?? null,
         role: ((updated.memberRole as any) ?? (user as any).role) ?? null,
         image: updated.memberImage ?? (user as any).image ?? null,
-      });
+      };
+
+      console.log("🧠 setUser nextUser:", nextUser);
+      setUser(nextUser);
 
       // update avatar preview to server key
       const nextAvatarUrl = buildDownloadUrl(updated.memberImage ?? imageKey ?? "");
+      console.log("🖼️ nextAvatarUrl after save:", nextAvatarUrl);
+
       setAvatarPreview(nextAvatarUrl || FALLBACK_AVATAR);
 
       setAvatarFile(null);
@@ -141,6 +183,7 @@ export default function ProfilePanel() {
 
       showToast("success", "Profile updated", "Your changes were saved successfully.");
     } catch (e: any) {
+      console.error("❌ onSave error:", e);
       showToast("error", "Update failed", pickGraphQLError(e));
     } finally {
       setSaving(false);
