@@ -1,187 +1,752 @@
+// app/mentor/courses/components/Sections/SectionsBlock.tsx
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { Layers, Clock, PlayCircle, Users } from "lucide-react";
+import * as React from "react";
+import {
+  FiEdit2,
+  FiTrash2,
+  FiPlus,
+  FiChevronDown,
+  FiMove,
+  FiPlay, // ▶️ for video preview
+  FiVideo, // 📹 for video lessons
+} from "react-icons/fi";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-import type { EnrolledCourse } from "../_types/courses.types";
-import { computeProgress } from "../_utils/progress";
-import RatingRow from "./RatingRow";
+import { gqlFetchAuth } from "@/libs/graphql";
+import type { SectionUI, LessonUI } from "@/libs/types/course/types";
 import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
+import UpdateAssignmentModal from "@/app/mentor/assignments/UpdateAssignmentModal";
 
-export default function CourseCard({ course }: { course: EnrolledCourse }) {
-  const img =
-    buildDownloadUrl(course.courseImage) ||
-    "https://ui-avatars.com/api/?name=Course&background=ede9fe&color=4c1d95";
+/* ─────────────────── Types ─────────────────── */
 
-  const mentorName = course.memberData?.memberFullName || "Mentor";
-  const mentorAvatar =
-    buildDownloadUrl(course.memberData?.memberImage) ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      mentorName
-    )}&background=EEF2FF&color=3730A3`;
+type AssignmentFromApi = {
+  _id: string;
+  title: string;
+  description?: string | null;
+  courseId: string;
+  sectionId?: string | null;
+  lessonId?: string | null;
+  mentorId?: string | null;
+  dueDate?: string | null;
+  attachments?: string[] | null;
+  status?: string | null;
+  deletedAt?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  submissionCount?: number | null;
+};
 
-  const { total, available, percent, firstLessonUrl } = computeProgress(course);
+type AssignmentUI = {
+  id: string;
+  title: string;
+  description?: string | null;
+  courseId: string;
+  sectionId?: string;
+  lessonId?: string;
+  mentorId?: string | null;
+  dueDate?: string | null;
+  status?: string | null;
+  submissionCount: number;
+  attachments: string[];
+};
 
-  const modules = course.courseTotalModules ?? course.sectionsWithLessons?.length ?? 0;
-  const lessons = course.courseTotalLessons ?? total ?? 0;
+type GetAssignmentsResponse = {
+  getAssignmentsByCourse: {
+    metaCounter: {
+      total: number;
+    };
+    list: AssignmentFromApi[];
+  };
+};
 
-  const seatsText =
-    typeof course.currentEnrolledMembers === "number" &&
-    typeof course.maxStudents === "number"
-      ? `${course.currentEnrolledMembers}/${course.maxStudents}`
-      : null;
+/* ─────────────────── GraphQL ─────────────────── */
+
+const GET_ASSIGNMENTS_BY_COURSE = `
+  query GetAssignmentsByCourse($input:String!) {
+    getAssignmentsByCourse(courseId: $input) {
+      metaCounter {
+        total
+      }
+      list {
+        _id
+        title
+        description
+        courseId
+        sectionId
+        lessonId
+        mentorId
+        dueDate
+        attachments
+        status
+        deletedAt
+        createdAt
+        updatedAt
+        submissionCount
+        submissions {
+          _id
+          assignmentId
+          studentId
+          answer
+          attachments
+          submittedDate
+          status
+          feedback
+          gradedBy
+          gradedDate
+          deletedAt
+          createdAt
+          updatedAt
+        }
+        courseData {
+          _id
+          courseTitle
+          courseDesc
+          courseCategory
+          languageType
+          courseLevel
+          coursePrice
+          courseStatus
+          mentorId
+          courseEnrolledMembers
+          maxStudents
+          currentEnrolledMembers
+          courseStartDate
+          isFull
+          courseTotalModules
+          courseTotalLessons
+          courseRating
+          courseLikes
+          deletedAt
+          createdAt
+          updatedAt
+        }
+      }
+    }
+  }
+`;
+
+const DELETE_ASSIGNMENT = `
+  mutation DeleteAssignment($input: String!) {
+    deleteAssignment(input: $input) {
+      _id
+      deletedAt
+    }
+  }
+`;
+
+/* ─────────────────── Utils ─────────────────── */
+
+const formatDueDate = (iso?: string | null): string => {
+  if (!iso) return "No due date";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "No due date";
+  return d.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+};
+
+/* ─────────────────── Props ─────────────────── */
+
+type Props = {
+  courseId: string;
+  sections: SectionUI[];
+  onAddLesson: (sectionId: string) => void;
+  onEditSection: (sectionId: string) => void;
+  onDeleteSection: (sectionId: string) => void;
+
+  onEditLesson: (sectionId: string, lessonId: string) => void;
+  onDeleteLesson: (sectionId: string, lessonId: string) => void;
+  onReorderLessons: (sectionId: string, lessons: LessonUI[]) => void;
+
+  onCreateAssignmentForSection?: (sectionId: string) => void;
+  onCreateAssignmentForLesson?: (sectionId: string, lessonId: string) => void;
+  onCreateGeneralAssignment?: () => void; // 🔹 NEW: for course-level assignments
+
+  // 🔹 NEW: video preview callback
+  onPreviewLesson?: (sectionId: string, lessonId: string) => void;
+};
+
+/* ─────────────────── Main component ─────────────────── */
+
+export default function SectionsBlock({
+  courseId,
+  sections,
+  onAddLesson,
+  onEditSection,
+  onDeleteSection,
+  onEditLesson,
+  onDeleteLesson,
+  onReorderLessons,
+  onCreateAssignmentForSection,
+  onCreateAssignmentForLesson,
+  onCreateGeneralAssignment,
+  onPreviewLesson,
+}: Props) {
+  const activeSections = sections.filter(
+    (s) => !s.status || s.status === "ACTIVE"
+  );
+
+  const [openSectionId, setOpenSectionId] = React.useState<string | null>(null);
+  const toggleSection = (id: string) => {
+    setOpenSectionId((prev) => (prev === id ? null : id));
+  };
+
+  // Fetch assignments for the whole course
+  const {
+    data: assignmentsData,
+    isLoading: assignmentsLoading,
+    isError: assignmentsError,
+  } = useQuery({
+    queryKey: ["course-assignments", courseId],
+    queryFn: async () => {
+      const res = await gqlFetchAuth<GetAssignmentsResponse>(
+        GET_ASSIGNMENTS_BY_COURSE,
+        { input: courseId }
+      );
+      return res;
+    },
+    enabled: !!courseId,
+  });
+
+  const assignments = assignmentsData?.getAssignmentsByCourse?.list ?? [];
+
+  // Group assignments by sectionId
+  const assignmentsBySection = React.useMemo(() => {
+    const map: Record<string, AssignmentUI[]> = {};
+    assignments.forEach((a) => {
+      if (!a.sectionId) return;
+      const key = a.sectionId;
+      if (!map[key]) map[key] = [];
+      map[key].push({
+        id: a._id,
+        title: a.title,
+        description: a.description ?? null,
+        courseId: a.courseId,
+        sectionId: a.sectionId ?? undefined,
+        lessonId: a.lessonId ?? undefined,
+        mentorId: a.mentorId ?? null,
+        dueDate: a.dueDate ?? null,
+        status: a.status ?? null,
+        submissionCount: a.submissionCount ?? 0,
+        attachments: Array.isArray(a.attachments) ? a.attachments : [],
+      });
+    });
+    return map;
+  }, [assignments]);
 
   return (
-    <div
-      className="rounded-2xl border border-gray-100 bg-white
-                 shadow-[0_8px_24px_rgba(99,99,160,0.08)]
-                 overflow-hidden hover:shadow-[0_12px_36px_rgba(99,99,160,0.14)]
-                 transition"
-    >
-      {/* image */}
-      <div className="relative h-32 w-full">
-        <Image
-          src={img}
-          alt={course.courseTitle}
-          fill
-          sizes="(max-width: 768px) 100vw, 33vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0" />
-
-        <div className="absolute left-3 bottom-3 right-3 flex flex-wrap items-center gap-1.5">
-          {course.courseLevel && (
-            <span className="rounded-lg bg-white/90 px-2.5 py-1 text-[11px] font-extrabold text-gray-900">
-              {course.courseLevel}
+    <section className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex flex-col gap-1">
+          <h3 className="text-base font-semibold tracking-tight lg:text-lg">
+            Sections
+          </h3>
+          {assignmentsLoading && (
+            <span className="text-xs text-slate-400">
+              Loading assignments…
             </span>
           )}
-          {course.courseCategory && (
-            <span className="rounded-lg bg-white/90 px-2.5 py-1 text-[11px] font-extrabold text-gray-900">
-              {course.courseCategory}
+          {assignmentsError && (
+            <span className="text-xs text-rose-500">
+              Failed to load assignments.
             </span>
           )}
         </div>
+
+        <span className="text-xs text-slate-500">
+          {activeSections.length} active sections
+        </span>
       </div>
 
-      {/* content */}
-      <div className="p-4">
-        <div className="min-w-0">
-          <div className="text-base font-extrabold text-gray-900 truncate">
-            {course.courseTitle}
-          </div>
-
-          {course.courseDesc ? (
-            <div className="mt-0.5 text-xs text-gray-600 line-clamp-2">
-              {course.courseDesc}
-            </div>
-          ) : (
-            <div className="mt-0.5 text-xs text-gray-500">No description.</div>
-          )}
+      {activeSections.length === 0 ? (
+        <div className="rounded-xl bg-slate-50 px-4 py-6 text-sm text-slate-500">
+          No active sections yet. Use{" "}
+          <span className="font-medium text-violet-600">Add Section</span> to
+          create the first module.
         </div>
-
-        {/* mentor + seats */}
-        <div className="mt-3 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="relative w-8 h-8 rounded-full overflow-hidden border border-gray-200">
-              <Image
-                src={mentorAvatar}
-                alt={mentorName}
-                fill
-                sizes="32px"
-                className="object-cover"
-              />
-            </div>
-            <div className="min-w-0">
-              <div className="text-xs font-extrabold text-gray-900 truncate">
-                {mentorName}
-              </div>
-              <div className="text-[11px] text-gray-500 truncate">Instructor</div>
-            </div>
-          </div>
-
-          {seatsText && (
-            <div className="inline-flex items-center gap-1 text-xs text-gray-700">
-              <Users className="w-3.5 h-3.5" />
-              <span className="font-bold">{seatsText}</span>
-              {course.isFull ? (
-                <span className="ml-1 text-[11px] font-extrabold text-red-600">
-                  FULL
-                </span>
-              ) : null}
-            </div>
-          )}
-        </div>
-
-        {/* stats */}
-        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-700">
-          <div className="inline-flex items-center gap-1">
-            <Layers className="w-3.5 h-3.5" />
-            <span className="font-semibold">{modules} modules</span>
-          </div>
-
-          <div className="inline-flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5" />
-            <span className="font-semibold">{lessons} lessons</span>
-          </div>
-
-          <RatingRow rating={course.courseRating} />
-        </div>
-
-        {/* progress */}
-        <div className="mt-3">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-bold text-gray-700">Lessons ready</span>
-            <span className="font-extrabold text-purple-700">
-              {available}/{total || lessons}
-            </span>
-          </div>
-
-          <div className="mt-1.5 h-2 w-full rounded-full bg-gray-100 overflow-hidden">
-            <div
-              className="h-full rounded-full bg-purple-600 transition-all"
-              style={{ width: `${percent}%` }}
+      ) : (
+        <div className="flex flex-col gap-4">
+          {activeSections.map((section) => (
+            <SectionRow
+              key={section.id}
+              courseId={courseId}
+              section={section}
+              isOpen={openSectionId === section.id}
+              onToggle={() => toggleSection(section.id)}
+              onAddLesson={onAddLesson}
+              onEditSection={onEditSection}
+              onDeleteSection={onDeleteSection}
+              onEditLesson={onEditLesson}
+              onDeleteLesson={onDeleteLesson}
+              onReorderLessons={onReorderLessons}
+              onCreateAssignmentForSection={onCreateAssignmentForSection}
+              onCreateAssignmentForLesson={onCreateAssignmentForLesson}
+              onPreviewLesson={onPreviewLesson} // 🔹 pass down
+              assignments={assignmentsBySection[section.id] ?? []}
             />
-          </div>
-
-          <div className="mt-1.5 text-[11px] text-gray-500">
-            {total ? `${percent}% lessons have URLs` : "No lessons yet"}
-          </div>
+          ))}
         </div>
+      )}
+    </section>
+  );
+}
 
-        {/* actions */}
-        <div className="mt-4 grid gap-2">
-          {firstLessonUrl ? (
-            <Link
-              href={firstLessonUrl}
-              className="inline-flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-extrabold
-                         bg-purple-700 text-white hover:bg-purple-800 transition"
-            >
-              <PlayCircle className="w-4 h-4" />
-              Continue
-            </Link>
-          ) : (
-            <button
-              disabled
-              className="inline-flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-extrabold
-                         bg-gray-200 text-gray-600 cursor-not-allowed"
-            >
-              <PlayCircle className="w-4 h-4" />
-              Continue (no lesson yet)
-            </button>
-          )}
+/* ─────────────────── SectionRow ─────────────────── */
 
-          <Link
-            href={`/user/courses/${course._id}`}
-            className="inline-flex items-center justify-center rounded-xl
-                       border border-gray-200 bg-white py-2.5
-                       text-sm font-extrabold text-gray-900
-                       hover:bg-gray-50 transition"
+function SectionRow({
+  courseId,
+  section,
+  isOpen,
+  onToggle,
+  onAddLesson,
+  onEditSection,
+  onDeleteSection,
+  onEditLesson,
+  onDeleteLesson,
+  onReorderLessons,
+  onCreateAssignmentForSection,
+  onCreateAssignmentForLesson,
+  onPreviewLesson,
+  assignments,
+}: {
+  courseId: string;
+  section: SectionUI;
+  isOpen: boolean;
+  onToggle: () => void;
+  onAddLesson: (sectionId: string) => void;
+  onEditSection: (sectionId: string) => void;
+  onDeleteSection: (sectionId: string) => void;
+  onEditLesson: (sectionId: string, lessonId: string) => void;
+  onDeleteLesson: (sectionId: string, lessonId: string) => void;
+  onReorderLessons: (sectionId: string, lessons: LessonUI[]) => void;
+  onCreateAssignmentForSection?: (sectionId: string) => void;
+  onCreateAssignmentForLesson?: (sectionId: string, lessonId: string) => void;
+  onPreviewLesson?: (sectionId: string, lessonId: string) => void;
+  assignments?: AssignmentUI[];
+}) {
+  const queryClient = useQueryClient();
+
+  const [localLessons, setLocalLessons] = React.useState<LessonUI[]>(
+    section.lessons ?? []
+  );
+  const [draggedId, setDraggedId] = React.useState<string | null>(null);
+  const [editingAssignment, setEditingAssignment] =
+    React.useState<AssignmentUI | null>(null);
+
+  // custom delete modal state
+  const [assignmentToDelete, setAssignmentToDelete] =
+    React.useState<AssignmentUI | null>(null);
+  const [deleteLoading, setDeleteLoading] = React.useState(false);
+  const [deleteError, setDeleteError] = React.useState("");
+
+  React.useEffect(() => {
+    setLocalLessons(section.lessons ?? []);
+  }, [section.lessons]);
+
+  const handleDragStart = (id: string) => (e: React.DragEvent) => {
+    setDraggedId(id);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (id: string) => (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = (id: string) => (e: React.DragEvent) => {
+    e.preventDefault();
+    if (!draggedId || draggedId === id) return;
+
+    setLocalLessons((prev) => {
+      const currentIndex = prev.findIndex((l) => l.id === draggedId);
+      const targetIndex = prev.findIndex((l) => l.id === id);
+      if (currentIndex === -1 || targetIndex === -1) return prev;
+
+      const updated = [...prev];
+      const [moved] = updated.splice(currentIndex, 1);
+      updated.splice(targetIndex, 0, moved);
+
+      onReorderLessons(section.id, updated);
+      return updated;
+    });
+
+    setDraggedId(null);
+  };
+
+  const confirmDeleteAssignment = async () => {
+    if (!assignmentToDelete) return;
+    setDeleteLoading(true);
+    setDeleteError("");
+
+    try {
+      await gqlFetchAuth(DELETE_ASSIGNMENT, {
+        input: assignmentToDelete.id,
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["course-assignments", courseId],
+      });
+
+      setAssignmentToDelete(null);
+    } catch (err: any) {
+      console.error("Failed to delete assignment", err);
+      setDeleteError(err?.message || "Failed to delete assignment");
+    } finally {
+      setDeleteLoading(false);
+      }
+  };
+
+  const lessons = localLessons;
+  const sectionAssignments = assignments ?? [];
+  console.log("logsson", lessons)
+
+  return (
+    <>
+      <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-900 ring-1 ring-slate-100">
+        {/* Header row (accordion trigger) */}
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <button
+            type="button"
+            onClick={onToggle}
+            className="flex flex-1 items-start gap-2 text-left"
           >
-            View details
-          </Link>
+            <span className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-white ring-1 ring-slate-200">
+              <FiChevronDown
+                className={`h-3 w-3 text-slate-500 transition-transform ${
+                  isOpen ? "rotate-180" : ""
+                }`}
+              />
+            </span>
+
+            <div>
+              <h4 className="font-medium">{section.title}</h4>
+              <div className="mt-1 flex flex-wrap gap-2 text-xs text-slate-500">
+                <span className="rounded-full bg-white px-3 py-1 ring-1 ring-slate-200">
+                  Order: {section.order}
+                </span>
+                <span className="rounded-full bg-white px-3 py-1 ring-1 ring-slate-200">
+                  {section.lessonsCount} Lessons
+                </span>
+                {sectionAssignments.length > 0 && (
+                  <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-700 ring-1 ring-emerald-100">
+                    {sectionAssignments.length} Assignments
+                  </span>
+                )}
+              </div>
+            </div>
+          </button>
+
+          <div className="flex items-center gap-2 self-start md:self-auto">
+            {/* Add Lesson */}
+            <button
+              title="Add lesson"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddLesson(section.id);
+              }}
+              className="flex h-9 items-center gap-1 rounded-xl bg-sky-50 px-3 text-xs font-medium text-sky-600 hover:bg-sky-100"
+            >
+              <FiPlus className="h-4 w-4" />
+              <span className="hidden sm:inline">Lesson</span>
+            </button>
+
+            {/* Add Assignment for section */}
+            {onCreateAssignmentForSection && (
+              <button
+                title="Add assignment for this section"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCreateAssignmentForSection(section.id);
+                }}
+                className="flex h-9 items-center gap-1 rounded-xl bg-emerald-50 px-3 text-xs font-medium text-emerald-600 hover:bg-emerald-100"
+              >
+                <FiPlus className="h-4 w-4" />
+                <span className="hidden sm:inline">Assignment</span>
+              </button>
+            )}
+
+            <button
+              title="Edit section"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditSection(section.id);
+              }}
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50 text-violet-600 hover:bg-violet-100"
+            >
+              <FiEdit2 className="h-4 w-4" />
+            </button>
+
+            <button
+              title="Delete section"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteSection(section.id);
+              }}
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100"
+            >
+              <FiTrash2 className="h-4 w-4" />
+            </button>
+          </div>
         </div>
+
+        {/* Accordion content: lessons + assignments */}
+        {isOpen && (
+          <div className="mt-3 space-y-4 border-t border-slate-200 pt-3">
+            {/* Lessons */}
+            <div>
+              {lessons.length === 0 ? (
+                <p className="text-xs italic text-slate-500">
+                  No lessons yet. Use the "Lesson" button to add one.
+                </p>
+              ) : (
+                <ul className="space-y-2">
+                  {lessons.map((lesson) => (
+                    <li
+                      key={lesson.id}
+                      draggable
+                      onDragStart={handleDragStart(lesson.id)}
+                      onDragOver={handleDragOver(lesson.id)}
+                      onDrop={handleDrop(lesson.id)}
+                      className={`flex items-center justify-between rounded-xl bg-white px-3 py-2 text-xs ring-1 ring-slate-100 ${
+                        draggedId === lesson.id ? "opacity-60" : ""
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                          {lesson.contentType === "VIDEO" ? (
+                            <FiVideo className="h-3 w-3" />
+                          ) : (
+                            <FiMove className="h-3 w-3" />
+                          )}
+                        </span>
+                        <div>
+                          <p className="font-medium text-slate-800">
+                            {lesson.title}
+                          </p>
+                          <p className="mt-0.5 text-[11px] text-slate-500">
+                            {lesson.contentType ?? "CONTENT"} •{" "}
+                            {lesson.duration ?? "-"} min
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {/* ▶️ Preview video (only for VIDEO lessons) */}
+                        {onPreviewLesson &&
+                          lesson.contentType === "VIDEO" && (
+                            <button
+                              title="Preview video"
+                              onClick={() =>
+                                onPreviewLesson(section.id, lesson.id)
+                              }
+                              className="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100"
+                            >
+                              <FiPlay className="h-3 w-3" />
+                            </button>
+                          )}
+
+                        {/* Create assignment for this lesson */}
+                        {onCreateAssignmentForLesson && (
+                          <button
+                            title="Add assignment for this lesson"
+                            onClick={() =>
+                              onCreateAssignmentForLesson(
+                                section.id,
+                                lesson.id
+                              )
+                            }
+                            className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                          >
+                            <FiPlus className="h-3 w-3" />
+                          </button>
+                        )}
+
+                        <button
+                          title="Edit lesson"
+                          onClick={() => onEditLesson(section.id, lesson.id)}
+                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100"
+                        >
+                          <FiEdit2 className="h-3 w-3" />
+                        </button>
+                        <button
+                          title="Delete lesson"
+                          onClick={() =>
+                            onDeleteLesson(section.id, lesson.id)
+                          }
+                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100"
+                        >
+                          <FiTrash2 className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Assignments (all for this section) */}
+            {sectionAssignments.length > 0 && (
+              <div className="rounded-xl bg-emerald-50/40 px-3 py-3">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-emerald-800">
+                    Assignments
+                  </p>
+                  <span className="text-[11px] text-emerald-700">
+                    {sectionAssignments.length} total
+                  </span>
+                </div>
+
+                <ul className="space-y-1.5">
+                  {sectionAssignments.map((a, idxA) => (
+                    <li
+                      key={a.id}
+                      className="flex items-center justify-between rounded-lg bg-white/80 px-3 py-2 text-xs ring-1 ring-emerald-100 transition hover:bg-emerald-50/60"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-medium text-slate-800 line-clamp-1">
+                          {a.title}
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-slate-500">
+                          {a.lessonId
+                            ? "Linked to a lesson"
+                            : "Section-level assignment"}
+                          {" • "}
+                          {formatDueDate(a.dueDate)}
+                        </p>
+
+                        {/* Attachments */}
+                        {a.attachments.length > 0 && (
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {a.attachments.map((file, idx) => {
+                              const url = buildDownloadUrl(file);
+                              if (!url) return null;
+
+                              const fileName =
+                                file?.toString().split("/").pop() ||
+                                `File ${idx + 1}`;
+
+                              return (
+                                <a
+                                  key={`${a.id}-${idx}-${idxA}`}
+                                  href={url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] text-emerald-700 hover:bg-emerald-100 max-w-[160px]"
+                                  title={fileName}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <span className="mr-1">📎</span>
+                                  <span className="truncate">{fileName}</span>
+                                </a>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="ml-3 flex shrink-0 flex-col items-end gap-1">
+                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-medium text-emerald-700">
+                          {a.submissionCount} submissions
+                        </span>
+
+                        <div className="flex gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setEditingAssignment(a)}
+                            className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2.5 py-0.5 text-[10px] font-medium text-violet-700 hover:bg-violet-100"
+                          >
+                            <FiEdit2 className="h-3 w-3" />
+                            Edit
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setAssignmentToDelete(a)}
+                            className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2.5 py-0.5 text-[10px] font-medium text-rose-700 hover:bg-rose-100"
+                          >
+                            <FiTrash2 className="h-3 w-3" />
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
       </div>
-    </div>
+
+      {/* Update Assignment Modal */}
+      {editingAssignment && (
+        <UpdateAssignmentModal
+          open={!!editingAssignment}
+          onClose={() => setEditingAssignment(null)}
+          assignment={{
+            _id: editingAssignment.id,
+            title: editingAssignment.title,
+            description: editingAssignment.description,
+            courseId,
+            sectionId: editingAssignment.sectionId,
+            lessonId: editingAssignment.lessonId,
+            mentorId: editingAssignment.mentorId,
+            dueDate: editingAssignment.dueDate,
+            attachments: editingAssignment.attachments,
+            status: editingAssignment.status,
+          }}
+          courseId={courseId}
+        />
+      )}
+
+      {/* Delete Assignment Modal */}
+      {assignmentToDelete && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+          <div className="w-full max-w-sm rounded-2xl bg-slate-950 text-slate-50 shadow-xl border border-slate-800">
+            <div className="flex items-center gap-3 px-5 pt-5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-500/10 text-rose-400">
+                <FiTrash2 className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold">Delete assignment?</h3>
+                <p className="mt-1 text-xs text-slate-400">
+                  &quot;{assignmentToDelete.title}&quot; will be permanently
+                  removed. This action cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            {deleteError && (
+              <p className="mt-3 px-5 text-xs text-rose-400">{deleteError}</p>
+            )}
+
+            <div className="mt-5 flex justify-end gap-2 border-t border-slate-800 px-5 py-4">
+              <button
+                type="button"
+                disabled={deleteLoading}
+                onClick={() => {
+                  if (deleteLoading) return;
+                  setAssignmentToDelete(null);
+                  setDeleteError("");
+                }}
+                className="rounded-full border border-slate-600 px-4 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-800 disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deleteLoading}
+                onClick={confirmDeleteAssignment}
+                className="rounded-full bg-rose-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-rose-500 disabled:opacity-60"
+              >
+                {deleteLoading ? "Deleting…" : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

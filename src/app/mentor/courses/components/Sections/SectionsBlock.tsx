@@ -161,6 +161,7 @@ type Props = {
 
   onCreateAssignmentForSection?: (sectionId: string) => void;
   onCreateAssignmentForLesson?: (sectionId: string, lessonId: string) => void;
+  onCreateGeneralAssignment?: () => void; // 🔹 NEW: for course-level assignments
 
   // 🔹 NEW: video preview callback
   onPreviewLesson?: (sectionId: string, lessonId: string) => void;
@@ -179,6 +180,7 @@ export default function SectionsBlock({
   onReorderLessons,
   onCreateAssignmentForSection,
   onCreateAssignmentForLesson,
+  onCreateGeneralAssignment,
   onPreviewLesson,
 }: Props) {
   const activeSections = sections.filter(
@@ -495,7 +497,7 @@ function SectionRow({
             <div>
               {lessons.length === 0 ? (
                 <p className="text-xs italic text-slate-500">
-                  No lessons yet. Use the “Lesson” button to add one.
+                  No lessons yet. Use the "Lesson" button to add one.
                 </p>
               ) : (
                 <ul className="space-y-2">
