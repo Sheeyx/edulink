@@ -11,8 +11,8 @@ import {
   Home,
 } from "lucide-react";
 
-import { buildDownloadUrl } from "@/libs/streamableUrl";
 import { DEFAULT_AVATAR } from "./constants";
+import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 
 type Props = {
   name: string;
@@ -86,23 +86,33 @@ export default function UserSidebar({
   onOpenAssignments,
   onOpenExplore,
 }: Props) {
-  const resolvedAvatar = React.useMemo(() => {
-    const url = buildDownloadUrl(avatarUrl || undefined);
+  const initialAvatar = React.useMemo(() => {
+    const url = buildDownloadUrl(avatarUrl);
     return url || DEFAULT_AVATAR;
   }, [avatarUrl]);
 
+  const [imgSrc, setImgSrc] = React.useState(initialAvatar);
+
+  React.useEffect(() => {
+    setImgSrc(initialAvatar);
+  }, [initialAvatar]);
+
   return (
     <div className="rounded-[28px] border border-gray-100 bg-white shadow-[0_10px_35px_rgba(99,99,160,0.08)] p-6">
-      {/* Top profile */}
       <div className="flex flex-col items-center text-center">
-        <div className="relative w-28 h-28 rounded-full overflow-hidden border border-gray-200 shadow-sm">
+        <div className="relative w-28 h-28 rounded-full overflow-hidden border border-gray-200 shadow-sm bg-gray-50">
           <Image
-            src={resolvedAvatar}
+            src={imgSrc}
             alt={`${name} avatar`}
             fill
             sizes="112px"
             className="object-cover"
             priority
+            unoptimized
+            onError={() => {
+              // fallback to local static avatar
+              if (imgSrc !== DEFAULT_AVATAR) setImgSrc(DEFAULT_AVATAR);
+            }}
           />
         </div>
 
@@ -133,7 +143,6 @@ export default function UserSidebar({
         </div>
       </div>
 
-      {/* Nav */}
       <div className="mt-6 space-y-3">
         <NavItem
           active={isActive(activePath, "/user")}

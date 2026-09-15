@@ -37,6 +37,7 @@ import {
 import CreateLessonModal from "../../lessons/CreateLessonModal";
 import EditLessonModal from "../../lessons/EditLessonModal";
 import DeleteLessonModal from "../../lessons/DeleteLessonModal";
+import CreateAssignmentModal from "../../assignments/CreateAssignmentModal";
 
 import { gqlFetchAuth } from "@/libs/graphql";
 import { REMOVE_LESSON, UPDATE_LESSON } from "@/graphql/mutation/lessons/lesson";
@@ -128,6 +129,14 @@ export default function CourseDetailsClient({
   const [deleteLessonErr, setDeleteLessonErr] = React.useState<string | null>(
     null
   );
+
+  /* ───────── Assignment modals ───────── */
+
+  const [createAssignmentOpen, setCreateAssignmentOpen] = React.useState(false);
+  const [assignmentContext, setAssignmentContext] = React.useState<{
+    sectionId?: string;
+    lessonId?: string;
+  }>({});
 
   /* ───────── Lesson video preview ───────── */
 
@@ -302,6 +311,32 @@ export default function CourseDetailsClient({
     await reload();
     setCreateLessonOpen(false);
     setSectionForLesson(null);
+  }, [reload]);
+
+  /* ───────── Assignment handlers ───────── */
+
+  const handleCreateGeneralAssignment = React.useCallback(() => {
+    setAssignmentContext({});
+    setCreateAssignmentOpen(true);
+  }, []);
+
+  const handleCreateAssignmentForSection = React.useCallback((sectionId: string) => {
+    setAssignmentContext({ sectionId });
+    setCreateAssignmentOpen(true);
+  }, []);
+
+  const handleCreateAssignmentForLesson = React.useCallback(
+    (sectionId: string, lessonId: string) => {
+      setAssignmentContext({ sectionId, lessonId });
+      setCreateAssignmentOpen(true);
+    },
+    []
+  );
+
+  const handleAssignmentCreated = React.useCallback(async () => {
+    await reload();
+    setCreateAssignmentOpen(false);
+    setAssignmentContext({});
   }, [reload]);
 
   /* ───────── Lesson handlers (edit / delete / reorder) ───────── */
@@ -578,7 +613,7 @@ export default function CourseDetailsClient({
           onEdit={setEditingSchedule}
           onDelete={handleDeleteScheduleRequest}
         />
-
+        
         <SectionsBlock
           courseId={courseId}
           sections={course.sections}
@@ -589,6 +624,9 @@ export default function CourseDetailsClient({
           onDeleteLesson={handleDeleteLesson}
           onReorderLessons={handleReorderLessons}
           onPreviewLesson={handlePreviewLesson}
+          onCreateAssignmentForSection={handleCreateAssignmentForSection}
+          onCreateAssignmentForLesson={handleCreateAssignmentForLesson}
+          onCreateGeneralAssignment={handleCreateGeneralAssignment}
         />
       </div>
 
@@ -715,6 +753,19 @@ export default function CourseDetailsClient({
           setDeleteLessonErr(null);
         }}
         onConfirm={handleConfirmDeleteLesson}
+      />
+
+      {/* Assignment create */}
+      <CreateAssignmentModal
+        open={createAssignmentOpen}
+        onClose={() => {
+          setCreateAssignmentOpen(false);
+          setAssignmentContext({});
+        }}
+        courseId={courseId}
+        sectionId={assignmentContext.sectionId}
+        lessonId={assignmentContext.lessonId}
+        onSuccess={handleAssignmentCreated}
       />
 
       {/* Lesson video preview modal */}

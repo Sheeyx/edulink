@@ -305,9 +305,9 @@ export const GET_MY_ENROLLED_COURSES = /* GraphQL */ `
       updatedAt
       sectionsWithLessons {
         _id
+        sectionStatus
         moduleTitle
         moduleOrder
-        sectionStatus
         totalLessons
         lessons {
           _id
@@ -316,6 +316,64 @@ export const GET_MY_ENROLLED_COURSES = /* GraphQL */ `
           lessonContentType
           lessonDuration
           lessonUrl
+        }
+      }
+      memberData {
+        _id
+        memberFullName
+        memberImage
+        memberBio
+      }
+    }
+  }
+`;
+
+export const GET_MY_ENROLLED_COURSE = /* GraphQL */ `
+  query GetMyEnrolledCourse($input: String!) {
+    getMyEnrolledCourse(courseId: $input) {
+      _id
+      courseTitle
+      courseDesc
+      courseImage
+      courseCategory
+      languageType
+      courseLevel
+      coursePrice
+      courseStatus
+      mentorId
+      courseEnrolledMembers
+      maxStudents
+      currentEnrolledMembers
+      courseStartDate
+      isFull
+      courseTotalModules
+      courseTotalLessons
+      courseRating
+      courseLikes
+      deletedAt
+      createdAt
+      updatedAt
+      sectionsWithLessons {
+        _id
+        courseId
+        sectionStatus
+        moduleTitle
+        moduleOrder
+        totalLessons
+        deletedAt
+        createdAt
+        updatedAt
+        lessons {
+          _id
+          sectionId
+          lessonTitle
+          lessonStatus
+          lessonContentType
+          lessonDuration
+          lessonUrl
+          deletedAt
+          createdAt
+          updatedAt
         }
       }
       memberData {

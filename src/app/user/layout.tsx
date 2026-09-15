@@ -14,7 +14,7 @@ export default function UserLayout({ children }: { children: ReactNode }) {
 
   const [ready, setReady] = useState(false);
 
-  // wait for AuthProvider hydrate (localStorage)
+  // wait for AuthProvider to hydrate localStorage
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 0);
     return () => clearTimeout(t);
@@ -25,7 +25,7 @@ export default function UserLayout({ children }: { children: ReactNode }) {
     [user?.role]
   );
 
-  // ✅ Guard all /user/* pages here
+  // 🔐 Guard all /user routes
   useEffect(() => {
     if (!ready) return;
 
@@ -54,30 +54,37 @@ export default function UserLayout({ children }: { children: ReactNode }) {
     return <div className="min-h-[50vh]" />;
   }
 
-  const name = user?.name || user?.email || "Student";
-  const avatarUrl = user?.image || "";
+  const name = user.name || user.email || "Student";
+  const avatarUrl = user.image || "";
+
+  // ✅ Hide sidebar ONLY on course details ( /user/courses/[id] )
+  //    Sidebar stays visible on /user/courses
+  const hideSidebar =
+    pathname.startsWith("/user/courses/") && pathname !== "/user/courses/";
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 mt-20 p-6">
       <div className="mx-auto max-w-7xl">
-        <div className="grid gap-6 md:grid-cols-6">
-          {/* Left: persistent sidebar */}
-          <aside className="md:col-span-2">
-            <UserSidebar
-              name={name}
-              avatarUrl={avatarUrl}
-              roleLabel="Student"
-              activePath={pathname}
-              onGoHome={() => router.push("/user")}
-              onOpenProfile={() => router.push("/user/profile")}
-              onOpenCourses={() => router.push("/user/courses")}
-              onOpenAssignments={() => router.push("/user/assignments")}
-              onOpenExplore={() => router.push("/user/explore")}
-            />
-          </aside>
+        <div className={hideSidebar ? "block" : "grid gap-6 md:grid-cols-6"}>
+          {/* Sidebar (hidden ONLY on details page) */}
+          {!hideSidebar && (
+            <aside className="md:col-span-2">
+              <UserSidebar
+                name={name}
+                avatarUrl={avatarUrl}
+                roleLabel="Student"
+                activePath={pathname}
+                onGoHome={() => router.push("/user")}
+                onOpenProfile={() => router.push("/user/profile")}
+                onOpenCourses={() => router.push("/user/courses")}
+                onOpenAssignments={() => router.push("/user/assignments")}
+                onOpenExplore={() => router.push("/user/explore")}
+              />
+            </aside>
+          )}
 
-          {/* Right: page content */}
-          <main className="md:col-span-4">
+          {/* Page content */}
+          <main className={hideSidebar ? "w-full" : "md:col-span-4"}>
             <div className="rounded-[28px] bg-white border border-gray-100 shadow-[0_10px_35px_rgba(99,99,160,0.08)] p-7">
               {children}
             </div>

@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 // ./types.ts
 export type CourseDetail = {
   id: string;

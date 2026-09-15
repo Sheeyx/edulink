@@ -6,7 +6,7 @@ import { Loader2, Eye, EyeOff } from "lucide-react";
 import { gqlFetchAuth } from "@/libs/graphql";
 import { uploadFilesToB2 } from "@/services/b2Upload";
 import { getAccessToken, useAuth } from "@/providers/auth-context";
-import { buildDownloadUrl } from "@/libs/streamableUrl";
+import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 
 import { FALLBACK_AVATAR } from "./constants";
 import type { ToastKind, UpdateMemberResp } from "./types";
