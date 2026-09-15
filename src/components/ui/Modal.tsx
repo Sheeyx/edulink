@@ -47,7 +47,7 @@ export function Modal({ open, onClose, children, labelledBy, className }: ModalP
     >
       <div
         className={clsx(
-          "relative w-full max-w-lg rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200",
+          "relative w-full max-w-lg rounded-[28px] bg-white shadow-2xl border border-gray-100",
           className
         )}
       >
@@ -65,14 +65,14 @@ type ModalHeaderProps = {
 
 export function ModalHeader({ title, onClose, id }: ModalHeaderProps) {
   return (
-    <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-      <h2 id={id} className="text-lg font-semibold text-slate-900">
+    <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+      <h2 id={id} className="text-lg font-black text-gray-900">
         {title}
       </h2>
       <button
         type="button"
         onClick={onClose}
-        className="inline-flex items-center justify-center rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+        className="inline-flex items-center justify-center rounded-full p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
         aria-label="Close"
       >
         <FiX size={20} />
@@ -87,7 +87,7 @@ export function ModalBody({ children }: { children: React.ReactNode }) {
 
 export function ModalFooter({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-end gap-3 border-t border-slate-100 px-6 py-4">
+    <div className="flex items-center justify-end gap-3 border-t border-gray-100 px-6 py-4">
       {children}
     </div>
   );

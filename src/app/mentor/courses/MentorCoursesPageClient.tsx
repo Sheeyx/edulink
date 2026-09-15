@@ -4,7 +4,7 @@ import * as React from "react";
 import { gqlFetchAuth } from "@/libs/graphql";
 import CourseCard from "@/app/mentor/courses/components/CourseCard";
 import { GET_MENTOR_COURSES } from "@/graphql/query/courses/courses";
-import { Plus } from "lucide-react";
+import { BookOpen, Plus, Search } from "lucide-react";
 import Link from "next/link";
 
 type Course = {
@@ -95,17 +95,19 @@ export default function MentorCoursesList({
   return (
     <div className="space-y-6">
       {/* Header with Create Button */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">My Courses</h1>
-          <p className="text-gray-600 text-sm mt-1">
+          <h1 className="text-3xl md:text-4xl font-black text-gray-900">
+            My Courses
+          </h1>
+          <p className="mt-1 text-gray-600">
             Manage, edit, and track your course progress.
           </p>
         </div>
 
         <Link
           href="/mentor/create-courses"
-          className="inline-flex items-center gap-2 rounded-2xl bg-violet-600 text-white font-semibold px-4 py-2.5 shadow-sm hover:bg-violet-500 hover:shadow-md transition-all duration-200"
+          className="inline-flex items-center gap-2 rounded-2xl bg-purple-700 text-white font-extrabold px-5 py-3 shadow-sm hover:bg-purple-800 transition"
         >
           <Plus className="w-4 h-4" />
           Create Course
@@ -121,14 +123,17 @@ export default function MentorCoursesList({
         }}
         className="flex gap-2"
       >
-        <input
-          name="q"
-          placeholder="Search by title or description..."
-          className="w-full rounded-xl border border-gray-300 px-4 py-2.5 outline-none focus:border-violet-500 transition-all"
-          defaultValue={search}
-        />
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input
+            name="q"
+            placeholder="Search by title or description..."
+            className="w-full rounded-2xl border border-gray-200 pl-11 pr-4 py-2.5 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition"
+            defaultValue={search}
+          />
+        </div>
         <button
-          className="rounded-xl bg-violet-600 px-4 py-2.5 font-semibold text-white hover:bg-violet-500 transition-all"
+          className="rounded-2xl border border-gray-200 bg-white px-5 py-2.5 font-bold text-gray-900 hover:bg-gray-50 transition"
           type="submit"
         >
           Apply
@@ -137,8 +142,15 @@ export default function MentorCoursesList({
 
       {/* Error */}
       {err && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-rose-700">
-          {err}
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
+          <div className="font-extrabold text-red-900">Failed to load courses</div>
+          <div className="mt-1 text-sm text-red-800">{err}</div>
+          <button
+            onClick={() => fetchData()}
+            className="mt-4 rounded-2xl bg-red-700 text-white px-4 py-2 text-sm font-bold hover:bg-red-800 transition"
+          >
+            Try again
+          </button>
         </div>
       )}
 
@@ -148,13 +160,38 @@ export default function MentorCoursesList({
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="h-[240px] rounded-2xl border bg-white shadow-sm animate-pulse"
-            />
+              className="rounded-2xl border border-gray-100 bg-white shadow-[0_8px_24px_rgba(99,99,160,0.08)] overflow-hidden"
+            >
+              <div className="h-32 bg-gray-100 animate-pulse" />
+              <div className="p-4 space-y-3">
+                <div className="h-4 bg-gray-100 rounded animate-pulse w-3/4" />
+                <div className="h-3 bg-gray-100 rounded animate-pulse w-full" />
+                <div className="h-3 bg-gray-100 rounded animate-pulse w-5/6" />
+                <div className="h-9 bg-gray-100 rounded-xl animate-pulse w-full" />
+              </div>
+            </div>
           ))}
         </div>
       ) : rows.length === 0 ? (
-        <div className="rounded-2xl border bg-white p-10 text-center text-gray-600">
-          No courses found. Try searching again or create your first course.
+        <div className="rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-[0_8px_24px_rgba(99,99,160,0.08)]">
+          <div className="mx-auto grid place-items-center w-14 h-14 rounded-2xl bg-purple-50 border border-purple-100">
+            <BookOpen className="w-7 h-7 text-purple-700" />
+          </div>
+
+          <h2 className="mt-4 text-2xl font-black text-gray-900">
+            No courses yet
+          </h2>
+          <p className="mt-1 text-gray-600">
+            Try a different search, or create your first course.
+          </p>
+
+          <Link
+            href="/mentor/create-courses"
+            className="inline-flex mt-5 items-center justify-center gap-2 rounded-2xl bg-purple-700 text-white px-5 py-3 font-extrabold hover:bg-purple-800 transition"
+          >
+            <Plus className="w-4 h-4" />
+            Create Course
+          </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -179,17 +216,13 @@ export default function MentorCoursesList({
       )}
 
       {/* Footer */}
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-600">
-          Page 1 of {totalPages} • {total} total
-        </span>
-        <Link
-          href="/mentor?mode=create"
-          className="inline-flex items-center gap-2 text-violet-600 font-medium hover:underline"
-        >
-          + Create Course
-        </Link>
-      </div>
+      {!loading && rows.length > 0 && (
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-600">
+            Page 1 of {totalPages} • {total} total
+          </span>
+        </div>
+      )}
     </div>
   );
 }

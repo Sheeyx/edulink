@@ -100,6 +100,7 @@ export default function CreateAssignmentModal({
         <Textarea
           id="assignment-description"
           label="Description"
+          required
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={4}
@@ -110,6 +111,7 @@ export default function CreateAssignmentModal({
         <TextInput
           id="assignment-due-date"
           label="Due Date"
+          required
           type="datetime-local"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
@@ -137,7 +139,7 @@ export default function CreateAssignmentModal({
         <button
           type="button"
           onClick={handleClose}
-          className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 disabled:opacity-60"
+          className="rounded-xl px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-100 disabled:opacity-60"
           disabled={loading}
         >
           Cancel
@@ -146,7 +148,7 @@ export default function CreateAssignmentModal({
           type="button"
           onClick={handleSubmit}
           disabled={loading}
-          className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center justify-center rounded-xl bg-purple-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? "Creating..." : "Create Assignment"}
         </button>

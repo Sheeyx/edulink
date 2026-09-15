@@ -92,8 +92,8 @@ export default function CreateLessonModal({
         />
 
         {/* Content Type */}
-        <div className="space-y-1">
-          <label className="text-xs font-medium uppercase text-slate-500">
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium uppercase tracking-wide text-gray-500">
             Content Type
           </label>
           <select
@@ -102,7 +102,7 @@ export default function CreateLessonModal({
               setLessonContentType(e.target.value as any)
             }
             disabled={loading}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
           >
             <option value="TEXT">TEXT</option>
             <option value="VIDEO">VIDEO</option>
@@ -156,7 +156,7 @@ export default function CreateLessonModal({
       <ModalFooter>
         <button
           onClick={resetModal}
-          className="px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100"
+          className="px-4 py-2 rounded-xl font-semibold text-gray-600 hover:bg-gray-100"
           disabled={loading}
         >
           Cancel
@@ -164,7 +164,7 @@ export default function CreateLessonModal({
 
         <button
           onClick={handleSubmit}
-          className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+          className="px-4 py-2 rounded-xl bg-purple-700 font-semibold text-white hover:bg-purple-800 disabled:opacity-50"
           disabled={loading}
         >
           {loading ? "Creating..." : "Create Lesson"}

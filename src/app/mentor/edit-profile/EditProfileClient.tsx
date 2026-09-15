@@ -190,26 +190,26 @@ export default function EditProfileClient() {
 
   if (!memberId) {
     return (
-      <section className="rounded-[28px] bg-white p-7">
+      <div>
         <p className="text-sm text-gray-600">
           No member ID found. Please{" "}
           <button
             type="button"
             onClick={() => router.push("/auth/login")}
-            className="text-violet-600 hover:underline font-medium"
+            className="text-purple-700 hover:underline font-bold"
           >
             log in
           </button>
           .
         </p>
-      </section>
+      </div>
     );
   }
 
   return (
-    <section className="rounded-[28px] bg-white p-8">
+    <div>
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Edit Profile</h1>
+        <h1 className="text-3xl font-black text-gray-900">Edit Profile</h1>
         <p className="text-gray-600 mt-2">
           Update your profile information and photo
         </p>
@@ -225,7 +225,7 @@ export default function EditProfileClient() {
           <div className="flex items-center gap-8">
             {/* Avatar Preview (circle) */}
             <div className="relative">
-              <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-violet-100 to-indigo-100 ring-4 ring-white shadow-xl">
+              <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-purple-100 to-fuchsia-100 ring-4 ring-white shadow-xl">
                 {previewUrl ? (
                   <img
                     src={previewUrl}
@@ -234,7 +234,7 @@ export default function EditProfileClient() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <Camera className="w-12 h-12 text-violet-300" />
+                    <Camera className="w-12 h-12 text-purple-300" />
                   </div>
                 )}
               </div>
@@ -253,7 +253,7 @@ export default function EditProfileClient() {
                 <div>
                   <label
                     htmlFor="photo-upload"
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-violet-600 text-white rounded-xl font-semibold hover:bg-violet-700 transition cursor-pointer shadow-lg shadow-violet-600/30"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-purple-700 text-white rounded-xl font-bold hover:bg-purple-800 transition cursor-pointer shadow-lg shadow-purple-700/30"
                   >
                     <Camera className="w-5 h-5" />
                     {uploading ? "Uploading..." : "Upload Photo"}
@@ -317,7 +317,7 @@ export default function EditProfileClient() {
             </label>
             <input
               type="text"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 outline-none transition"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition"
               value={form.memberFullName}
               onChange={(e) =>
                 setForm((s) => ({ ...s, memberFullName: e.target.value }))
@@ -335,7 +335,7 @@ export default function EditProfileClient() {
             </label>
             <input
               type="tel"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 outline-none transition"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition"
               value={form.memberPhone}
               onChange={(e) =>
                 setForm((s) => ({ ...s, memberPhone: e.target.value }))
@@ -351,7 +351,7 @@ export default function EditProfileClient() {
               Bio
             </label>
             <textarea
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 outline-none transition resize-none"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition resize-none"
               rows={5}
               value={form.memberBio}
               onChange={(e) =>
@@ -380,7 +380,7 @@ export default function EditProfileClient() {
           <button
             type="submit"
             disabled={disabled}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 text-white px-8 py-3.5 font-semibold hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-lg shadow-violet-600/30"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-purple-700 text-white px-8 py-3.5 font-extrabold hover:bg-purple-800 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-lg shadow-purple-700/30"
           >
             {isPending ? (
               <>
@@ -408,6 +408,6 @@ export default function EditProfileClient() {
           </p>
         )}
       </form>
-    </section>
+    </div>
   );
 }

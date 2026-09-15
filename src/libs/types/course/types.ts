@@ -1,4 +1,4 @@
-import { CourseCategory, CourseLevel, CourseStatus, LanguageType } from "@/libs/enums/course.enums";
+import { CourseCategory, CourseLevel, CourseStatus, LanguageType, ResourceType, CourseScheduleStatus } from "@/libs/enums/course.enums";
 
 export type SectionStatus = "ACTIVE" | "INACTIVE" | "DELETED";
 
@@ -155,6 +155,7 @@ export type CourseFromApi = {
   createdAt: string;
   updatedAt: string;
   sectionsWithLessons?: SectionFromApi[];
+  resources?: ResourceFromApi[];
   memberData?: {
     _id: string;
     memberFullName?: string | null;
@@ -163,12 +164,104 @@ export type CourseFromApi = {
   } | null;
 };
 
+export type ResourceFromApi = {
+  _id: string;
+  resourceTitle: string;
+  resourceType: ResourceType;
+  resourceUrl: string;
+  resourceSize?: number | null;
+  courseId: string;
+  mentorId?: string;
+  resourceStatus: "ACTIVE" | "INACTIVE" | "ARCHIVED";
+  downloadCount: number;
+  isPublic: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string | null;
+};
+
 export type GetCourseResp = { getCourse: CourseFromApi };
+
+export type CreateResourceInput = {
+  resourceTitle: string;
+  resourceType: ResourceType;
+  resourceUrl: string;
+  resourceSize?: number;
+  courseId: string;
+  isPublic?: boolean;
+};
+
+export type UpdateResourceInput = {
+  _id: string;
+  resourceTitle?: string;
+  resourceType?: ResourceType;
+  resourceUrl?: string;
+  resourceSize?: number;
+  isPublic?: boolean;
+};
+
+export type CreateResourceResp = { createResource: ResourceFromApi };
+export type UpdateResourceResp = { updateResource: ResourceFromApi };
+export type RemoveResourceResp = { removeResource: { _id: string } | null };
 
 export type RemoveSectionResp = {
   removeSection: {
     _id: string;
   } | null;
+};
+
+/* ========= Course Schedule (live class scheduling) ========= */
+
+export type ScheduleFromApi = {
+  _id: string;
+  courseId: string;
+  mentorId: string;
+  lessonId?: string | null;
+  startAt: string[];
+  status: CourseScheduleStatus;
+  meetLinks?: string[] | null;
+  deletedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CreateScheduleInput = {
+  courseId: string;
+  lessonId?: string;
+  startAt: string[];
+  status?: CourseScheduleStatus;
+  meetLinks?: string[];
+};
+
+export type UpdateScheduleInput = {
+  _id: string;
+  lessonId?: string | null;
+  startAt?: string[];
+  status?: CourseScheduleStatus;
+  meetLinks?: string[];
+};
+
+export type CreateScheduleResp = { createSchedule: ScheduleFromApi };
+export type UpdateScheduleResp = { updateSchedule: ScheduleFromApi };
+export type RemoveScheduleResp = { removeSchedule: { _id: string } | null };
+export type GetScheduleResp = { getSchedule: ScheduleFromApi };
+export type GetSchedulesResp = {
+  getSchedules: {
+    list: ScheduleFromApi[];
+    metaCounter: { total: number }[];
+  };
+};
+
+// ---- UI schedule type --------------------------------------
+export type ScheduleUI = {
+  id: string;
+  courseId: string;
+  lessonId?: string | null;
+  startAt: string[];
+  status: CourseScheduleStatus;
+  meetLinks: string[];
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type FormState = {
@@ -207,6 +300,18 @@ export type SectionUI = {
   lessons?: LessonUI[];       // lessons displayed inside accordion
 };
 
+// ---- UI resource type ---------------------------------------
+export type ResourceUI = {
+  id: string;
+  title: string;
+  type: ResourceType;
+  url: string;
+  size?: number | null;
+  isPublic: boolean;
+  downloadCount: number;
+  createdAt?: string;
+};
+
 // ---- UI course type ---------------------------------------
 export type CourseUI = {
   image: string | null;
@@ -220,6 +325,7 @@ export type CourseUI = {
   price: number;
   currency: string;
   sections: SectionUI[];
+  resources: ResourceUI[];
 };
 
 

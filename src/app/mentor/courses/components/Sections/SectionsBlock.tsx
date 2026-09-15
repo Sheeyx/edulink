@@ -16,6 +16,7 @@ import { gqlFetchAuth } from "@/libs/graphql";
 import type { SectionUI, LessonUI } from "@/libs/types/course/types";
 import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 import UpdateAssignmentModal from "@/app/mentor/assignments/UpdateAssignmentModal";
+import CreateAssignmentModal from "@/app/mentor/assignments/CreateAssignmentModal";
 
 /* ─────────────────── Types ─────────────────── */
 
@@ -234,14 +235,14 @@ export default function SectionsBlock({
   }, [assignments]);
 
   return (
-    <section className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+    <section className="mt-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_8px_24px_rgba(99,99,160,0.08)]">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex flex-col gap-1">
-          <h3 className="text-base font-semibold tracking-tight lg:text-lg">
+          <h3 className="text-base font-black text-gray-900 lg:text-lg">
             Sections
           </h3>
           {assignmentsLoading && (
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-gray-400">
               Loading assignments…
             </span>
           )}
@@ -252,15 +253,15 @@ export default function SectionsBlock({
           )}
         </div>
 
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-gray-500">
           {activeSections.length} active sections
         </span>
       </div>
 
       {activeSections.length === 0 ? (
-        <div className="rounded-xl bg-slate-50 px-4 py-6 text-sm text-slate-500">
+        <div className="rounded-2xl bg-purple-50 border border-purple-100 px-4 py-6 text-sm text-gray-600">
           No active sections yet. Use{" "}
-          <span className="font-medium text-violet-600">Add Section</span> to
+          <span className="font-bold text-purple-700">Add Section</span> to
           create the first module.
         </div>
       ) : (
@@ -331,6 +332,13 @@ function SectionRow({
   const [draggedId, setDraggedId] = React.useState<string | null>(null);
   const [editingAssignment, setEditingAssignment] =
     React.useState<AssignmentUI | null>(null);
+  const [creatingAssignmentFor, setCreatingAssignmentFor] = React.useState<{
+    sectionId: string;
+    lessonId?: string;
+  } | null>(null);
+
+  const invalidateAssignments = () =>
+    queryClient.invalidateQueries({ queryKey: ["course-assignments", courseId] });
 
   // custom delete modal state
   const [assignmentToDelete, setAssignmentToDelete] =
@@ -401,7 +409,7 @@ function SectionRow({
 
   return (
     <>
-      <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-900 ring-1 ring-slate-100">
+      <div className="rounded-2xl bg-gray-50 px-4 py-3 text-sm text-gray-900 border border-gray-100">
         {/* Header row (accordion trigger) */}
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <button
@@ -409,25 +417,25 @@ function SectionRow({
             onClick={onToggle}
             className="flex flex-1 items-start gap-2 text-left"
           >
-            <span className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-white ring-1 ring-slate-200">
+            <span className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-white border border-gray-200">
               <FiChevronDown
-                className={`h-3 w-3 text-slate-500 transition-transform ${
+                className={`h-3 w-3 text-gray-500 transition-transform ${
                   isOpen ? "rotate-180" : ""
                 }`}
               />
             </span>
 
             <div>
-              <h4 className="font-medium">{section.title}</h4>
-              <div className="mt-1 flex flex-wrap gap-2 text-xs text-slate-500">
-                <span className="rounded-full bg-white px-3 py-1 ring-1 ring-slate-200">
+              <h4 className="font-extrabold text-gray-900">{section.title}</h4>
+              <div className="mt-1 flex flex-wrap gap-2 text-xs text-gray-500">
+                <span className="rounded-full bg-white px-3 py-1 border border-gray-200">
                   Order: {section.order}
                 </span>
-                <span className="rounded-full bg-white px-3 py-1 ring-1 ring-slate-200">
+                <span className="rounded-full bg-white px-3 py-1 border border-gray-200">
                   {section.lessonsCount} Lessons
                 </span>
                 {sectionAssignments.length > 0 && (
-                  <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-700 ring-1 ring-emerald-100">
+                  <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-700 border border-emerald-100">
                     {sectionAssignments.length} Assignments
                   </span>
                 )}
@@ -443,26 +451,24 @@ function SectionRow({
                 e.stopPropagation();
                 onAddLesson(section.id);
               }}
-              className="flex h-9 items-center gap-1 rounded-xl bg-sky-50 px-3 text-xs font-medium text-sky-600 hover:bg-sky-100"
+              className="flex h-9 items-center gap-1 rounded-xl bg-sky-50 px-3 text-xs font-bold text-sky-700 hover:bg-sky-100"
             >
               <FiPlus className="h-4 w-4" />
               <span className="hidden sm:inline">Lesson</span>
             </button>
 
             {/* Add Assignment for section */}
-            {onCreateAssignmentForSection && (
-              <button
-                title="Add assignment for this section"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCreateAssignmentForSection(section.id);
-                }}
-                className="flex h-9 items-center gap-1 rounded-xl bg-emerald-50 px-3 text-xs font-medium text-emerald-600 hover:bg-emerald-100"
-              >
-                <FiPlus className="h-4 w-4" />
-                <span className="hidden sm:inline">Assignment</span>
-              </button>
-            )}
+            <button
+              title="Add assignment for this section"
+              onClick={(e) => {
+                e.stopPropagation();
+                setCreatingAssignmentFor({ sectionId: section.id });
+              }}
+              className="flex h-9 items-center gap-1 rounded-xl bg-emerald-50 px-3 text-xs font-bold text-emerald-700 hover:bg-emerald-100"
+            >
+              <FiPlus className="h-4 w-4" />
+              <span className="hidden sm:inline">Assignment</span>
+            </button>
 
             <button
               title="Edit section"
@@ -470,7 +476,7 @@ function SectionRow({
                 e.stopPropagation();
                 onEditSection(section.id);
               }}
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50 text-violet-600 hover:bg-violet-100"
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100"
             >
               <FiEdit2 className="h-4 w-4" />
             </button>
@@ -490,12 +496,12 @@ function SectionRow({
 
         {/* Accordion content: lessons + assignments */}
         {isOpen && (
-          <div className="mt-3 space-y-4 border-t border-slate-200 pt-3">
+          <div className="mt-3 space-y-4 border-t border-gray-200 pt-3">
             {/* Lessons */}
             <div>
               {lessons.length === 0 ? (
-                <p className="text-xs italic text-slate-500">
-                  No lessons yet. Use the “Lesson” button to add one.
+                <p className="text-xs italic text-gray-500">
+                  No lessons yet. Use the "Lesson" button to add one.
                 </p>
               ) : (
                 <ul className="space-y-2">
@@ -506,19 +512,19 @@ function SectionRow({
                       onDragStart={handleDragStart(lesson.id)}
                       onDragOver={handleDragOver(lesson.id)}
                       onDrop={handleDrop(lesson.id)}
-                      className={`flex items-center justify-between rounded-xl bg-white px-3 py-2 text-xs ring-1 ring-slate-100 ${
+                      className={`flex items-center justify-between rounded-xl bg-white px-3 py-2 text-xs border border-gray-100 ${
                         draggedId === lesson.id ? "opacity-60" : ""
                       }`}
                     >
                       <div className="flex items-center gap-2">
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-gray-500">
                           <FiMove className="h-3 w-3" />
                         </span>
                         <div>
-                          <p className="font-medium text-slate-800">
+                          <p className="font-bold text-gray-800">
                             {lesson.title}
                           </p>
-                          <p className="mt-0.5 text-[11px] text-slate-500">
+                          <p className="mt-0.5 text-[11px] text-gray-500">
                             {lesson.contentType ?? "CONTENT"} •{" "}
                             {lesson.duration ?? "-"} min
                           </p>
@@ -534,32 +540,30 @@ function SectionRow({
                               onClick={() =>
                                 onPreviewLesson(section.id, lesson.id)
                               }
-                              className="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100"
+                              className="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-100"
                             >
                               <FiPlay className="h-3 w-3" />
                             </button>
                           )}
 
                         {/* Create assignment for this lesson */}
-                        {onCreateAssignmentForLesson && (
-                          <button
-                            title="Add assignment for this lesson"
-                            onClick={() =>
-                              onCreateAssignmentForLesson(
-                                section.id,
-                                lesson.id
-                              )
-                            }
-                            className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
-                          >
-                            <FiPlus className="h-3 w-3" />
-                          </button>
-                        )}
+                        <button
+                          title="Add assignment for this lesson"
+                          onClick={() =>
+                            setCreatingAssignmentFor({
+                              sectionId: section.id,
+                              lessonId: lesson.id,
+                            })
+                          }
+                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                        >
+                          <FiPlus className="h-3 w-3" />
+                        </button>
 
                         <button
                           title="Edit lesson"
                           onClick={() => onEditLesson(section.id, lesson.id)}
-                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100"
+                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100"
                         >
                           <FiEdit2 className="h-3 w-3" />
                         </button>
@@ -648,7 +652,7 @@ function SectionRow({
                           <button
                             type="button"
                             onClick={() => setEditingAssignment(a)}
-                            className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2.5 py-0.5 text-[10px] font-medium text-violet-700 hover:bg-violet-100"
+                            className="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2.5 py-0.5 text-[10px] font-medium text-purple-700 hover:bg-purple-100"
                           >
                             <FiEdit2 className="h-3 w-3" />
                             Edit
@@ -673,6 +677,21 @@ function SectionRow({
         )}
       </div>
 
+      {/* Create Assignment Modal */}
+      {creatingAssignmentFor && (
+        <CreateAssignmentModal
+          open={!!creatingAssignmentFor}
+          onClose={() => setCreatingAssignmentFor(null)}
+          courseId={courseId}
+          sectionId={creatingAssignmentFor.sectionId}
+          lessonId={creatingAssignmentFor.lessonId}
+          onSuccess={() => {
+            setCreatingAssignmentFor(null);
+            invalidateAssignments();
+          }}
+        />
+      )}
+
       {/* Update Assignment Modal */}
       {editingAssignment && (
         <UpdateAssignmentModal
@@ -696,46 +715,56 @@ function SectionRow({
 
       {/* Delete Assignment Modal */}
       {assignmentToDelete && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-          <div className="w-full max-w-sm rounded-2xl bg-slate-950 text-slate-50 shadow-xl border border-slate-800">
-            <div className="flex items-center gap-3 px-5 pt-5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-500/10 text-rose-400">
-                <FiTrash2 className="h-5 w-5" />
+        <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-xl ring-1 ring-gray-200">
+            <div className="flex items-center gap-3 border-b border-gray-100 px-5 py-4">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-rose-50 text-rose-600">
+                <FiTrash2 className="h-4 w-4" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold">Delete assignment?</h3>
-                <p className="mt-1 text-xs text-slate-400">
-                  &quot;{assignmentToDelete.title}&quot; will be permanently
-                  removed. This action cannot be undone.
+                <h3 className="text-base font-semibold text-gray-900">
+                  Delete assignment?
+                </h3>
+                <p className="text-xs text-gray-500">
+                  This action cannot be undone.
                 </p>
               </div>
             </div>
 
-            {deleteError && (
-              <p className="mt-3 px-5 text-xs text-rose-400">{deleteError}</p>
-            )}
+            <div className="space-y-4 px-5 py-4">
+              <div className="rounded-xl bg-gray-50 px-3 py-2 text-sm text-gray-700">
+                <span className="font-semibold">Assignment:</span>{" "}
+                <span>{assignmentToDelete.title}</span>
+              </div>
 
-            <div className="mt-5 flex justify-end gap-2 border-t border-slate-800 px-5 py-4">
-              <button
-                type="button"
-                disabled={deleteLoading}
-                onClick={() => {
-                  if (deleteLoading) return;
-                  setAssignmentToDelete(null);
-                  setDeleteError("");
-                }}
-                className="rounded-full border border-slate-600 px-4 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-800 disabled:opacity-60"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={deleteLoading}
-                onClick={confirmDeleteAssignment}
-                className="rounded-full bg-rose-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-rose-500 disabled:opacity-60"
-              >
-                {deleteLoading ? "Deleting…" : "Delete"}
-              </button>
+              {deleteError && (
+                <div className="rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-600">
+                  {deleteError}
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-3 pt-1">
+                <button
+                  type="button"
+                  disabled={deleteLoading}
+                  onClick={() => {
+                    if (deleteLoading) return;
+                    setAssignmentToDelete(null);
+                    setDeleteError("");
+                  }}
+                  className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60"
+                >
+                  No, keep it
+                </button>
+                <button
+                  type="button"
+                  disabled={deleteLoading}
+                  onClick={confirmDeleteAssignment}
+                  className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-700 disabled:opacity-60"
+                >
+                  {deleteLoading ? "Deleting…" : "Yes, delete"}
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -28,11 +28,22 @@ export default function PanelContent({ panel, memberId, onClose }: PanelContentP
 //     return <CoursesPanel onClose={onClose} initialMode="create" />;
 //   }
 
-  if (panel === "earnings") return <p className="text-gray-700">Earnings dashboard…</p>;
-  if (panel === "assignments") return <p className="text-gray-700">Assignments UI…</p>;
-  if (panel === "messages") return <p className="text-gray-700">Messages…</p>;
-  if (panel === "explore") return <p className="text-gray-700">Explore resources…</p>;
-  if (panel === "students") return <p className="text-gray-700">Student list…</p>;
+  const comingSoon: Record<string, string> = {
+    earnings: "Earnings dashboard",
+    assignments: "Assignments overview",
+    messages: "Messages",
+    explore: "Explore resources",
+    students: "Student list",
+  };
+
+  if (comingSoon[panel]) {
+    return (
+      <div className="rounded-2xl bg-purple-50 border border-purple-100 px-4 py-6 text-center">
+        <p className="font-extrabold text-gray-900">{comingSoon[panel]}</p>
+        <p className="mt-1 text-sm text-gray-600">Coming soon.</p>
+      </div>
+    );
+  }
 
   return null;
 }

@@ -55,7 +55,7 @@ export function EditLessonDialog({
           <div>
             <label className="block text-xs font-medium text-slate-600">Lesson title</label>
             <input
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
               value={values.title}
               onChange={(e) => onChange("title", e.target.value)}
               placeholder="E.g. Live Korean Speaking"
@@ -66,7 +66,7 @@ export function EditLessonDialog({
           <div>
             <label className="block text-xs font-medium text-slate-600">Content type</label>
             <select
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
               value={values.contentType}
               onChange={(e) => onChange("contentType", e.target.value)}
             >
@@ -83,7 +83,7 @@ export function EditLessonDialog({
               Duration <span className="text-slate-400">(minutes)</span>
             </label>
             <input
-              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
               value={values.duration}
               onChange={(e) => onChange("duration", e.target.value)}
               placeholder="30"
@@ -186,7 +186,7 @@ export function EditLessonDialog({
           <button
             onClick={onSubmit}
             disabled={loading}
-            className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700 disabled:opacity-60"
+            className="rounded-xl bg-purple-700 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-800 disabled:opacity-60"
           >
             {loading ? "Saving..." : "Save changes"}
           </button>

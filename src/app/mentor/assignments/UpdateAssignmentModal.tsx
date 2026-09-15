@@ -253,7 +253,7 @@ export default function UpdateAssignmentModal({
         <button
           type="button"
           onClick={handleClose}
-          className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 disabled:opacity-60"
+          className="rounded-xl px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-100 disabled:opacity-60"
           disabled={loading}
         >
           Cancel
@@ -263,7 +263,7 @@ export default function UpdateAssignmentModal({
           type="button"
           onClick={handleSubmit}
           disabled={loading}
-          className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center justify-center rounded-xl bg-purple-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? "Saving..." : "Save Changes"}
         </button>

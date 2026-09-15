@@ -2,14 +2,16 @@
 
 // app/mentor/layout.tsx
 import type { ReactNode } from "react";
-import Sidebar from "@/app/mentor/components/Sidebar"; // the one we just built to match your screenshot
+import { useRouter } from "next/navigation";
+import Sidebar from "@/app/mentor/components/Sidebar";
 import { useAuth } from "@/providers/auth-context";
 
 export default function MentorLayout({ children }: { children: ReactNode }) {
         const { user } = useAuth();
+        const router = useRouter();
         const name = user?.name || "Mentor";
         const avatarUrl = user?.image || "";
-    
+
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 mt-20 p-6">
       <div className="mx-auto max-w-7xl">
@@ -20,7 +22,7 @@ export default function MentorLayout({ children }: { children: ReactNode }) {
                         name={name}
                         avatarUrl={avatarUrl}
                         roleLabel="Mentor"
-                        onOpenCourses={() => (window.location.href = "/mentor?panel=courses")}
+                        onOpenCourses={() => router.push("/mentor/courses")}
                       />
           </aside>
 

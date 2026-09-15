@@ -19,34 +19,72 @@ export type TileItem = {
   onClick: () => void;
 };
 
+function ActionIcon({
+  bg,
+  fg,
+  children,
+}: {
+  bg: string;
+  fg: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={`grid place-items-center rounded-2xl w-14 h-14 shrink-0 ${bg} ${fg}`}
+    >
+      {children}
+    </div>
+  );
+}
+
 export function buildActions(setPanel: (p: PanelType) => void): ActionItem[] {
   return [
     {
-      icon: <UserRound className="w-6 h-6 text-blue-700" />,
+      icon: (
+        <ActionIcon bg="bg-blue-50" fg="text-blue-700">
+          <UserRound className="w-6 h-6" />
+        </ActionIcon>
+      ),
       title: "Edit your profile",
       desc: "Update bio, photo, and availability",
       onClick: () => setPanel("profile"),
     },
     {
-      icon: <BookOpen className="w-6 h-6 text-green-700" />,
+      icon: (
+        <ActionIcon bg="bg-emerald-50" fg="text-emerald-700">
+          <BookOpen className="w-6 h-6" />
+        </ActionIcon>
+      ),
       title: "My Courses",
       desc: "Create, edit, and publish lessons",
       onClick: () => setPanel("courses"),
     },
     {
-      icon: <ClipboardList className="w-6 h-6 text-orange-700" />,
+      icon: (
+        <ActionIcon bg="bg-orange-50" fg="text-orange-700">
+          <ClipboardList className="w-6 h-6" />
+        </ActionIcon>
+      ),
       title: "Assignments",
       desc: "Post tasks, grade submissions, set deadlines",
       onClick: () => setPanel("assignments"),
     },
     {
-      icon: <MessageSquare className="w-6 h-6 text-purple-700" />,
+      icon: (
+        <ActionIcon bg="bg-purple-50" fg="text-purple-700">
+          <MessageSquare className="w-6 h-6" />
+        </ActionIcon>
+      ),
       title: "Messages",
       desc: "Answer student questions & feedback",
       onClick: () => setPanel("messages"),
     },
     {
-      icon: <DollarSign className="w-6 h-6 text-yellow-700" />,
+      icon: (
+        <ActionIcon bg="bg-amber-50" fg="text-amber-700">
+          <DollarSign className="w-6 h-6" />
+        </ActionIcon>
+      ),
       title: "Earnings",
       desc: "Track payouts & revenue",
       onClick: () => setPanel("earnings"),

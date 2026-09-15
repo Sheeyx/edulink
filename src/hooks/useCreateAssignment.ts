@@ -68,6 +68,15 @@ export function useCreateAssignment({
         setError("Title is required.");
         return;
       }
+      if (!description?.trim()) {
+        setError("Description is required.");
+        return;
+      }
+      const isoDueDateEarly = buildIsoDate(dueDate);
+      if (!isoDueDateEarly) {
+        setError("Due date is required.");
+        return;
+      }
 
       setSubmitting(true);
       resetErrors();
@@ -80,17 +89,17 @@ export function useCreateAssignment({
         }
 
         // 2) Build input
+        // Backend AssignmentInput requires description and dueDate (both @IsNotEmpty()),
+        // validated above before we get here.
         const input: CreateAssignmentInput = {
           title: title.trim(),
           courseId,
+          description: description!.trim(),
+          dueDate: isoDueDateEarly!,
         };
 
-        if (description?.trim()) input.description = description.trim();
         if (sectionId) input.sectionId = sectionId;
         if (lessonId) input.lessonId = lessonId;
-
-        const isoDueDate = buildIsoDate(dueDate);
-        if (isoDueDate) input.dueDate = isoDueDate;
         if (uploadedUrls.length) input.attachments = uploadedUrls;
 
         // 3) Call GraphQL

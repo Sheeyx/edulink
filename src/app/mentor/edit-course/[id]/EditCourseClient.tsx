@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { FiArrowLeft, FiCalendar } from "react-icons/fi";
+import { ArrowLeft } from "lucide-react";
+import { FiCalendar } from "react-icons/fi";
 
 import { gqlFetchAuth } from "@/libs/graphql";
 import { GET_COURSE, UPDATE_COURSE, UPDATE_COURSE_SETTINGS } from "@/graphql/query/courses/courses";
@@ -292,88 +293,63 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
 
   /* ─────────────────── UI ─────────────────── */
 
+  const BackButton = () => (
+    <button
+      type="button"
+      onClick={() => router.back()}
+      className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900 transition"
+    >
+      <ArrowLeft className="w-4 h-4" />
+      Back
+    </button>
+  );
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 text-slate-900">
-        <header className="border-b bg-white/80 backdrop-blur">
-          <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-4 lg:px-0">
-            <button
-              className="flex h-9 w-9 items-center justify-center rounded-full border bg-white"
-              onClick={() => router.back()}
-              type="button"
-            >
-              <FiArrowLeft className="h-4 w-4" />
-            </button>
-            <div>
-              <h1 className="text-lg font-semibold tracking-tight lg:text-xl">Edit Course</h1>
-              <p className="text-xs text-slate-500">Loading...</p>
-            </div>
+      <div>
+        <BackButton />
+        <div className="mt-3">
+          <h1 className="text-2xl md:text-3xl font-black text-gray-900">Edit Course</h1>
+          <p className="mt-1 text-gray-600">Loading...</p>
+        </div>
+        <div className="mt-6 max-w-3xl rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_8px_24px_rgba(99,99,160,0.08)]">
+          <div className="flex items-center justify-center py-12">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-purple-700" />
           </div>
-        </header>
-        <main className="mx-auto mt-6 max-w-3xl px-4 pb-10 lg:px-0">
-          <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
-            <div className="flex items-center justify-center py-12">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
-            </div>
-          </div>
-        </main>
+        </div>
       </div>
     );
   }
 
   if (loadErr) {
     return (
-      <div className="min-h-screen bg-slate-50 text-slate-900">
-        <header className="border-b bg-white/80 backdrop-blur">
-          <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-4 lg:px-0">
-            <button
-              className="flex h-9 w-9 items-center justify-center rounded-full border bg-white"
-              onClick={() => router.back()}
-              type="button"
-            >
-              <FiArrowLeft className="h-4 w-4" />
-            </button>
-            <div>
-              <h1 className="text-lg font-semibold tracking-tight lg:text-xl">Edit Course</h1>
-            </div>
-          </div>
-        </header>
-        <main className="mx-auto mt-6 max-w-3xl px-4 pb-10 lg:px-0">
-          <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-rose-100">
-            <p className="text-sm text-rose-600">{loadErr}</p>
-          </div>
-        </main>
+      <div>
+        <BackButton />
+        <div className="mt-3">
+          <h1 className="text-2xl md:text-3xl font-black text-gray-900">Edit Course</h1>
+        </div>
+        <div className="mt-6 max-w-3xl rounded-2xl border border-red-200 bg-red-50 p-5">
+          <div className="font-extrabold text-red-900">Couldn't load this course</div>
+          <p className="mt-1 text-sm text-red-800">{loadErr}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      {/* Top bar */}
-      <header className="border-b bg-white/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 lg:px-0">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-full border bg-white hover:bg-slate-50"
-              onClick={() => router.back()}
-              aria-label="Go back"
-            >
-              <FiArrowLeft className="h-4 w-4" />
-            </button>
-            <div>
-              <h1 className="text-lg font-semibold tracking-tight lg:text-xl">Edit Course</h1>
-              <p className="text-xs text-slate-500">Update your course information and publish when ready.</p>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div>
+      {/* In-content header (mentor layout already provides the page shell) */}
+      <BackButton />
+      <div className="mt-3">
+        <h1 className="text-2xl md:text-3xl font-black text-gray-900">Edit Course</h1>
+        <p className="mt-1 text-gray-600">Update your course information and publish when ready.</p>
+      </div>
 
       {/* Content */}
-      <main className="mx-auto mt-6 max-w-3xl px-4 pb-12 lg:px-0">
+      <div className="mt-6 max-w-3xl">
         <form
           onSubmit={handleSubmit}
-          className="space-y-5 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100"
+          className="space-y-5 rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_8px_24px_rgba(99,99,160,0.08)]"
         >
           {saveErr && (
             <div className="rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-600">{saveErr}</div>
@@ -400,7 +376,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
                 </div>
 
                 <div>
-                  <label className="inline-flex cursor-pointer items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">
+                  <label className="inline-flex cursor-pointer items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">
                     <span>{imageFile || existingImageKey ? "Change image" : "Upload image"}</span>
                     <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
                   </label>
@@ -417,7 +393,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
             </label>
             <input
               id="course-title"
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+              className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
               value={form.title}
               onChange={(e) => handleInputChange("title", e.target.value)}
               placeholder="IELTS Speaking for Beginners"
@@ -432,7 +408,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
             </label>
             <textarea
               id="course-description"
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+              className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
               rows={4}
               value={form.description}
               onChange={(e) => handleInputChange("description", e.target.value)}
@@ -446,7 +422,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
             <div>
               <label className="text-xs font-medium text-slate-700">Category</label>
               <select
-                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                 value={form.category}
                 onChange={(e) => handleInputChange("category", e.target.value)}
                 required
@@ -465,7 +441,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
             <div>
               <label className="text-xs font-medium text-slate-700">Language</label>
               <select
-                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                 value={form.languageType}
                 onChange={(e) => handleInputChange("languageType", e.target.value as any)}
                 required
@@ -490,7 +466,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
               </label>
               <select
                 id="course-level"
-                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                 value={form.level}
                 onChange={(e) => handleInputChange("level", e.target.value as CourseLevel)}
               >
@@ -510,7 +486,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
                 id="max-students"
                 type="number"
                 min={1}
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                 value={form.maxStudents}
                 onChange={(e) => handleInputChange("maxStudents", Number(e.target.value))}
                 placeholder="10"
@@ -523,7 +499,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
             <div>
               <label className="text-xs font-medium text-slate-700">Status</label>
               <select
-                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                 value={form.status}
                 onChange={(e) => handleInputChange("status", e.target.value as CourseStatus)}
               >
@@ -541,7 +517,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
                 <button
                   type="button"
                   onClick={() => setShowDatePicker(!showDatePicker)}
-                  className="mt-1 flex w-full items-center justify-between rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition-colors hover:border-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                  className="mt-1 flex w-full items-center justify-between rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors hover:border-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                 >
                   <span className={form.courseStartDate ? "text-slate-900" : "text-slate-400"}>
                     {form.courseStartDate ? formatDate(form.courseStartDate) : "Select start date"}
@@ -567,7 +543,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
               id="course-price"
               type="number"
               min={0}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+              className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
               value={form.price}
               onChange={(e) => handleInputChange("price", e.target.value)}
               placeholder="0"
@@ -579,21 +555,21 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
             <button
               type="button"
               onClick={() => router.back()}
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+              className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
               disabled={saving || uploadingImage}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-xl bg-purple-700 px-5 py-2 text-sm font-extrabold text-white transition-colors hover:bg-purple-800 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isDisabled}
             >
               {saving || uploadingImage ? "Saving..." : "Save changes"}
             </button>
           </div>
         </form>
-      </main>
+      </div>
     </div>
   );
 }
@@ -659,12 +635,12 @@ function DatePicker({ selectedDate, onSelectDate }: DatePickerProps) {
           className={`
             h-9 w-9 rounded-lg text-sm font-medium transition-all
             ${isSelected
-              ? "bg-blue-600 text-white shadow-sm"
+              ? "bg-purple-700 text-white shadow-sm"
               : isPast
               ? "text-slate-300 cursor-not-allowed"
               : "text-slate-700 hover:bg-slate-100"
             }
-            ${isToday && !isSelected ? "ring-2 ring-blue-200" : ""}
+            ${isToday && !isSelected ? "ring-2 ring-purple-200" : ""}
           `}
         >
           {day}

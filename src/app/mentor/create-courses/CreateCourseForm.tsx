@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { FiArrowLeft, FiCalendar } from "react-icons/fi";
+import { ArrowLeft } from "lucide-react";
+import { FiCalendar } from "react-icons/fi";
 
 import { gqlFetchAuth } from "@/libs/graphql";
 import { CREATE_COURSE } from "@/graphql/mutation/course/course";
@@ -188,36 +189,31 @@ export default function CreateCourseClient() {
   /* ─────────────────── Render ─────────────────── */
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      {/* Top bar */}
-      <header className="border-b bg-white/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 lg:px-0">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-full border bg-white hover:bg-slate-50"
-              onClick={() => router.back()}
-              aria-label="Go back"
-            >
-              <FiArrowLeft className="h-4 w-4" />
-            </button>
-            <div>
-              <h1 className="text-lg font-semibold tracking-tight lg:text-xl">
-                Create Course
-              </h1>
-              <p className="text-xs text-slate-500">
-                Add a new course to your mentor dashboard.
-              </p>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div>
+      {/* In-content header (mentor layout already provides the page shell) */}
+      <button
+        type="button"
+        onClick={() => router.back()}
+        className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-900 transition"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back
+      </button>
+
+      <div className="mt-3">
+        <h1 className="text-2xl md:text-3xl font-black text-gray-900">
+          Create Course
+        </h1>
+        <p className="mt-1 text-gray-600">
+          Add a new course to your mentor dashboard.
+        </p>
+      </div>
 
       {/* Content */}
-      <main className="mx-auto mt-6 max-w-3xl px-4 pb-12 lg:px-0">
+      <div className="mt-6 max-w-3xl">
         <form
           onSubmit={handleSubmit}
-          className="space-y-5 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100"
+          className="space-y-5 rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_8px_24px_rgba(99,99,160,0.08)]"
         >
           {saveErr && (
             <div className="rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-600">
@@ -255,7 +251,7 @@ export default function CreateCourseClient() {
                 </div>
 
                 <div>
-                  <label className="inline-flex cursor-pointer items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">
+                  <label className="inline-flex cursor-pointer items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50">
                     <span>{imageFile ? "Change image" : "Upload image"}</span>
                     <input
                       type="file"
@@ -282,7 +278,7 @@ export default function CreateCourseClient() {
             </label>
             <input
               id="course-title"
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+              className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
               value={form.title}
               onChange={(e) => handleInputChange("title", e.target.value)}
               placeholder="IELTS Speaking for Beginners"
@@ -300,7 +296,7 @@ export default function CreateCourseClient() {
             </label>
             <textarea
               id="course-description"
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+              className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
               rows={4}
               value={form.description}
               onChange={(e) => handleInputChange("description", e.target.value)}
@@ -314,7 +310,7 @@ export default function CreateCourseClient() {
             <div>
               <label className="text-xs font-medium text-slate-700">Category</label>
               <select
-                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                 value={form.category}
                 onChange={(e) => handleInputChange("category", e.target.value)}
               >
@@ -332,7 +328,7 @@ export default function CreateCourseClient() {
             <div>
               <label className="text-xs font-medium text-slate-700">Language</label>
               <select
-                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                 value={form.languageType}
                 onChange={(e) => handleInputChange("languageType", e.target.value)}
                 required
@@ -360,7 +356,7 @@ export default function CreateCourseClient() {
               </label>
               <select
                 id="course-level"
-                className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                 value={form.level}
                 onChange={(e) =>
                   handleInputChange("level", e.target.value as CourseLevel)
@@ -385,7 +381,7 @@ export default function CreateCourseClient() {
                 id="max-students"
                 type="number"
                 min={1}
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                 value={form.maxStudents}
                 onChange={(e) => handleInputChange("maxStudents", e.target.value)}
                 placeholder="10"
@@ -406,7 +402,7 @@ export default function CreateCourseClient() {
                 id="course-price"
                 type="number"
                 min={0}
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                 value={form.price}
                 onChange={(e) => handleInputChange("price", e.target.value)}
                 placeholder="0"
@@ -421,7 +417,7 @@ export default function CreateCourseClient() {
                 <button
                   type="button"
                   onClick={() => setShowDatePicker(!showDatePicker)}
-                  className="mt-1 flex w-full items-center justify-between rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition-colors hover:border-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+                  className="mt-1 flex w-full items-center justify-between rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors hover:border-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
                 >
                   <span className={form.courseStartDate ? "text-slate-900" : "text-slate-400"}>
                     {form.courseStartDate ? formatDate(form.courseStartDate) : "Select start date"}
@@ -446,21 +442,21 @@ export default function CreateCourseClient() {
             <button
               type="button"
               onClick={() => router.back()}
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+              className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
               disabled={saving || uploadingImage}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-xl bg-purple-700 px-5 py-2 text-sm font-extrabold text-white transition-colors hover:bg-purple-800 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isDisabled}
             >
               {saving || uploadingImage ? "Creating..." : "Create course"}
             </button>
           </div>
         </form>
-      </main>
+      </div>
     </div>
   );
 }
@@ -536,12 +532,12 @@ function DatePicker({ selectedDate, onSelectDate }: DatePickerProps) {
           className={`
             h-9 w-9 rounded-lg text-sm font-medium transition-all
             ${isSelected 
-              ? "bg-blue-600 text-white shadow-sm" 
+              ? "bg-purple-700 text-white shadow-sm" 
               : isPast
               ? "text-slate-300 cursor-not-allowed"
               : "text-slate-700 hover:bg-slate-100"
             }
-            ${isToday && !isSelected ? "ring-2 ring-blue-200" : ""}
+            ${isToday && !isSelected ? "ring-2 ring-purple-200" : ""}
           `}
         >
           {day}

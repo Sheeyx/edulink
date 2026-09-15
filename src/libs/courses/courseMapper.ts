@@ -55,5 +55,6 @@ export function mapToCourseUI(
     currency: "₩",
     image: null,
     sections: uiSections,
+    resources: [],
   };
 }

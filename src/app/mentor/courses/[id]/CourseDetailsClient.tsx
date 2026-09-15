@@ -11,7 +11,18 @@ import DeleteSectionModal from "../components/Sections/components/DeleteSectionM
 import PageShell from "../components/PageShell";
 import CourseHeaderCard from "../components/CourseHeaderCard";
 
+import ResourcesBlock from "../components/Resources/ResourcesBlock";
+import CreateResourceModal from "../components/Resources/CreateResourceModal";
+import EditResourceModal from "../components/Resources/EditResourceModal";
+import DeleteResourceModal from "../components/Resources/DeleteResourceModal";
+
+import ScheduleBlock from "../components/Schedule/ScheduleBlock";
+import CreateScheduleModal from "../components/Schedule/CreateScheduleModal";
+import EditScheduleModal from "../components/Schedule/EditScheduleModal";
+import DeleteScheduleModal from "../components/Schedule/DeleteScheduleModal";
+
 import { useCourseDetails } from "@/hooks/useCourseDetails";
+import { useCourseSchedules } from "@/hooks/useCourseSchedules";
 import {
   SectionUI,
   LessonUI,
@@ -19,6 +30,8 @@ import {
   UpdateLessonResponse,
   RemoveLessonResp,
   CourseUI,
+  ResourceUI,
+  ScheduleUI,
 } from "@/libs/types/course/types";
 
 import CreateLessonModal from "../../lessons/CreateLessonModal";
@@ -38,8 +51,42 @@ type CourseDetailsClientProps = {
 export default function CourseDetailsClient({
   courseId,
 }: CourseDetailsClientProps) {
-  const { course, loading, error, removeSectionById, reload } =
+  const { course, loading, error, removeSectionById, removeResourceById, reload } =
     useCourseDetails(courseId);
+
+  const {
+    schedules,
+    removeScheduleById,
+    reload: reloadSchedules,
+  } = useCourseSchedules(courseId);
+
+  /* ───────── Schedule modals ───────── */
+
+  const [createScheduleOpen, setCreateScheduleOpen] = React.useState(false);
+  const [editingSchedule, setEditingSchedule] = React.useState<ScheduleUI | null>(
+    null
+  );
+  const [deletingSchedule, setDeletingSchedule] = React.useState<ScheduleUI | null>(
+    null
+  );
+  const [deleteScheduleLoading, setDeleteScheduleLoading] = React.useState(false);
+  const [deleteScheduleErr, setDeleteScheduleErr] = React.useState<string | null>(
+    null
+  );
+
+  /* ───────── Resource modals ───────── */
+
+  const [createResourceOpen, setCreateResourceOpen] = React.useState(false);
+  const [editingResource, setEditingResource] = React.useState<ResourceUI | null>(
+    null
+  );
+  const [deletingResource, setDeletingResource] = React.useState<ResourceUI | null>(
+    null
+  );
+  const [deleteResourceLoading, setDeleteResourceLoading] = React.useState(false);
+  const [deleteResourceErr, setDeleteResourceErr] = React.useState<string | null>(
+    null
+  );
 
   /* ───────── Section modals ───────── */
 
@@ -100,6 +147,90 @@ export default function CourseDetailsClient({
   const handleAddSectionClick = React.useCallback(() => {
     setAddOpen(true);
   }, []);
+
+  /* ───────── Resource handlers ───────── */
+
+  const handleAddResourceClick = React.useCallback(() => {
+    setCreateResourceOpen(true);
+  }, []);
+
+  const handleResourceCreated = React.useCallback(async () => {
+    await reload();
+  }, [reload]);
+
+  const handleResourceUpdated = React.useCallback(async () => {
+    setEditingResource(null);
+    await reload();
+  }, [reload]);
+
+  const handleDeleteResourceRequest = React.useCallback((resource: ResourceUI) => {
+    setDeletingResource(resource);
+    setDeleteResourceErr(null);
+  }, []);
+
+  const handleDeleteResourceCancel = React.useCallback(() => {
+    if (deleteResourceLoading) return;
+    setDeletingResource(null);
+    setDeleteResourceErr(null);
+  }, [deleteResourceLoading]);
+
+  const handleDeleteResourceConfirm = React.useCallback(async () => {
+    if (!deletingResource) return;
+
+    try {
+      setDeleteResourceLoading(true);
+      setDeleteResourceErr(null);
+      await removeResourceById(deletingResource.id);
+      setDeletingResource(null);
+    } catch (err: any) {
+      console.error(err);
+      setDeleteResourceErr(err?.message || "Failed to delete resource.");
+    } finally {
+      setDeleteResourceLoading(false);
+    }
+  }, [removeResourceById, deletingResource]);
+
+  /* ───────── Schedule handlers ───────── */
+
+  const handleAddScheduleClick = React.useCallback(() => {
+    setCreateScheduleOpen(true);
+  }, []);
+
+  const handleScheduleCreated = React.useCallback(async () => {
+    await reloadSchedules();
+  }, [reloadSchedules]);
+
+  const handleScheduleUpdated = React.useCallback(async () => {
+    setEditingSchedule(null);
+    await reloadSchedules();
+  }, [reloadSchedules]);
+
+  const handleDeleteScheduleRequest = React.useCallback((schedule: ScheduleUI) => {
+    setDeletingSchedule(schedule);
+    setDeleteScheduleErr(null);
+  }, []);
+
+  const handleDeleteScheduleCancel = React.useCallback(() => {
+    if (deleteScheduleLoading) return;
+    setDeletingSchedule(null);
+    setDeleteScheduleErr(null);
+  }, [deleteScheduleLoading]);
+
+  const handleDeleteScheduleConfirm = React.useCallback(async () => {
+    if (!deletingSchedule) return;
+
+    try {
+      setDeleteScheduleLoading(true);
+      setDeleteScheduleErr(null);
+      await removeScheduleById(deletingSchedule.id);
+      setDeletingSchedule(null);
+    } catch (err) {
+      console.error(err);
+      setDeleteScheduleErr(err instanceof Error ? err.message : "Failed to cancel class.");
+    } finally {
+      setDeleteScheduleLoading(false);
+    }
+  }, [removeScheduleById, deletingSchedule]);
 
   const handleAddLesson = React.useCallback((sectionId: string) => {
     setSectionForLesson(sectionId);
@@ -215,6 +346,22 @@ export default function CourseDetailsClient({
     if (!sec?.lessons) return null;
     return sec.lessons.find((l) => l.id === deletingLesson.lessonId) || null;
   }, [course, deletingLesson]);
+
+  /* ───────── Flatten lessons for the schedule modals' lesson picker ───────── */
+
+  const lessonOptions = React.useMemo(() => {
+    if (!course) return [];
+    return course.sections.flatMap((sec) =>
+      (sec.lessons ?? []).map((l) => ({ id: l.id, title: l.title }))
+    );
+  }, [course]);
+
+  const lessonTitleById = React.useMemo(() => {
+    return lessonOptions.reduce<Record<string, string>>((acc, l) => {
+      acc[l.id] = l.title;
+      return acc;
+    }, {});
+  }, [lessonOptions]);
 
   /* ───────── Transform course image (B2 key → full URL) ───────── */
 
@@ -382,11 +529,14 @@ export default function CourseDetailsClient({
   if (loading) {
     return (
       <PageShell onBack={handleBackClick}>
-        <main className="mx-auto mt-6 max-w-6xl px-4 pb-10 lg:px-0">
-          <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
-            Loading course...
+        <div className="mt-6 space-y-6">
+          <div className="h-44 rounded-2xl bg-gray-100 animate-pulse" />
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_8px_24px_rgba(99,99,160,0.08)] space-y-3">
+            <div className="h-4 bg-gray-100 rounded animate-pulse w-1/3" />
+            <div className="h-4 bg-gray-100 rounded animate-pulse w-2/3" />
+            <div className="h-4 bg-gray-100 rounded animate-pulse w-1/2" />
           </div>
-        </main>
+        </div>
       </PageShell>
     );
   }
@@ -394,13 +544,12 @@ export default function CourseDetailsClient({
   if (error || !course) {
     return (
       <PageShell onBack={handleBackClick}>
-        <main className="mx-auto mt-6 max-w-6xl px-4 pb-10 lg:px-0">
-          <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-rose-100">
-            <p className="text-sm text-rose-600">
-              {error || "Course not found."}
-            </p>
-          </div>
-        </main>
+        <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-5">
+          <div className="font-extrabold text-red-900">Course not found</div>
+          <p className="mt-1 text-sm text-red-800">
+            {error || "This course may have been removed."}
+          </p>
+        </div>
       </PageShell>
     );
   }
@@ -409,10 +558,25 @@ export default function CourseDetailsClient({
 
   return (
     <PageShell onBack={handleBackClick}>
-      <main className="mx-auto mt-6 max-w-6xl px-4 pb-10 lg:px-0">
+      <div className="mt-6">
         <CourseHeaderCard
           course={courseWithImageUrl || course}
           onAddSection={handleAddSectionClick}
+          onAddResource={handleAddResourceClick}
+          onAddSchedule={handleAddScheduleClick}
+        />
+
+        <ResourcesBlock
+          resources={course.resources}
+          onEdit={setEditingResource}
+          onDelete={handleDeleteResourceRequest}
+        />
+
+        <ScheduleBlock
+          schedules={schedules}
+          lessonTitleById={lessonTitleById}
+          onEdit={setEditingSchedule}
+          onDelete={handleDeleteScheduleRequest}
         />
 
         <SectionsBlock
@@ -426,7 +590,65 @@ export default function CourseDetailsClient({
           onReorderLessons={handleReorderLessons}
           onPreviewLesson={handlePreviewLesson}
         />
-      </main>
+      </div>
+
+      {/* Resource create */}
+      <CreateResourceModal
+        open={createResourceOpen}
+        onClose={() => setCreateResourceOpen(false)}
+        courseId={course.id}
+        onSuccess={handleResourceCreated}
+      />
+
+      {/* Resource edit */}
+      <EditResourceModal
+        open={!!editingResource}
+        onClose={() => setEditingResource(null)}
+        resource={editingResource}
+        onSuccess={handleResourceUpdated}
+      />
+
+      {/* Resource delete */}
+      <DeleteResourceModal
+        open={!!deletingResource}
+        title={deletingResource?.title || ""}
+        loading={deleteResourceLoading}
+        error={deleteResourceErr}
+        onCancel={handleDeleteResourceCancel}
+        onConfirm={handleDeleteResourceConfirm}
+      />
+
+      {/* Schedule create */}
+      <CreateScheduleModal
+        open={createScheduleOpen}
+        onClose={() => setCreateScheduleOpen(false)}
+        courseId={course.id}
+        lessonOptions={lessonOptions}
+        onSuccess={handleScheduleCreated}
+      />
+
+      {/* Schedule edit */}
+      <EditScheduleModal
+        open={!!editingSchedule}
+        onClose={() => setEditingSchedule(null)}
+        schedule={editingSchedule}
+        lessonOptions={lessonOptions}
+        onSuccess={handleScheduleUpdated}
+      />
+
+      {/* Schedule delete */}
+      <DeleteScheduleModal
+        open={!!deletingSchedule}
+        title={
+          deletingSchedule?.startAt?.[0]
+            ? new Date(deletingSchedule.startAt[0]).toLocaleString()
+            : ""
+        }
+        loading={deleteScheduleLoading}
+        error={deleteScheduleErr}
+        onCancel={handleDeleteScheduleCancel}
+        onConfirm={handleDeleteScheduleConfirm}
+      />
 
       {/* Section create */}
       <CreateSectionModal

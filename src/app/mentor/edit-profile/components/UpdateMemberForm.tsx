@@ -170,7 +170,7 @@ export default function UpdateMemberForm({ memberId, initial, onDone }: Props) {
           Full name
         </label>
         <input
-          className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-violet-500 outline-none"
+          className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none"
           value={form.memberFullName}
           onChange={(e) => setForm((s) => ({ ...s, memberFullName: e.target.value }))}
           placeholder="Your full name"
@@ -183,7 +183,7 @@ export default function UpdateMemberForm({ memberId, initial, onDone }: Props) {
           Phone
         </label>
         <input
-          className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-violet-500 outline-none"
+          className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none"
           value={form.memberPhone}
           onChange={(e) => setForm((s) => ({ ...s, memberPhone: e.target.value }))}
           placeholder="+82 10-0000-0000"
@@ -196,7 +196,7 @@ export default function UpdateMemberForm({ memberId, initial, onDone }: Props) {
           Bio
         </label>
         <textarea
-          className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-violet-500 outline-none"
+          className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none"
           rows={4}
           value={form.memberBio}
           onChange={(e) => setForm((s) => ({ ...s, memberBio: e.target.value }))}
@@ -210,7 +210,7 @@ export default function UpdateMemberForm({ memberId, initial, onDone }: Props) {
           Photo URL
         </label>
         <input
-          className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-violet-500 outline-none"
+          className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none"
           value={form.memberImage}
           onChange={(e) => setForm((s) => ({ ...s, memberImage: e.target.value }))}
           placeholder="https://…"
@@ -232,7 +232,7 @@ export default function UpdateMemberForm({ memberId, initial, onDone }: Props) {
         <button
           type="submit"
           disabled={disabled}
-          className="inline-flex items-center justify-center rounded-2xl bg-violet-600 text-white px-5 py-3 font-semibold hover:bg-violet-500 disabled:opacity-60"
+          className="inline-flex items-center justify-center rounded-2xl bg-purple-700 text-white px-5 py-3 font-extrabold hover:bg-purple-800 disabled:opacity-60"
         >
           {isPending ? "Saving…" : "Save changes"}
         </button>

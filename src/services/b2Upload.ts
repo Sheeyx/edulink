@@ -53,15 +53,18 @@ export async function uploadFilesToB2(
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
-        // NO custom headers - they cause CORS preflight issues
-        // Backend must have csrfPrevention: false instead
+        // Apollo Server's CSRF prevention blocks "simple" (non-preflighted)
+        // requests like multipart/form-data uploads unless one of its documented
+        // exemption headers is present. This one is allow-listed in the backend's
+        // CORS config (main.ts) so it doesn't trigger a preflight failure.
+        "apollo-require-preflight": "true",
       },
       body: formData,
       credentials: "include",
     });
   } catch (err) {
     console.error("Upload network error:", err);
-    throw new Error("Failed to fetch - ensure backend has csrfPrevention: false");
+    throw new Error("Failed to upload file");
   }
 
   const text = await res.text();

@@ -3,7 +3,7 @@
 
 import * as React from "react";
 import { gqlFetchAuth } from "@/libs/graphql";
-import { GET_COURSE } from "@/graphql/query/courses/courses";
+import { GET_COURSE_FOR_MENTOR, REMOVE_RESOURCE } from "@/graphql/query/courses/courses";
 import {
   CourseUI,
   CourseFromApi,
@@ -11,6 +11,8 @@ import {
   SectionUI,
   ULesson,
   RemoveSectionResp,
+  ResourceUI,
+  RemoveResourceResp,
 } from "@/libs/types/course/types";
 
 const REMOVE_SECTION = `
@@ -34,7 +36,7 @@ export function useCourseDetails(courseId: string) {
       setError(null);
 
       const resp = await gqlFetchAuth<{ getCourse: CourseFromApi }>(
-        GET_COURSE,
+        GET_COURSE_FOR_MENTOR,
         { input: courseId }
       );
 
@@ -64,6 +66,19 @@ export function useCourseDetails(courseId: string) {
             ) ?? [],
         })) ?? [];
 
+      const resources: ResourceUI[] = (api.resources ?? [])
+        .filter((r) => r.resourceStatus === "ACTIVE")
+        .map((r) => ({
+          id: r._id,
+          title: r.resourceTitle,
+          type: r.resourceType,
+          url: r.resourceUrl,
+          size: r.resourceSize,
+          isPublic: r.isPublic,
+          downloadCount: r.downloadCount,
+          createdAt: r.createdAt,
+        }));
+
       const mapped: CourseUI = {
         id: api._id,
         title: api.courseTitle,
@@ -76,6 +91,7 @@ export function useCourseDetails(courseId: string) {
         price: api.coursePrice,
         currency: "USD", // change to "KRW" if needed
         sections,
+        resources,
         image: api.courseImage ?? null
       };
 
@@ -109,6 +125,22 @@ export function useCourseDetails(courseId: string) {
     []
   );
 
+  const removeResourceById = React.useCallback(
+    async (resourceId: string) => {
+      await gqlFetchAuth<RemoveResourceResp>(REMOVE_RESOURCE, { input: resourceId });
+
+      setCourse((prev) =>
+        prev
+          ? {
+              ...prev,
+              resources: prev.resources.filter((r) => r.id !== resourceId),
+            }
+          : prev
+      );
+    },
+    []
+  );
+
   React.useEffect(() => {
     fetchCourse();
   }, [fetchCourse]);
@@ -116,6 +148,7 @@ export function useCourseDetails(courseId: string) {
   return {
     course,
     loading,
+    removeResourceById,
     error,
     removeSectionById,
     reload: fetchCourse,
