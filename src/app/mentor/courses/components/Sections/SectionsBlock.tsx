@@ -163,6 +163,7 @@ type Props = {
   onCreateAssignmentForSection?: (sectionId: string) => void;
   onCreateAssignmentForLesson?: (sectionId: string, lessonId: string) => void;
   onCreateGeneralAssignment?: () => void; // 🔹 NEW: for course-level assignments
+  onViewSubmissions?: (assignment: { _id: string; title: string }) => void;
 
   // 🔹 NEW: video preview callback
   onPreviewLesson?: (sectionId: string, lessonId: string) => void;
@@ -182,6 +183,7 @@ export default function SectionsBlock({
   onCreateAssignmentForSection,
   onCreateAssignmentForLesson,
   onCreateGeneralAssignment,
+  onViewSubmissions,
   onPreviewLesson,
 }: Props) {
   const activeSections = sections.filter(
@@ -283,6 +285,7 @@ export default function SectionsBlock({
               onReorderLessons={onReorderLessons}
               onCreateAssignmentForSection={onCreateAssignmentForSection}
               onCreateAssignmentForLesson={onCreateAssignmentForLesson}
+              onViewSubmissions={onViewSubmissions}
               onPreviewLesson={onPreviewLesson} // 🔹 pass down
               assignments={assignmentsBySection[section.id] ?? []}
             />
@@ -308,6 +311,7 @@ function SectionRow({
   onReorderLessons,
   onCreateAssignmentForSection,
   onCreateAssignmentForLesson,
+  onViewSubmissions,
   onPreviewLesson,
   assignments,
 }: {
@@ -323,6 +327,7 @@ function SectionRow({
   onReorderLessons: (sectionId: string, lessons: LessonUI[]) => void;
   onCreateAssignmentForSection?: (sectionId: string) => void;
   onCreateAssignmentForLesson?: (sectionId: string, lessonId: string) => void;
+  onViewSubmissions?: (assignment: { _id: string; title: string }) => void;
   onPreviewLesson?: (sectionId: string, lessonId: string) => void;
   assignments?: AssignmentUI[];
 }) {
@@ -651,6 +656,18 @@ function SectionRow({
                         </span>
 
                         <div className="flex gap-1">
+                          {onViewSubmissions && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                onViewSubmissions({ _id: a.id, title: a.title })
+                              }
+                              className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2.5 py-0.5 text-[10px] font-medium text-sky-700 hover:bg-sky-100"
+                            >
+                              Submissions
+                            </button>
+                          )}
+
                           <button
                             type="button"
                             onClick={() => setEditingAssignment(a)}

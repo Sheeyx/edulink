@@ -2,6 +2,7 @@
 "use client";
 
 import * as React from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import SectionsBlock from "../components/Sections/SectionsBlock";
 import EditSectionModal from "../components/Sections/EditSectionModal";
@@ -38,6 +39,10 @@ import CreateLessonModal from "../../lessons/CreateLessonModal";
 import EditLessonModal from "../../lessons/EditLessonModal";
 import DeleteLessonModal from "../../lessons/DeleteLessonModal";
 import CreateAssignmentModal from "../../assignments/CreateAssignmentModal";
+
+import SubmissionsModal, {
+  type SubmissionsModalTarget,
+} from "../components/Assignments/SubmissionsModal";
 
 import { gqlFetchAuth } from "@/libs/graphql";
 import { REMOVE_LESSON, UPDATE_LESSON } from "@/graphql/mutation/lessons/lesson";
@@ -132,11 +137,15 @@ export default function CourseDetailsClient({
 
   /* ───────── Assignment modals ───────── */
 
+  const queryClient = useQueryClient();
+
   const [createAssignmentOpen, setCreateAssignmentOpen] = React.useState(false);
   const [assignmentContext, setAssignmentContext] = React.useState<{
     sectionId?: string;
     lessonId?: string;
   }>({});
+  const [viewingSubmissionsFor, setViewingSubmissionsFor] =
+    React.useState<SubmissionsModalTarget | null>(null);
 
   /* ───────── Lesson video preview ───────── */
 
@@ -335,9 +344,17 @@ export default function CourseDetailsClient({
 
   const handleAssignmentCreated = React.useCallback(async () => {
     await reload();
+    await queryClient.invalidateQueries({ queryKey: ["course-assignments", courseId] });
     setCreateAssignmentOpen(false);
     setAssignmentContext({});
-  }, [reload]);
+  }, [reload, queryClient, courseId]);
+
+  const handleViewSubmissions = React.useCallback(
+    (assignment: SubmissionsModalTarget) => {
+      setViewingSubmissionsFor(assignment);
+    },
+    []
+  );
 
   /* ───────── Lesson handlers (edit / delete / reorder) ───────── */
 
@@ -613,7 +630,7 @@ export default function CourseDetailsClient({
           onEdit={setEditingSchedule}
           onDelete={handleDeleteScheduleRequest}
         />
-        
+
         <SectionsBlock
           courseId={courseId}
           sections={course.sections}
@@ -627,6 +644,7 @@ export default function CourseDetailsClient({
           onCreateAssignmentForSection={handleCreateAssignmentForSection}
           onCreateAssignmentForLesson={handleCreateAssignmentForLesson}
           onCreateGeneralAssignment={handleCreateGeneralAssignment}
+          onViewSubmissions={handleViewSubmissions}
         />
       </div>
 
@@ -766,6 +784,13 @@ export default function CourseDetailsClient({
         sectionId={assignmentContext.sectionId}
         lessonId={assignmentContext.lessonId}
         onSuccess={handleAssignmentCreated}
+      />
+
+      {/* Assignment submissions / grading */}
+      <SubmissionsModal
+        open={!!viewingSubmissionsFor}
+        onClose={() => setViewingSubmissionsFor(null)}
+        assignment={viewingSubmissionsFor}
       />
 
       {/* Lesson video preview modal */}
