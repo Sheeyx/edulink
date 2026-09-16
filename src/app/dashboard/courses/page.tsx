@@ -1,13 +1,8 @@
 // src/app/admin/courses/page.tsx
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  KeyboardEvent,
-} from "react";
+import { useEffect, useMemo, useState, KeyboardEvent } from "react";
+import { useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { FiSearch, FiRefreshCw } from "react-icons/fi";
 import { gqlFetchAuth } from "@/libs/graphql";
 import {
@@ -107,8 +102,7 @@ function statusSelectClasses(status: CourseStatus, disabled: boolean): string {
 /* ===== Component ===== */
 
 export default function AdminCoursesPage() {
-  const [courses, setCourses] = useState<CourseItem[]>([]);
-  const [total, setTotal] = useState(0);
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
 
   // search input vs real search (debounced)
@@ -120,11 +114,44 @@ export default function AdminCoursesPage() {
   );
   const [statusFilter, setStatusFilter] = useState<CourseStatus | "ALL">("ALL");
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   // updating status of a single course
   const [statusUpdatingId, setStatusUpdatingId] = useState<string | null>(null);
+  const [statusError, setStatusError] = useState<string | null>(null);
+
+  const queryKey = ["admin-courses", page, search, languageFilter, statusFilter];
+
+  const {
+    data,
+    isLoading: loading,
+    isFetching,
+    error: fetchError,
+    refetch,
+  } = useQuery({
+    queryKey,
+    queryFn: async () => {
+      const input: CoursesInquiryInput = {
+        page,
+        limit: PAGE_LIMIT,
+        search: {} as CoursesInquiryInput["search"],
+      };
+
+      if (search.trim()) input.search!.courseTitle = search.trim();
+      if (languageFilter !== "ALL") input.search!.languageType = languageFilter;
+      if (statusFilter !== "ALL") input.search!.courseStatus = statusFilter;
+
+      const data = await gqlFetchAuth<AdminCoursesResponse>(ADMIN_GET_COURSES, {
+        input,
+      });
+      return data.getAllCoursesByAdmin;
+    },
+    placeholderData: keepPreviousData,
+  });
+
+  const courses: CourseItem[] = data?.list ?? [];
+  const total = data?.metaCounter.total ?? 0;
+  const error =
+    statusError ??
+    (fetchError instanceof Error ? fetchError.message : fetchError ? "Failed to load courses" : null);
 
   /* --- Derived --- */
 
@@ -135,65 +162,11 @@ export default function AdminCoursesPage() {
 
   const hasData = courses.length > 0;
 
-  /* --- Data fetcher --- */
-
-  const fetchCourses = useCallback(
-    async (overridePage?: number) => {
-      const nextPage = overridePage ?? page;
-
-      const input: CoursesInquiryInput = {
-        page: nextPage,
-        limit: PAGE_LIMIT,
-        search: {} as CoursesInquiryInput["search"],
-      };
-
-      if (search.trim()) {
-        input.search!.courseTitle = search.trim();
-      }
-
-      if (languageFilter !== "ALL") {
-        input.search!.languageType = languageFilter;
-      }
-
-      if (statusFilter !== "ALL") {
-        input.search!.courseStatus = statusFilter;
-      }
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        const data = await gqlFetchAuth<AdminCoursesResponse>(
-          ADMIN_GET_COURSES,
-          { input }
-        );
-
-        const payload = data.getAllCoursesByAdmin;
-        setCourses(payload.list);
-        setTotal(payload.metaCounter.total ?? 0);
-
-        if (overridePage !== undefined) {
-          setPage(overridePage);
-        }
-      } catch (err) {
-        console.error("[AdminCourses] fetch error:", err);
-        const message =
-          err instanceof Error ? err.message : "Failed to load courses";
-        setError(message);
-        setCourses([]);
-        setTotal(0);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [page, search, languageFilter, statusFilter]
-  );
-
-  /* --- Initial + filter changes --- */
+  /* --- Reset to page 1 whenever filters change --- */
 
   useEffect(() => {
-    fetchCourses(1);
-  }, [search, languageFilter, statusFilter, fetchCourses]);
+    setPage(1);
+  }, [search, languageFilter, statusFilter]);
 
   /* --- Debounce search input --- */
 
@@ -214,19 +187,17 @@ export default function AdminCoursesPage() {
   };
 
   const handleRefresh = () => {
-    fetchCourses();
+    refetch();
   };
 
   const handlePrevPage = () => {
     if (page <= 1) return;
-    const prev = page - 1;
-    fetchCourses(prev);
+    setPage((p) => p - 1);
   };
 
   const handleNextPage = () => {
     if (page >= totalPages) return;
-    const next = page + 1;
-    fetchCourses(next);
+    setPage((p) => p + 1);
   };
 
   const handleStatusChange = async (
@@ -237,7 +208,7 @@ export default function AdminCoursesPage() {
     if (current === newStatus) return;
 
     setStatusUpdatingId(courseId);
-    setError(null);
+    setStatusError(null);
 
     try {
       const data = await gqlFetchAuth<UpdateCourseByAdminResp>(
@@ -252,26 +223,28 @@ export default function AdminCoursesPage() {
 
       const updated = data.updateCourseByAdmin;
 
-      // UX: birinchi navbatda local state ni yangilaymiz
-      setCourses((prev) =>
-        prev.map((c) =>
-          c._id === updated._id ? { ...c, courseStatus: updated.courseStatus } : c
-        )
+      // Reflect the change immediately, then reconcile with the server
+      // (a status change can move the course out of the current filter).
+      queryClient.setQueryData<AdminCoursesResponse["getAllCoursesByAdmin"]>(
+        queryKey,
+        (prev) =>
+          prev && {
+            ...prev,
+            list: prev.list.map((c) =>
+              c._id === updated._id ? { ...c, courseStatus: updated.courseStatus } : c
+            ),
+          }
       );
 
-      // Agar hozir filter Published bo'lsa va sen Draftga o'zgartirsang,
-      // shu kurs Published listdan chiqib ketishi kerak → qayta fetch
-      if (
-        statusFilter !== "ALL" &&
-        updated.courseStatus !== statusFilter
-      ) {
-        await fetchCourses(1);
+      if (statusFilter !== "ALL" && updated.courseStatus !== statusFilter) {
+        setPage(1);
+        await queryClient.invalidateQueries({ queryKey: ["admin-courses"] });
       }
     } catch (err) {
       console.error("[AdminCourses] update status error:", err);
       const message =
         err instanceof Error ? err.message : "Failed to update course status";
-      setError(message);
+      setStatusError(message);
     } finally {
       setStatusUpdatingId(null);
     }
@@ -297,7 +270,7 @@ export default function AdminCoursesPage() {
           onClick={handleRefresh}
           className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-[0.98]"
         >
-          <FiRefreshCw className={loading ? "animate-spin" : ""} />
+          <FiRefreshCw className={isFetching ? "animate-spin" : ""} />
           <span>Refresh</span>
         </button>
       </header>
@@ -543,7 +516,7 @@ export default function AdminCoursesPage() {
             <button
               type="button"
               onClick={handlePrevPage}
-              disabled={page <= 1 || loading}
+              disabled={page <= 1 || isFetching}
               className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 disabled:cursor-not-allowed disabled:opacity-40 hover:bg-slate-100"
             >
               Prev
@@ -559,7 +532,7 @@ export default function AdminCoursesPage() {
             <button
               type="button"
               onClick={handleNextPage}
-              disabled={page >= totalPages || loading}
+              disabled={page >= totalPages || isFetching}
               className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 disabled:cursor-not-allowed disabled:opacity-40 hover:bg-slate-100"
             >
               Next
