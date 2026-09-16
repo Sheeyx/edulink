@@ -7,7 +7,7 @@ import CourseHero from "./CourseHero";
 import CoursePurchaseCard from "./CoursePurchaseCard";
 import CourseTabs from "./CourseTabs";
 
-import CourseContentAccordion from "@/app/components/courses/CourseContentAccordion";
+import CourseContentAccordion from "./CourseContentAccordion";
 
 import type { CourseDetail, TabKey } from "./types";
 import { normalizeImageSrc } from "./utils/images";

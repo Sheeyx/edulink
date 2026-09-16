@@ -1,6 +1,6 @@
-import CourseGrid from "./components/home/Courses";
-import FeaturesGrid from "./components/home/Features";
-import HeroBanner from "./components/home/HeroBanner";
+import CourseGrid from "./_components/Courses";
+import FeaturesGrid from "./_components/Features";
+import HeroBanner from "./_components/HeroBanner";
 
 export default function HomePage() {
   return (
