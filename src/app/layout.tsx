@@ -4,6 +4,7 @@ import "./globals.css";
 import SessionProviderWrapper from "@/providers/SessionProviderWrapper";
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
 import { AuthProvider } from "@/providers/auth-context";
+import { CartProvider } from "@/providers/cart-context";
 import AppShell from "@/components/AppShell";
 
 export const metadata: Metadata = {
@@ -19,7 +20,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SessionProviderWrapper>
           <ReactQueryProvider>
             <AuthProvider>
-              <AppShell>{children}</AppShell>
+              <CartProvider>
+                <AppShell>{children}</AppShell>
+              </CartProvider>
             </AuthProvider>
           </ReactQueryProvider>
         </SessionProviderWrapper>

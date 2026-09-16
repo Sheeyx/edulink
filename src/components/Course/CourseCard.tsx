@@ -2,13 +2,32 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { FaStar } from "react-icons/fa";
+import { Check, ShoppingCart } from "lucide-react";
 import LikeButton from "./LikeButton";
 import type { UICourseCard } from "@/libs/CourseMapper";
+import { useCart } from "@/providers/cart-context";
 
 export default function CourseCard({ course }: { course: UICourseCard }) {
   const [imgError, setImgError] = useState(false);
+  const { isInCart, toggleItem } = useCart();
+  const inCart = course.id ? isInCart(course.id) : false;
+
+  const handleAddToCart = (e: MouseEvent) => {
+    // CourseCard is rendered inside a <Link> to the course detail page in
+    // every grid that uses it — stop the click from also navigating.
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!course.id) return;
+    toggleItem({
+      id: course.id,
+      title: course.title,
+      image: course.image,
+      price: course.priceValue,
+    });
+  };
 
   const hasImage = Boolean(course.image?.trim()) && !imgError;
 
@@ -79,8 +98,24 @@ export default function CourseCard({ course }: { course: UICourseCard }) {
           ) : null}
         </div>
 
-        <button className="mt-3 w-full bg-brand-primary text-white font-semibold py-2 rounded-lg hover:bg-brand-selected transition">
-          Add to cart
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          className={`mt-3 flex w-full items-center justify-center gap-2 rounded-lg py-2 font-semibold transition ${
+            inCart
+              ? "border border-brand-primary text-brand-primary hover:bg-brand-primary/10"
+              : "bg-brand-primary text-white hover:bg-brand-selected"
+          }`}
+        >
+          {inCart ? (
+            <>
+              <Check className="h-4 w-4" /> In cart
+            </>
+          ) : (
+            <>
+              <ShoppingCart className="h-4 w-4" /> Add to cart
+            </>
+          )}
         </button>
       </div>
     </div>

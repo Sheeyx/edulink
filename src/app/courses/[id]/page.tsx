@@ -63,6 +63,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
         totalModules: course.courseTotalModules ?? sectionsUI.length,
         totalLessons: course.courseTotalLessons ?? 0,
         price: formatPrice(course.coursePrice),
+        priceValue: course.coursePrice ?? 0,
         oldPrice: null,
         updatedAt: course.updatedAt ?? "",
         instructor: {

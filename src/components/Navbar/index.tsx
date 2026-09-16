@@ -6,10 +6,12 @@ import Image from "next/image";
 import Link from "next/link";
 import UserInfo from "../User/UserInfo";
 import { useAuth } from "@/providers/auth-context";
+import { useCart } from "@/providers/cart-context";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, ready } = useAuth();
+  const { count: cartCount } = useCart();
 
   return (
     <nav className="w-full fixed top-0 bg-white shadow z-50">
@@ -52,14 +54,19 @@ export default function Navbar() {
 
         {/* Right-side */}
         <div className="hidden md:flex items-center space-x-3">
-          <button
-            type="button"
+          <Link
+            href="/cart"
             title="Cart"
-            aria-label="Cart"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-gray-500 transition hover:bg-brand-primary/10 hover:text-brand-primary"
+            aria-label={`Cart${cartCount > 0 ? `, ${cartCount} item${cartCount === 1 ? "" : "s"}` : ""}`}
+            className="relative flex h-10 w-10 items-center justify-center rounded-full text-gray-500 transition hover:bg-brand-primary/10 hover:text-brand-primary"
           >
             <FiShoppingCart className="h-5 w-5" />
-          </button>
+            {cartCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-selected px-1 text-[10px] font-bold text-white">
+                {cartCount}
+              </span>
+            )}
+          </Link>
 
           {!ready ? (
             <div className="flex items-center gap-3" aria-hidden="true">
@@ -109,6 +116,9 @@ export default function Navbar() {
               <Link href="/blog" className="block text-gray-700 hover:text-brand-primary">Blog</Link>
               <Link href="/about" className="block text-gray-700 hover:text-brand-primary">About</Link>
               <Link href="/contact" className="block text-gray-700 hover:text-brand-primary">Contact</Link>
+              <Link href="/cart" className="flex items-center gap-2 text-gray-700 hover:text-brand-primary">
+                Cart{cartCount > 0 ? ` (${cartCount})` : ""}
+              </Link>
             </>
           )}
 

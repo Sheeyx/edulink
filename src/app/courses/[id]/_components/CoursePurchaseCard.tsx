@@ -8,6 +8,7 @@ import { Play, Loader2 } from "lucide-react";
 
 import { gqlFetchAuth } from "@/libs/graphql";
 import { useAuth } from "@/providers/auth-context";
+import { useCart } from "@/providers/cart-context";
 import type { CourseDetail } from "./types";
 import { normalizeImageSrc } from "./utils/images";
 import { ENROLL_IN_COURSE } from "@/graphql/mutation/course/enrollInCourse";
@@ -24,10 +25,21 @@ export default function PurchaseCardInner({
 }) {
   const router = useRouter();
   const { user } = useAuth();
+  const { isInCart, toggleItem } = useCart();
   const mediaImg = normalizeImageSrc(course.mediaImage);
+  const inCart = isInCart(course.id);
 
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  function handleAddToCart() {
+    toggleItem({
+      id: course.id,
+      title: course.title,
+      image: mediaImg,
+      price: course.priceValue,
+    });
+  }
 
   const { data: isEnrolled = false } = useQuery({
     queryKey: ["is-enrolled", course.id],
@@ -107,10 +119,15 @@ export default function PurchaseCardInner({
 
         <div className="mt-4 space-y-2">
           <button
-            disabled
-            className="w-full bg-slate-200 rounded-xl py-3 font-semibold text-slate-500 cursor-not-allowed"
+            type="button"
+            onClick={handleAddToCart}
+            className={`w-full rounded-xl py-3 font-semibold transition ${
+              inCart
+                ? "border border-brand-primary text-brand-primary hover:bg-brand-primary/10"
+                : "border border-gray-300 text-slate-700 hover:bg-gray-50"
+            }`}
           >
-            Add to cart
+            {inCart ? "In cart ✓" : "Add to cart"}
           </button>
 
           <button

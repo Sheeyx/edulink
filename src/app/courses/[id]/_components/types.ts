@@ -11,6 +11,7 @@ export type CourseDetail = {
   totalModules: number;
   totalLessons: number;
   price: string;
+  priceValue: number;
   oldPrice?: string | null;
   updatedAt?: string | null;
   instructor: {

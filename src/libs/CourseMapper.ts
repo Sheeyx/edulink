@@ -8,6 +8,7 @@ export type UICourseCard = {
   subtitle: string;
   instructor: string;
   price: string;
+  priceValue: number;
   oldPrice: string;
   rating: number;
   ratingCount: number;
@@ -33,6 +34,7 @@ export function toCourseCardModel(c: CourseFromApi): UICourseCard {
     subtitle: c.courseDesc ?? "",
     instructor: c.memberData?.memberFullName ?? "Instructor",
     price: formatPrice(c.coursePrice),
+    priceValue: typeof c.coursePrice === "number" ? c.coursePrice : Number(c.coursePrice) || 0,
     oldPrice: "", // you don't have courseOldPrice in your type (yet)
     rating: c.courseRating ?? 0,
     ratingCount: c.courseLikes ?? 0,
