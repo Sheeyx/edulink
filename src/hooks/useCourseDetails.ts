@@ -92,7 +92,8 @@ export function useCourseDetails(courseId: string) {
         currency: "USD", // change to "KRW" if needed
         sections,
         resources,
-        image: api.courseImage ?? null
+        image: api.courseImage ?? null,
+        enrolledMemberIds: api.courseEnrolledMembers ?? [],
       };
 
       console.log(api,"api");

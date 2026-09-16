@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/providers/auth-context";
 
 import { useEnrolledCourse } from "./_hooks/useEnrolledCourse";
+import { useMyAttendanceStats } from "./_hooks/useMyAttendanceStats";
 import { computeProgress } from "./_utils/progress";
 import DetailsSkeleton from "./_components/DetailsSkeleton";
 import CourseDetailsHeader from "./_components/CourseDetailsHeader";
@@ -12,6 +13,7 @@ import NotFoundState from "./_components/NotFoundState";
 import ErrorState from "../_components/ErrorState";
 import CourseMeta from "./_components/CourseMeta";
 import ModulesAccordion from "./_components/ModulesAccordion";
+import AttendanceStatsCard from "@/components/attendance/AttendanceStatsCard";
 
 
 export default function UserCourseDetailsPage() {
@@ -23,6 +25,9 @@ export default function UserCourseDetailsPage() {
 
   const { data: course, isLoading, isError, error, refetch, isFetching } =
     useEnrolledCourse(courseId, !!user);
+
+  const { data: attendanceStats, isLoading: attendanceStatsLoading } =
+    useMyAttendanceStats(courseId, !!user && !!course);
 
   const progress = React.useMemo(() => {
     if (!course) return { total: 0, available: 0, percent: 0, firstLessonUrl: null as string | null };
@@ -71,6 +76,12 @@ export default function UserCourseDetailsPage() {
       />
 
       <CourseMeta course={course} progress={progress} />
+
+      <AttendanceStatsCard
+        stats={attendanceStats}
+        loading={attendanceStatsLoading}
+        title="My Attendance"
+      />
 
       <ModulesAccordion course={course} />
     </div>

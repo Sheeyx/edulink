@@ -56,5 +56,6 @@ export function mapToCourseUI(
     image: null,
     sections: uiSections,
     resources: [],
+    enrolledMemberIds: course.courseEnrolledMembers ?? [],
   };
 }

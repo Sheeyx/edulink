@@ -33,6 +33,37 @@ export type GetMyAssignmentsResp = {
   };
 };
 
+// ---- UI-mapped shape used by SectionsBlock and AssignmentsTab ----
+export type AssignmentUI = {
+  id: string;
+  title: string;
+  description?: string | null;
+  courseId: string;
+  sectionId?: string;
+  lessonId?: string;
+  mentorId?: string | null;
+  dueDate?: string | null;
+  status?: string | null;
+  submissionCount: number;
+  attachments: string[];
+};
+
+export function toAssignmentUI(a: Assignment): AssignmentUI {
+  return {
+    id: a._id,
+    title: a.title,
+    description: a.description ?? null,
+    courseId: a.courseId,
+    sectionId: a.sectionId ?? undefined,
+    lessonId: a.lessonId ?? undefined,
+    mentorId: a.mentorId ?? null,
+    dueDate: a.dueDate ?? null,
+    status: a.status ?? null,
+    submissionCount: a.submissionCount ?? 0,
+    attachments: Array.isArray(a.attachments) ? a.attachments : [],
+  };
+}
+
 export type CreateAssignmentInput = {
   title: string;
   description?: string;

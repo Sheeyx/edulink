@@ -9,6 +9,8 @@ import {
   ClipboardList,
   Compass,
   Home,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 import { DEFAULT_AVATAR } from "./constants";
@@ -19,6 +21,8 @@ type Props = {
   avatarUrl?: string | null;
   roleLabel: string;
   activePath: string;
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
 
   onGoHome: () => void;
   onOpenProfile: () => void;
@@ -36,28 +40,32 @@ function NavItem({
   icon,
   title,
   desc,
+  collapsed,
   onClick,
 }: {
   active?: boolean;
   icon: React.ReactNode;
   title: string;
   desc: string;
+  collapsed: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       onClick={onClick}
+      title={collapsed ? title : undefined}
       className={[
-        "w-full text-left rounded-2xl border p-4 transition",
+        "w-full rounded-2xl border transition",
+        collapsed ? "flex justify-center p-3" : "text-left p-4",
         active
           ? "border-purple-200 bg-purple-50 shadow-sm"
           : "border-gray-200 bg-white hover:bg-gray-50",
       ].join(" ")}
     >
-      <div className="flex items-start gap-3">
+      <div className={collapsed ? "" : "flex items-start gap-3"}>
         <div
           className={[
-            "grid place-items-center rounded-xl w-10 h-10 border",
+            "grid place-items-center rounded-xl w-10 h-10 border shrink-0",
             active
               ? "bg-purple-600 text-white border-purple-600"
               : "bg-gray-50 text-gray-700 border-gray-200",
@@ -66,10 +74,12 @@ function NavItem({
           {icon}
         </div>
 
-        <div className="min-w-0">
-          <div className="font-extrabold text-gray-900">{title}</div>
-          <div className="text-sm text-gray-600">{desc}</div>
-        </div>
+        {!collapsed && (
+          <div className="min-w-0">
+            <div className="font-extrabold text-gray-900">{title}</div>
+            <div className="text-sm text-gray-600">{desc}</div>
+          </div>
+        )}
       </div>
     </button>
   );
@@ -80,6 +90,8 @@ export default function UserSidebar({
   avatarUrl,
   roleLabel,
   activePath,
+  collapsed,
+  onToggleCollapsed,
   onGoHome,
   onOpenProfile,
   onOpenCourses,
@@ -98,14 +110,33 @@ export default function UserSidebar({
   }, [initialAvatar]);
 
   return (
-    <div className="rounded-[28px] border border-gray-100 bg-white shadow-[0_10px_35px_rgba(99,99,160,0.08)] p-6">
+    <div className="relative rounded-[28px] border border-gray-100 bg-white shadow-[0_10px_35px_rgba(99,99,160,0.08)] p-6">
+      {/* Collapse toggle */}
+      <button
+        type="button"
+        onClick={onToggleCollapsed}
+        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        className="absolute -right-3 top-6 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-sm hover:bg-gray-50"
+      >
+        {collapsed ? (
+          <ChevronRight className="h-4 w-4" />
+        ) : (
+          <ChevronLeft className="h-4 w-4" />
+        )}
+      </button>
+
       <div className="flex flex-col items-center text-center">
-        <div className="relative w-28 h-28 rounded-full overflow-hidden border border-gray-200 shadow-sm bg-gray-50">
+        <div
+          className={[
+            "relative overflow-hidden rounded-full border border-gray-200 shadow-sm bg-gray-50 transition-all",
+            collapsed ? "h-10 w-10" : "h-28 w-28",
+          ].join(" ")}
+        >
           <Image
             src={imgSrc}
             alt={`${name} avatar`}
             fill
-            sizes="112px"
+            sizes={collapsed ? "40px" : "112px"}
             className="object-cover"
             priority
             unoptimized
@@ -116,39 +147,52 @@ export default function UserSidebar({
           />
         </div>
 
-        <h2 className="mt-4 text-2xl font-black text-gray-900">{name}</h2>
-        <p className="mt-1 text-sm text-gray-600">
-          Keep learning. One lesson at a time.
-        </p>
+        {!collapsed && (
+          <>
+            <h2 className="mt-4 text-2xl font-black text-gray-900">{name}</h2>
+            <p className="mt-1 text-sm text-gray-600">
+              Keep learning. One lesson at a time.
+            </p>
 
-        <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-purple-50 border border-purple-100 px-3 py-2">
-          <GraduationCap className="w-4 h-4 text-purple-700" />
-          <span className="text-sm font-bold text-purple-800">{roleLabel}</span>
-        </div>
+            <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-purple-50 border border-purple-100 px-3 py-2">
+              <GraduationCap className="w-4 h-4 text-purple-700" />
+              <span className="text-sm font-bold text-purple-800">{roleLabel}</span>
+            </div>
+          </>
+        )}
 
-        <div className="mt-5 grid w-full gap-3">
+        <div className={collapsed ? "mt-5 grid w-full gap-2" : "mt-5 grid w-full gap-3"}>
           <button
             onClick={onOpenProfile}
-            className="w-full rounded-2xl border-2 border-purple-600 text-purple-700 py-3 font-extrabold hover:bg-purple-50 transition"
+            title={collapsed ? "Edit Your Profile" : undefined}
+            className={[
+              "rounded-2xl border-2 border-purple-600 text-purple-700 font-extrabold hover:bg-purple-50 transition",
+              collapsed ? "grid place-items-center p-2.5" : "w-full py-3",
+            ].join(" ")}
           >
-            Edit Your Profile
+            {collapsed ? <UserRound className="h-4 w-4" /> : "Edit Your Profile"}
           </button>
 
           <button
             onClick={onOpenCourses}
-            className="w-full rounded-2xl bg-purple-700 text-white py-3 font-extrabold hover:bg-purple-800 transition"
+            title={collapsed ? "Go to My Courses" : undefined}
+            className={[
+              "rounded-2xl bg-purple-700 text-white font-extrabold hover:bg-purple-800 transition",
+              collapsed ? "grid place-items-center p-2.5" : "w-full py-3",
+            ].join(" ")}
           >
-            Go to My Courses
+            {collapsed ? <BookOpen className="h-4 w-4" /> : "Go to My Courses"}
           </button>
         </div>
       </div>
 
-      <div className="mt-6 space-y-3">
+      <div className={collapsed ? "mt-6 space-y-2" : "mt-6 space-y-3"}>
         <NavItem
           active={isActive(activePath, "/user")}
           icon={<Home className="w-5 h-5" />}
           title="Dashboard"
           desc="Quick actions & progress"
+          collapsed={collapsed}
           onClick={onGoHome}
         />
 
@@ -157,6 +201,7 @@ export default function UserSidebar({
           icon={<UserRound className="w-5 h-5" />}
           title="Profile"
           desc="Update your info"
+          collapsed={collapsed}
           onClick={onOpenProfile}
         />
 
@@ -165,6 +210,7 @@ export default function UserSidebar({
           icon={<BookOpen className="w-5 h-5" />}
           title="My Courses"
           desc="Continue where you left off"
+          collapsed={collapsed}
           onClick={onOpenCourses}
         />
 
@@ -173,6 +219,7 @@ export default function UserSidebar({
           icon={<ClipboardList className="w-5 h-5" />}
           title="Assignments"
           desc="Track and submit tasks"
+          collapsed={collapsed}
           onClick={onOpenAssignments}
         />
 
@@ -181,6 +228,7 @@ export default function UserSidebar({
           icon={<Compass className="w-5 h-5" />}
           title="Explore"
           desc="Discover new courses"
+          collapsed={collapsed}
           onClick={onOpenExplore}
         />
       </div>

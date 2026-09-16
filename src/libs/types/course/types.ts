@@ -147,7 +147,9 @@ export type CourseFromApi = {
   coursePrice: number;
   courseStatus: CourseStatus;
   mentorId: string;
-  courseEnrolledMembers?: number | null;
+  // getCourse/getCourseForMentor return the raw list of enrolled member ids
+  // (not a count) — see Course DTO's `courseEnrolledMembers: ObjectId[]`.
+  courseEnrolledMembers?: string[] | null;
   courseTotalModules?: number | null;
   courseTotalLessons?: number | null;
   courseRating?: number | null;
@@ -327,6 +329,7 @@ export type CourseUI = {
   currency: string;
   sections: SectionUI[];
   resources: ResourceUI[];
+  enrolledMemberIds: string[];
 };
 
 

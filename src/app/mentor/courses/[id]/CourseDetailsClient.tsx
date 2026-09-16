@@ -11,6 +11,9 @@ import DeleteSectionModal from "../components/Sections/components/DeleteSectionM
 
 import PageShell from "../components/PageShell";
 import CourseHeaderCard from "../components/CourseHeaderCard";
+import CourseDetailTabs, {
+  type CourseDetailTab,
+} from "../components/CourseDetailTabs";
 
 import ResourcesBlock from "../components/Resources/ResourcesBlock";
 import CreateResourceModal from "../components/Resources/CreateResourceModal";
@@ -43,6 +46,10 @@ import CreateAssignmentModal from "../../assignments/CreateAssignmentModal";
 import SubmissionsModal, {
   type SubmissionsModalTarget,
 } from "../components/Assignments/SubmissionsModal";
+import AssignmentsTab from "../components/Assignments/AssignmentsTab";
+
+import AttendanceStatsCard from "@/components/attendance/AttendanceStatsCard";
+import { useAttendanceStats } from "@/hooks/useAttendanceStats";
 
 import { gqlFetchAuth } from "@/libs/graphql";
 import { REMOVE_LESSON, UPDATE_LESSON } from "@/graphql/mutation/lessons/lesson";
@@ -65,6 +72,11 @@ export default function CourseDetailsClient({
     removeScheduleById,
     reload: reloadSchedules,
   } = useCourseSchedules(courseId);
+
+  const { data: attendanceStats, isLoading: attendanceStatsLoading } =
+    useAttendanceStats(courseId);
+
+  const [activeTab, setActiveTab] = React.useState<CourseDetailTab>("sections");
 
   /* ───────── Schedule modals ───────── */
 
@@ -618,34 +630,53 @@ export default function CourseDetailsClient({
           onAddSchedule={handleAddScheduleClick}
         />
 
-        <ResourcesBlock
-          resources={course.resources}
-          onEdit={setEditingResource}
-          onDelete={handleDeleteResourceRequest}
-        />
+        <CourseDetailTabs active={activeTab} onChange={setActiveTab} />
 
-        <ScheduleBlock
-          schedules={schedules}
-          lessonTitleById={lessonTitleById}
-          onEdit={setEditingSchedule}
-          onDelete={handleDeleteScheduleRequest}
-        />
+        <div>
+          {activeTab === "sections" && (
+            <SectionsBlock
+              courseId={courseId}
+              sections={course.sections}
+              enrolledMemberIds={course.enrolledMemberIds}
+              onAddLesson={handleAddLesson}
+              onEditSection={handleEditSection}
+              onDeleteSection={handleDeleteSectionRequest}
+              onEditLesson={handleEditLesson}
+              onDeleteLesson={handleDeleteLesson}
+              onReorderLessons={handleReorderLessons}
+              onPreviewLesson={handlePreviewLesson}
+              onCreateAssignmentForSection={handleCreateAssignmentForSection}
+              onCreateAssignmentForLesson={handleCreateAssignmentForLesson}
+              onCreateGeneralAssignment={handleCreateGeneralAssignment}
+              onViewSubmissions={handleViewSubmissions}
+            />
+          )}
 
-        <SectionsBlock
-          courseId={courseId}
-          sections={course.sections}
-          onAddLesson={handleAddLesson}
-          onEditSection={handleEditSection}
-          onDeleteSection={handleDeleteSectionRequest}
-          onEditLesson={handleEditLesson}
-          onDeleteLesson={handleDeleteLesson}
-          onReorderLessons={handleReorderLessons}
-          onPreviewLesson={handlePreviewLesson}
-          onCreateAssignmentForSection={handleCreateAssignmentForSection}
-          onCreateAssignmentForLesson={handleCreateAssignmentForLesson}
-          onCreateGeneralAssignment={handleCreateGeneralAssignment}
-          onViewSubmissions={handleViewSubmissions}
-        />
+          {activeTab === "resources" && (
+            <ResourcesBlock
+              resources={course.resources}
+              onEdit={setEditingResource}
+              onDelete={handleDeleteResourceRequest}
+            />
+          )}
+
+          {activeTab === "schedule" && (
+            <ScheduleBlock
+              schedules={schedules}
+              lessonTitleById={lessonTitleById}
+              onEdit={setEditingSchedule}
+              onDelete={handleDeleteScheduleRequest}
+            />
+          )}
+
+          {activeTab === "attendance" && (
+            <AttendanceStatsCard stats={attendanceStats} loading={attendanceStatsLoading} />
+          )}
+
+          {activeTab === "assignments" && (
+            <AssignmentsTab courseId={courseId} onAddAssignment={handleCreateGeneralAssignment} />
+          )}
+        </div>
       </div>
 
       {/* Resource create */}

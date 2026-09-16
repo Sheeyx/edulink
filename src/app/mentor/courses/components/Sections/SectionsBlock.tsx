@@ -9,131 +9,19 @@ import {
   FiChevronDown,
   FiMove,
   FiPlay, // ▶️ for video preview
+  FiCheckSquare, // 📋 for attendance
 } from "react-icons/fi";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { gqlFetchAuth } from "@/libs/graphql";
 import type { SectionUI, LessonUI } from "@/libs/types/course/types";
 import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 import UpdateAssignmentModal from "@/app/mentor/assignments/UpdateAssignmentModal";
 import CreateAssignmentModal from "@/app/mentor/assignments/CreateAssignmentModal";
-
-/* ─────────────────── Types ─────────────────── */
-
-type AssignmentFromApi = {
-  _id: string;
-  title: string;
-  description?: string | null;
-  courseId: string;
-  sectionId?: string | null;
-  lessonId?: string | null;
-  mentorId?: string | null;
-  dueDate?: string | null;
-  attachments?: string[] | null;
-  status?: string | null;
-  deletedAt?: string | null;
-  createdAt?: string | null;
-  updatedAt?: string | null;
-  submissionCount?: number | null;
-};
-
-type AssignmentUI = {
-  id: string;
-  title: string;
-  description?: string | null;
-  courseId: string;
-  sectionId?: string;
-  lessonId?: string;
-  mentorId?: string | null;
-  dueDate?: string | null;
-  status?: string | null;
-  submissionCount: number;
-  attachments: string[];
-};
-
-type GetAssignmentsResponse = {
-  getAssignmentsByCourse: {
-    metaCounter: {
-      total: number;
-    };
-    list: AssignmentFromApi[];
-  };
-};
-
-/* ─────────────────── GraphQL ─────────────────── */
-
-const GET_ASSIGNMENTS_BY_COURSE = `
-  query GetAssignmentsByCourse($input:String!) {
-    getAssignmentsByCourse(courseId: $input) {
-      metaCounter {
-        total
-      }
-      list {
-        _id
-        title
-        description
-        courseId
-        sectionId
-        lessonId
-        mentorId
-        dueDate
-        attachments
-        status
-        deletedAt
-        createdAt
-        updatedAt
-        submissionCount
-        submissions {
-          _id
-          assignmentId
-          studentId
-          answer
-          attachments
-          submittedDate
-          status
-          feedback
-          gradedBy
-          gradedDate
-          deletedAt
-          createdAt
-          updatedAt
-        }
-        courseData {
-          _id
-          courseTitle
-          courseDesc
-          courseCategory
-          languageType
-          courseLevel
-          coursePrice
-          courseStatus
-          mentorId
-          courseEnrolledMembers
-          maxStudents
-          currentEnrolledMembers
-          courseStartDate
-          isFull
-          courseTotalModules
-          courseTotalLessons
-          courseRating
-          courseLikes
-          deletedAt
-          createdAt
-          updatedAt
-        }
-      }
-    }
-  }
-`;
-
-const DELETE_ASSIGNMENT = `
-  mutation DeleteAssignment($input: String!) {
-    deleteAssignment(input: $input) {
-      _id
-      deletedAt
-    }
-  }
-`;
+import TakeAttendanceModal from "../Attendance/TakeAttendanceModal";
+import { useCourseAssignmentsList } from "@/hooks/useCourseAssignmentsList";
+import { toAssignmentUI, type AssignmentUI } from "@/libs/types/assignments/assignment";
+import { DELETE_ASSIGNMENT_MUTATION } from "@/graphql/mutation/assignments/deleteAssignment";
 
 /* ─────────────────── Utils ─────────────────── */
 
@@ -152,6 +40,7 @@ const formatDueDate = (iso?: string | null): string => {
 type Props = {
   courseId: string;
   sections: SectionUI[];
+  enrolledMemberIds?: string[];
   onAddLesson: (sectionId: string) => void;
   onEditSection: (sectionId: string) => void;
   onDeleteSection: (sectionId: string) => void;
@@ -174,6 +63,7 @@ type Props = {
 export default function SectionsBlock({
   courseId,
   sections,
+  enrolledMemberIds = [],
   onAddLesson,
   onEditSection,
   onDeleteSection,
@@ -195,24 +85,12 @@ export default function SectionsBlock({
     setOpenSectionId((prev) => (prev === id ? null : id));
   };
 
-  // Fetch assignments for the whole course
+  // Fetch assignments for the whole course (shared with the Assignments tab)
   const {
-    data: assignmentsData,
+    data: assignments = [],
     isLoading: assignmentsLoading,
     isError: assignmentsError,
-  } = useQuery({
-    queryKey: ["course-assignments", courseId],
-    queryFn: async () => {
-      const res = await gqlFetchAuth<GetAssignmentsResponse>(
-        GET_ASSIGNMENTS_BY_COURSE,
-        { input: courseId }
-      );
-      return res;
-    },
-    enabled: !!courseId,
-  });
-
-  const assignments = assignmentsData?.getAssignmentsByCourse?.list ?? [];
+  } = useCourseAssignmentsList(courseId);
 
   // Group assignments by sectionId
   const assignmentsBySection = React.useMemo(() => {
@@ -221,19 +99,7 @@ export default function SectionsBlock({
       if (!a.sectionId) return;
       const key = a.sectionId;
       if (!map[key]) map[key] = [];
-      map[key].push({
-        id: a._id,
-        title: a.title,
-        description: a.description ?? null,
-        courseId: a.courseId,
-        sectionId: a.sectionId ?? undefined,
-        lessonId: a.lessonId ?? undefined,
-        mentorId: a.mentorId ?? null,
-        dueDate: a.dueDate ?? null,
-        status: a.status ?? null,
-        submissionCount: a.submissionCount ?? 0,
-        attachments: Array.isArray(a.attachments) ? a.attachments : [],
-      });
+      map[key].push(toAssignmentUI(a));
     });
     return map;
   }, [assignments]);
@@ -275,6 +141,7 @@ export default function SectionsBlock({
               key={section.id}
               courseId={courseId}
               section={section}
+              enrolledMemberIds={enrolledMemberIds}
               isOpen={openSectionId === section.id}
               onToggle={() => toggleSection(section.id)}
               onAddLesson={onAddLesson}
@@ -301,6 +168,7 @@ export default function SectionsBlock({
 function SectionRow({
   courseId,
   section,
+  enrolledMemberIds = [],
   isOpen,
   onToggle,
   onAddLesson,
@@ -317,6 +185,7 @@ function SectionRow({
 }: {
   courseId: string;
   section: SectionUI;
+  enrolledMemberIds?: string[];
   isOpen: boolean;
   onToggle: () => void;
   onAddLesson: (sectionId: string) => void;
@@ -342,6 +211,10 @@ function SectionRow({
   const [creatingAssignmentFor, setCreatingAssignmentFor] = React.useState<{
     sectionId: string;
     lessonId?: string;
+  } | null>(null);
+  const [takingAttendanceFor, setTakingAttendanceFor] = React.useState<{
+    lessonId: string;
+    lessonTitle: string;
   } | null>(null);
 
   const invalidateAssignments = () =>
@@ -393,7 +266,7 @@ function SectionRow({
     setDeleteError("");
 
     try {
-      await gqlFetchAuth(DELETE_ASSIGNMENT, {
+      await gqlFetchAuth(DELETE_ASSIGNMENT_MUTATION, {
         input: assignmentToDelete.id,
       });
 
@@ -565,6 +438,20 @@ function SectionRow({
                           className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                         >
                           <FiPlus className="h-3 w-3" />
+                        </button>
+
+                        {/* Take attendance for this lesson */}
+                        <button
+                          title="Take attendance"
+                          onClick={() =>
+                            setTakingAttendanceFor({
+                              lessonId: lesson.id,
+                              lessonTitle: lesson.title,
+                            })
+                          }
+                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+                        >
+                          <FiCheckSquare className="h-3 w-3" />
                         </button>
 
                         <button
@@ -787,6 +674,19 @@ function SectionRow({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Take Attendance Modal */}
+      {takingAttendanceFor && (
+        <TakeAttendanceModal
+          open={!!takingAttendanceFor}
+          onClose={() => setTakingAttendanceFor(null)}
+          courseId={courseId}
+          sectionId={section.id}
+          lessonId={takingAttendanceFor.lessonId}
+          lessonTitle={takingAttendanceFor.lessonTitle}
+          enrolledMemberIds={enrolledMemberIds}
+        />
       )}
     </>
   );
