@@ -1,7 +1,7 @@
-// app/user/_components/LearningDashboard/types.ts
+// app/user/_types/types.ts
+import type { MemberRole } from "@/providers/auth-context";
 
 export type PanelType = "profile" | "courses" | "assignments" | "explore" | null;
-export type MemberRole = "STUDENT" | "MENTOR" | "ADMIN";
 
 export interface LearningDashboardProps {
   role: MemberRole;
@@ -20,11 +20,6 @@ export interface ActionRowProps {
   title: string;
   desc: string;
   onClick: () => void;
-}
-
-export interface DetailPanelProps {
-  panel: PanelType;
-  onBack: () => void;
 }
 
 export interface SmallTileProps {

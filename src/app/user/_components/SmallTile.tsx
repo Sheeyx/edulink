@@ -1,7 +1,7 @@
 // app/user/_components/LearningDashboard/components/SmallTile.tsx
 import React from "react";
 import { ChevronRight } from "lucide-react";
-import { SmallTileProps } from "./_types/types";
+import { SmallTileProps } from "../_types/types";
 
 export default function SmallTile({ iconTint, icon, title, desc }: SmallTileProps) {
   return (

@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { UserRound, BookOpen, ClipboardList, Compass } from "lucide-react";
 
-import { LearningDashboardProps, PanelType } from "./_components/_types/types";
+import { LearningDashboardProps, PanelType } from "./_types/types";
 
 import Badge from "./_components/Badge";
 import ProgressCard from "./_components/ProgressCard";

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { ChevronLeft } from "lucide-react";
-import { PanelType } from "../_components/_types/types";
+import { PanelType } from "../_types/types";
 import ProfilePanel from "../_components/ProfilePanel/ProfilePanel";
 
 type Props = {

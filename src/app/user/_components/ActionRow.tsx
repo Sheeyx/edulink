@@ -1,7 +1,7 @@
 // app/user/_components/LearningDashboard/components/ActionRow.tsx
 import React from "react";
 import { ChevronRight } from "lucide-react";
-import { ActionRowProps } from "./_types/types";
+import { ActionRowProps } from "../_types/types";
 
 export default function ActionRow({ icon, title, desc, onClick }: ActionRowProps) {
   return (

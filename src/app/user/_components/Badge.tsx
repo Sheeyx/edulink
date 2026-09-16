@@ -1,6 +1,6 @@
 // app/user/_components/LearningDashboard/components/Badge.tsx
 import React from "react";
-import { BadgeProps } from "./_types/types";
+import { BadgeProps } from "../_types/types";
 
 export default function Badge({ bg, fg, children }: BadgeProps) {
   return (
