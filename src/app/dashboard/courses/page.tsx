@@ -84,7 +84,7 @@ function languageBadgeClasses(lang: LanguageType): string {
 
 function statusSelectClasses(status: CourseStatus, disabled: boolean): string {
   const base =
-    "rounded-full border px-2.5 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-100 " +
+    "rounded-full border px-2.5 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary/15 " +
     (disabled ? "opacity-60 cursor-not-allowed " : "");
 
   switch (status) {
@@ -282,7 +282,7 @@ export default function AdminCoursesPage() {
           <FiSearch className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+            className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-brand-primary/80 focus:outline-none focus:ring-2 focus:ring-brand-primary/15"
             placeholder="Search by course title…"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
@@ -298,7 +298,7 @@ export default function AdminCoursesPage() {
             onChange={(e) =>
               setLanguageFilter(e.target.value as LanguageType | "ALL")
             }
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 focus:border-brand-primary/80 focus:outline-none focus:ring-2 focus:ring-brand-primary/15"
           >
             <option value="ALL">All languages</option>
             <option value="KOREAN">KOREAN</option>
@@ -316,7 +316,7 @@ export default function AdminCoursesPage() {
             onChange={(e) =>
               setStatusFilter(e.target.value as CourseStatus | "ALL")
             }
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 focus:border-brand-primary/80 focus:outline-none focus:ring-2 focus:ring-brand-primary/15"
           >
             <option value="ALL">All</option>
             <option value="PUBLISHED">Published</option>

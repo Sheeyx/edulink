@@ -105,7 +105,7 @@ export default function SectionsBlock({
   }, [assignments]);
 
   return (
-    <section className="mt-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_8px_24px_rgba(99,99,160,0.08)]">
+    <section className="mt-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_8px_24px_rgba(251,133,0,0.08)]">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex flex-col gap-1">
           <h3 className="text-base font-black text-gray-900 lg:text-lg">
@@ -449,7 +449,7 @@ function SectionRow({
                               lessonTitle: lesson.title,
                             })
                           }
-                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-selected hover:bg-brand-primary/15"
                         >
                           <FiCheckSquare className="h-3 w-3" />
                         </button>

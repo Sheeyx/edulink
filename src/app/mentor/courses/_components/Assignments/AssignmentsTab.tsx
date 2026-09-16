@@ -73,7 +73,7 @@ export default function AssignmentsTab({ courseId, onAddAssignment }: Props) {
   };
 
   return (
-    <section className="mt-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_8px_24px_rgba(99,99,160,0.08)]">
+    <section className="mt-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_8px_24px_rgba(251,133,0,0.08)]">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-base font-black text-gray-900 lg:text-lg">Assignments</h3>
         <button

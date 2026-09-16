@@ -313,7 +313,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
           <h1 className="text-2xl md:text-3xl font-black text-gray-900">Edit Course</h1>
           <p className="mt-1 text-gray-600">Loading...</p>
         </div>
-        <div className="mt-6 max-w-3xl rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_8px_24px_rgba(99,99,160,0.08)]">
+        <div className="mt-6 max-w-3xl rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_8px_24px_rgba(251,133,0,0.08)]">
           <div className="flex items-center justify-center py-12">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-brand-selected" />
           </div>
@@ -350,7 +350,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
       <div className="mt-6 max-w-3xl">
         <form
           onSubmit={handleSubmit}
-          className="space-y-5 rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_8px_24px_rgba(99,99,160,0.08)]"
+          className="space-y-5 rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_8px_24px_rgba(251,133,0,0.08)]"
         >
           {saveErr && (
             <div className="rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-600">{saveErr}</div>

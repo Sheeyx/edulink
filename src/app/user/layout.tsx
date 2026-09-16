@@ -116,7 +116,7 @@ export default function UserLayout({ children }: { children: ReactNode }) {
 
           {/* Page content */}
           <main className="min-w-0">
-            <div className="rounded-[28px] bg-white border border-gray-100 shadow-[0_10px_35px_rgba(99,99,160,0.08)] p-7">
+            <div className="rounded-[28px] bg-white border border-gray-100 shadow-[0_10px_35px_rgba(251,133,0,0.08)] p-7">
               {children}
             </div>
           </main>

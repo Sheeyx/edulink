@@ -17,7 +17,7 @@ export default function GlobalError({
     <html lang="en">
       <body>
         <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
-          <div className="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-[0_8px_24px_rgba(99,99,160,0.08)]">
+          <div className="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-[0_8px_24px_rgba(251,133,0,0.08)]">
             <h2 className="text-xl font-black text-gray-900">
               The app hit an unexpected error
             </h2>

@@ -279,7 +279,7 @@ export default function LessonPlayerUdemyLike() {
               "lg:relative lg:w-auto",
               "fixed right-0 top-0 h-full w-[420px] max-w-[92vw] lg:h-auto",
               "bg-white border border-gray-200 rounded-none lg:rounded-3xl",
-              "shadow-[0_16px_55px_rgba(0,0,0,0.18)] lg:shadow-[0_10px_35px_rgba(99,99,160,0.08)]",
+              "shadow-[0_16px_55px_rgba(0,0,0,0.18)] lg:shadow-[0_10px_35px_rgba(251,133,0,0.08)]",
               "z-50 lg:z-auto",
               drawerOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0",
               "transition-transform duration-200",

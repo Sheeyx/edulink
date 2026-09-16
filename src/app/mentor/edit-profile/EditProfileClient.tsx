@@ -215,7 +215,7 @@ export default function EditProfileClient() {
           <div className="flex items-center gap-8">
             {/* Avatar Preview (circle) */}
             <div className="relative">
-              <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-brand-primary/15 to-fuchsia-100 ring-4 ring-white shadow-xl">
+              <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-brand-primary/15 to-brand-primary/15 ring-4 ring-white shadow-xl">
                 {previewUrl ? (
                   <img
                     src={previewUrl}

@@ -44,7 +44,7 @@ export default function CourseHeaderCard({
   onAddSchedule: () => void;
 }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_8px_24px_rgba(99,99,160,0.08)]">
+    <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_8px_24px_rgba(251,133,0,0.08)]">
       <div className="grid gap-6 p-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
         {/* Text + stats */}
         <div>
@@ -108,7 +108,7 @@ export default function CourseHeaderCard({
           <img
             src={
               course.image ||
-              "https://ui-avatars.com/api/?name=Course&background=ede9fe&color=4c1d95&size=256"
+              "https://ui-avatars.com/api/?name=Course&background=FFF1DB&color=B45500&size=256"
             }
             alt={course.title}
             className="h-full w-full object-cover"

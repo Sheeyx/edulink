@@ -20,7 +20,7 @@ export default function ErrorFallback({
 }: Props) {
   return (
     <div className="flex min-h-[50vh] items-center justify-center p-6">
-      <div className="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-[0_8px_24px_rgba(99,99,160,0.08)]">
+      <div className="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-[0_8px_24px_rgba(251,133,0,0.08)]">
         <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl border border-rose-100 bg-rose-50">
           <AlertTriangle className="h-7 w-7 text-rose-600" />
         </div>

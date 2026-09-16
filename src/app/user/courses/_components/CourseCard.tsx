@@ -12,14 +12,14 @@ import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 export default function CourseCard({ course }: { course: EnrolledCourse }) {
   const img =
     buildDownloadUrl(course.courseImage) ||
-    "https://ui-avatars.com/api/?name=Course&background=ede9fe&color=4c1d95";
+    "https://ui-avatars.com/api/?name=Course&background=FFF1DB&color=B45500";
 
   const mentorName = course.memberData?.memberFullName || "Mentor";
   const mentorAvatar =
     buildDownloadUrl(course.memberData?.memberImage) ||
     `https://ui-avatars.com/api/?name=${encodeURIComponent(
       mentorName
-    )}&background=EEF2FF&color=3730A3`;
+    )}&background=FFF3E0&color=B45500`;
 
   const { total, available, percent, firstLessonUrl } = computeProgress(course);
 
@@ -35,8 +35,8 @@ export default function CourseCard({ course }: { course: EnrolledCourse }) {
   return (
     <div
       className="rounded-2xl border border-gray-100 bg-white
-                 shadow-[0_8px_24px_rgba(99,99,160,0.08)]
-                 overflow-hidden hover:shadow-[0_12px_36px_rgba(99,99,160,0.14)]
+                 shadow-[0_8px_24px_rgba(251,133,0,0.08)]
+                 overflow-hidden hover:shadow-[0_12px_36px_rgba(251,133,0,0.14)]
                  transition"
     >
       {/* image */}

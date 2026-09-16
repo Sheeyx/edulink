@@ -213,7 +213,7 @@ export default function CreateCourseClient() {
       <div className="mt-6 max-w-3xl">
         <form
           onSubmit={handleSubmit}
-          className="space-y-5 rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_8px_24px_rgba(99,99,160,0.08)]"
+          className="space-y-5 rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_8px_24px_rgba(251,133,0,0.08)]"
         >
           {saveErr && (
             <div className="rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-600">

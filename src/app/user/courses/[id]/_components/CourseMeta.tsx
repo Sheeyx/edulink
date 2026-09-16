@@ -14,14 +14,14 @@ export default function CourseMeta({
 }) {
   const courseImg =
     buildDownloadUrl(course.courseImage) ||
-    "https://ui-avatars.com/api/?name=Course&background=ede9fe&color=4c1d95";
+    "https://ui-avatars.com/api/?name=Course&background=FFF1DB&color=B45500";
 
   const mentorName = course.memberData?.memberFullName || "Mentor";
   const mentorImg =
     buildDownloadUrl(course.memberData?.memberImage) ||
     `https://ui-avatars.com/api/?name=${encodeURIComponent(
       mentorName
-    )}&background=EEF2FF&color=3730A3`;
+    )}&background=FFF3E0&color=B45500`;
 
   const modules = course.courseTotalModules ?? course.sectionsWithLessons?.length ?? 0;
   const lessons = course.courseTotalLessons ?? progress.total ?? 0;
@@ -38,7 +38,7 @@ export default function CourseMeta({
       : 0;
 
   return (
-    <div className="rounded-3xl border border-gray-100 bg-white shadow-[0_10px_35px_rgba(99,99,160,0.08)] overflow-hidden">
+    <div className="rounded-3xl border border-gray-100 bg-white shadow-[0_10px_35px_rgba(251,133,0,0.08)] overflow-hidden">
       <div className="relative h-52 w-full">
         <Image
           src={courseImg}

@@ -152,7 +152,7 @@ export default function MentorCoursesList() {
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-2xl border border-gray-100 bg-white shadow-[0_8px_24px_rgba(99,99,160,0.08)] overflow-hidden"
+              className="rounded-2xl border border-gray-100 bg-white shadow-[0_8px_24px_rgba(251,133,0,0.08)] overflow-hidden"
             >
               <div className="h-32 bg-gray-100 animate-pulse" />
               <div className="p-4 space-y-3">
@@ -165,7 +165,7 @@ export default function MentorCoursesList() {
           ))}
         </div>
       ) : rows.length === 0 ? (
-        <div className="rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-[0_8px_24px_rgba(99,99,160,0.08)]">
+        <div className="rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-[0_8px_24px_rgba(251,133,0,0.08)]">
           <div className="mx-auto grid place-items-center w-14 h-14 rounded-2xl bg-brand-primary/10 border border-brand-primary/15">
             <BookOpen className="w-7 h-7 text-brand-selected" />
           </div>

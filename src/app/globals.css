@@ -61,37 +61,13 @@
   --color-brand-gradient-end: var(--brand-gradient-end);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-
-    /* ===== Hubee brand palette (dark) ===== */
-    --brand-page: #121726;
-    --brand-card: #1f2437;
-    --brand-header: #161c30;
-    --brand-input: #232a44;
-
-    --brand-primary: #6c5ce7;
-    --brand-primary-light: #8a7ff0;
-    --brand-selected: #5649c0;
-
-    --brand-success: #0abf53;
-    --brand-danger: #f25757;
-    --brand-warning: #faa41a;
-    --brand-info: #18a0fb;
-
-    --brand-text: #ffffff;
-    --brand-text-secondary: #bbc1d8;
-    --brand-text-muted: #7e8596;
-
-    --brand-divider: #313854;
-    --brand-border: #3a4063;
-
-    --brand-gradient-start: #6c5ce7;
-    --brand-gradient-end: #574ace;
-  }
-}
+/* NOTE: no dark-mode override for the brand-* tokens here on purpose.
+   The Hubee mobile app's dark theme uses a different (purple) primary
+   color, but this web app has no dark-mode layout anywhere else (every
+   component is hardcoded to light backgrounds/dark text) — switching
+   just the accent color on prefers-color-scheme: dark produced a broken
+   half-light/half-dark look (purple accents on a white page). Revisit
+   this once the app actually supports a dark layout. */
 
 body {
   color: var(--foreground);

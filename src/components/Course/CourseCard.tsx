@@ -61,7 +61,7 @@ export default function CourseCard({ course }: { course: UICourseCard }) {
               ? "bg-gradient-to-r from-green-400 to-green-600"
               : course.level === "INTERMEDIATE"
               ? "bg-gradient-to-r from-yellow-400 to-orange-500"
-              : "bg-gradient-to-r from-brand-primary/80 to-indigo-600"
+              : "bg-gradient-to-r from-brand-primary/80 to-brand-primary"
           }`}
         >
           {course.level}

@@ -595,7 +595,7 @@ export default function CourseDetailsClient({
       <PageShell onBack={handleBackClick}>
         <div className="mt-6 space-y-6">
           <div className="h-44 rounded-2xl bg-gray-100 animate-pulse" />
-          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_8px_24px_rgba(99,99,160,0.08)] space-y-3">
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_8px_24px_rgba(251,133,0,0.08)] space-y-3">
             <div className="h-4 bg-gray-100 rounded animate-pulse w-1/3" />
             <div className="h-4 bg-gray-100 rounded animate-pulse w-2/3" />
             <div className="h-4 bg-gray-100 rounded animate-pulse w-1/2" />

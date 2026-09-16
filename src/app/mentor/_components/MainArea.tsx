@@ -23,9 +23,9 @@ export default function MainArea({ actions, panel, memberId, onClosePanel }: Pro
   return (
     <section className="space-y-6">
       {/* Hero header */}
-      <div className="rounded-2xl bg-gradient-to-r from-brand-selected to-fuchsia-600 text-white p-6 shadow-[0_8px_24px_rgba(99,99,160,0.16)]">
+      <div className="rounded-2xl bg-gradient-to-r from-brand-gradient-start to-brand-gradient-end text-white p-6 shadow-[0_8px_24px_rgba(251,133,0,0.16)]">
         <h1 className="text-2xl font-black">Let's teach something great</h1>
-        <p className="text-brand-primary/15 mt-1">
+        <p className="text-white/80 mt-1">
           Manage your courses, assignments, and students in one place.
         </p>
       </div>
@@ -36,7 +36,7 @@ export default function MainArea({ actions, panel, memberId, onClosePanel }: Pro
           <button
             key={i}
             onClick={a.onClick}
-            className="rounded-2xl border border-gray-100 bg-white p-5 text-left shadow-[0_8px_24px_rgba(99,99,160,0.08)] hover:shadow-[0_12px_36px_rgba(99,99,160,0.14)] transition"
+            className="rounded-2xl border border-gray-100 bg-white p-5 text-left shadow-[0_8px_24px_rgba(251,133,0,0.08)] hover:shadow-[0_12px_36px_rgba(251,133,0,0.14)] transition"
           >
             <div className="flex items-center gap-4">
               {a.icon}
@@ -51,7 +51,7 @@ export default function MainArea({ actions, panel, memberId, onClosePanel }: Pro
 
       {/* Right panel content */}
       {panel && (
-        <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_8px_24px_rgba(99,99,160,0.08)]">
+        <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_8px_24px_rgba(251,133,0,0.08)]">
           <PanelContent panel={panel} memberId={memberId} onClose={onClosePanel} />
         </div>
       )}

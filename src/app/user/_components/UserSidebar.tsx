@@ -113,7 +113,7 @@ export default function UserSidebar({
   }, [initialAvatar]);
 
   return (
-    <div className="relative rounded-[28px] border border-gray-100 bg-white shadow-[0_10px_35px_rgba(99,99,160,0.08)] p-6">
+    <div className="relative rounded-[28px] border border-gray-100 bg-white shadow-[0_10px_35px_rgba(251,133,0,0.08)] p-6">
       {/* Collapse toggle */}
       <button
         type="button"

@@ -97,7 +97,7 @@ function getFullAvatarUrl(name: string, avatarUrl?: string): string {
   if (!fileKey) {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(
       name
-    )}&size=128&background=6366f1&color=fff`;
+    )}&size=128&background=ffb703&color=fff`;
   }
 
   // 2) Already a full URL (Google, Kakao, etc.)
@@ -123,7 +123,7 @@ export default function Sidebar({
   const avatarSrc: string = getFullAvatarUrl(name, avatarUrl);
 
   return (
-    <div className="relative rounded-[28px] border border-gray-100 bg-white shadow-[0_10px_35px_rgba(99,99,160,0.08)] p-6">
+    <div className="relative rounded-[28px] border border-gray-100 bg-white shadow-[0_10px_35px_rgba(251,133,0,0.08)] p-6">
       {/* Collapse toggle */}
       <button
         type="button"

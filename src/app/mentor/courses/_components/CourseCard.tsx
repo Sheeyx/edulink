@@ -43,7 +43,7 @@ const LEVEL_BADGE: Record<CourseLevel, string> = {
   ELEMENTARY: "bg-teal-600",
   INTERMEDIATE: "bg-amber-500",
   UPPER_INTERMEDIATE: "bg-orange-500",
-  ADVANCED: "bg-indigo-600",
+  ADVANCED: "bg-brand-primary",
   PROFICIENCY: "bg-brand-selected",
   ALL_LEVELS: "bg-gray-600",
 };
@@ -76,7 +76,7 @@ export default function MentorCourseCard({
   const imageUrl = courseImage ? buildDownloadUrl(courseImage) : "";
 
   return (
-    <div className="group relative rounded-2xl border border-gray-100 bg-white shadow-[0_8px_24px_rgba(99,99,160,0.08)] overflow-hidden hover:shadow-[0_12px_36px_rgba(99,99,160,0.14)] transition">
+    <div className="group relative rounded-2xl border border-gray-100 bg-white shadow-[0_8px_24px_rgba(251,133,0,0.08)] overflow-hidden hover:shadow-[0_12px_36px_rgba(251,133,0,0.14)] transition">
       {/* Status chip */}
       <div className="absolute right-3 top-3 z-10 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold text-gray-700 shadow-sm">
         <span className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[courseStatus]}`} />
