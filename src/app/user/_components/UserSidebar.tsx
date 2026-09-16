@@ -9,6 +9,7 @@ import {
   ClipboardList,
   Compass,
   Home,
+  Heart,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -29,6 +30,7 @@ type Props = {
   onOpenCourses: () => void;
   onOpenAssignments: () => void;
   onOpenExplore: () => void;
+  onOpenFavorites: () => void;
 };
 
 function isActive(path: string, target: string) {
@@ -97,6 +99,7 @@ export default function UserSidebar({
   onOpenCourses,
   onOpenAssignments,
   onOpenExplore,
+  onOpenFavorites,
 }: Props) {
   const initialAvatar = React.useMemo(() => {
     const url = buildDownloadUrl(avatarUrl);
@@ -230,6 +233,15 @@ export default function UserSidebar({
           desc="Discover new courses"
           collapsed={collapsed}
           onClick={onOpenExplore}
+        />
+
+        <NavItem
+          active={isActive(activePath, "/user/favorites")}
+          icon={<Heart className="w-5 h-5" />}
+          title="Favorites"
+          desc="Courses you've saved"
+          collapsed={collapsed}
+          onClick={onOpenFavorites}
         />
       </div>
     </div>

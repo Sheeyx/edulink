@@ -4,8 +4,10 @@
 import Image from "next/image";
 import { useState } from "react";
 import { FaStar } from "react-icons/fa";
+import LikeButton from "./LikeButton";
 
 type Course = {
+  id?: string;
   image: string;
   title: string;
   subtitle: string;
@@ -25,7 +27,7 @@ export default function CourseCard({ course }: { course: Course }) {
   const hasImage = Boolean(course.image?.trim()) && !imgError;
 
   return (
-    <div className="flex h-full w-full flex-col border rounded-xl shadow-sm bg-white p-4">
+    <div className="flex h-full w-full flex-col border border-gray-200 rounded-xl shadow-sm bg-white p-4">
       {/* Image / Placeholder */}
       <div className="relative w-full h-40 shrink-0 rounded-lg overflow-hidden bg-gray-100 group">
         {hasImage ? (
@@ -41,6 +43,14 @@ export default function CourseCard({ course }: { course: Course }) {
           <div className="absolute inset-0 grid place-items-center text-5xl text-gray-400">
             📘
           </div>
+        )}
+
+        {course.id && (
+          <LikeButton
+            courseId={course.id}
+            size="sm"
+            className="absolute right-2 top-2"
+          />
         )}
       </div>
 

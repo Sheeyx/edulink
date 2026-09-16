@@ -4,6 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import { Star, Users, Globe, Clock3, Play, ShieldCheck, BadgeCheck } from "lucide-react";
 import CourseContentAccordion from "@/app/components/courses/CourseContentAccordion";
+import LikeButton from "@/components/Course/LikeButton";
 
 type CourseDetail = {
   id: string;
@@ -87,9 +88,12 @@ export default function CourseDetailClient({
                 <span className="mx-2">›</span> {course.language}
               </div>
 
-              <h1 className="text-3xl md:text-5xl font-extrabold leading-tight">
-                {course.title}
-              </h1>
+              <div className="flex items-start justify-between gap-4">
+                <h1 className="text-3xl md:text-5xl font-extrabold leading-tight">
+                  {course.title}
+                </h1>
+                <LikeButton courseId={course.id} className="mt-1 shrink-0" />
+              </div>
 
               <p className="mt-4 text-white/75 text-base md:text-lg leading-relaxed">
                 {course.desc}

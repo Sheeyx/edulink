@@ -109,6 +109,7 @@ export default function UserLayout({ children }: { children: ReactNode }) {
                 onOpenCourses={() => router.push("/user/courses")}
                 onOpenAssignments={() => router.push("/user/assignments")}
                 onOpenExplore={() => router.push("/user/explore")}
+                onOpenFavorites={() => router.push("/user/favorites")}
               />
             </aside>
           )}

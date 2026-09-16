@@ -114,7 +114,7 @@ export default function CourseDetailClient({
                   Instructor
                 </h2>
                 <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-6 flex items-center gap-4">
-                  <div className="relative h-14 w-14 rounded-full overflow-hidden border">
+                  <div className="relative h-14 w-14 rounded-full overflow-hidden border border-slate-200">
                     <Image
                       src={instructorImg}
                       alt={instructorName}

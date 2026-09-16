@@ -2,6 +2,7 @@ import type { CourseFromApi } from "@/libs/types/course/types";
 import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 
 export type UICourseCard = {
+  id: string;
   image: string;
   title: string;
   subtitle: string;
@@ -26,6 +27,7 @@ export function toCourseCardModel(c: CourseFromApi): UICourseCard {
   const img = buildDownloadUrl(rawImg) || "/images/courses/placeholder.jpg";
 
   return {
+    id: c._id,
     image: img,
     title: c.courseTitle ?? "",
     subtitle: c.courseDesc ?? "",

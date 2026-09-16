@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Star, Users, Globe, Clock3 } from "lucide-react";
 import type { CourseDetail } from "./types";
 import { normalizeImageSrc } from "./utils/images";
+import LikeButton from "@/components/Course/LikeButton";
 
 export default function CourseHero({ course }: { course: CourseDetail }) {
   const rating = Number.isFinite(course.rating) ? course.rating : 0;
@@ -22,9 +23,12 @@ export default function CourseHero({ course }: { course: CourseDetail }) {
       </div>
 
       {/* Title */}
-      <h1 className="text-3xl md:text-4xl font-extrabold leading-tight">
-        {course.title}
-      </h1>
+      <div className="flex items-start justify-between gap-4">
+        <h1 className="text-3xl md:text-4xl font-extrabold leading-tight">
+          {course.title}
+        </h1>
+        <LikeButton courseId={course.id} className="mt-1 shrink-0" />
+      </div>
 
       {/* Description */}
       <p className="mt-3 text-white/75 text-base md:text-lg leading-relaxed max-w-3xl">
