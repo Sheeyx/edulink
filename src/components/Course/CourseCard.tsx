@@ -5,23 +5,9 @@ import Image from "next/image";
 import { useState } from "react";
 import { FaStar } from "react-icons/fa";
 import LikeButton from "./LikeButton";
+import type { UICourseCard } from "@/libs/CourseMapper";
 
-type Course = {
-  id?: string;
-  image: string;
-  title: string;
-  subtitle: string;
-  instructor: string;
-  price: string;
-  oldPrice: string; // can be ""
-  rating: number;
-  ratingCount: number;
-  hours: string;
-  lectures: number;
-  level: string;
-};
-
-export default function CourseCard({ course }: { course: Course }) {
+export default function CourseCard({ course }: { course: UICourseCard }) {
   const [imgError, setImgError] = useState(false);
 
   const hasImage = Boolean(course.image?.trim()) && !imgError;

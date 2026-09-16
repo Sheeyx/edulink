@@ -1,4 +1,4 @@
-// src/graphql/types/member.ts
+// src/libs/types/member/types.ts
 export type MemberUpdateInput = {
   // adjust to your backend’s exact shape
   _id: string;                    // required target user id

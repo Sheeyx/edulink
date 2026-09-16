@@ -1,28 +1,6 @@
-export type Lesson = {
-  kind: any;
-  contentType: any;
-  _id: string;
-  sectionId: string;
-  lessonTitle?: string;
-  lessonContentType?: string;
-  lessonDuration?: string;
-  deletedAt?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
-};
+import type { Section } from "@/libs/types/course/types";
 
-export type Section = {
-  _id: string;
-  courseId: string;
-  sectionStatus?: string;
-  moduleTitle?: string;
-  moduleOrder?: number;
-  totalLessons?: number;
-  deletedAt?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
-  lessons?: Lesson[];
-};
+export type { Lesson, Section } from "@/libs/types/course/types";
 
 export type SectionsMeta = { total: number };
 

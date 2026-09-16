@@ -1,85 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 import CourseCard from "@/components/Course/CourseCard";
-import CourseFilters, { FilterState } from "@/components/Course/CourseFilter";
+import CourseGridSkeleton from "@/components/Course/CourseGridSkeleton";
+import { useCourses, type APICourse } from "@/hooks/useCourses";
+import type { CourseFromApi } from "@/libs/types/course/types";
+import { toCourseCardModel } from "@/libs/CourseMapper";
 
-const courseList = [
-  {
-    image: "/course1.jpg",
-    title: "Korean Usual",
-    subtitle: "Using Pyrogram and OpenAI",
-    instructor: "Mehdi Haghgoo",
-    price: "₩15,000",
-    oldPrice: "₩25,000",
-    rating: 4.6,
-    ratingCount: 42,
-    hours: "9.5",
-    lectures: 60,
-    level: "Intermediate",
-  },
-  {
-    image: "/course2.jpg",
-    title: "Learn Korean from Scratch",
-    subtitle: "For beginners and travelers",
-    instructor: "Soojin Kim",
-    price: "₩10,000",
-    oldPrice: "₩20,000",
-    rating: 4.8,
-    ratingCount: 120,
-    hours: "6",
-    lectures: 48,
-    level: "Beginner",
-  },
-  {
-    image: "/course3.jpg",
-    title: "Spoken English Mastery",
-    subtitle: "Improve fluency fast",
-    instructor: "Michael Smith",
-    price: "₩18,000",
-    oldPrice: "₩35,000",
-    rating: 4.5,
-    ratingCount: 200,
-    hours: "12",
-    lectures: 75,
-    level: "Intermediate",
-  },
-  {
-    image: "/course3.jpg",
-    title: "English Mastery",
-    subtitle: "Improve fluency fast",
-    instructor: "Michael Jordan",
-    price: "₩25,000",
-    oldPrice: "₩35,000",
-    rating: 5.0,
-    ratingCount: 300,
-    hours: "14",
-    lectures: 80,
-    level: "Advanced",
-  },
-];
+const TEASER_LIMIT = 8;
 
 export default function CourseGrid() {
-  const [filters, setFilters] = useState<FilterState>({
-    category: "Courses",
-    level: "All",
-    rating: "All",
-  });
+  const { data, isLoading } = useCourses({ page: 1, limit: TEASER_LIMIT });
+  const list: APICourse[] = data?.list ?? [];
 
   return (
     <section className="px-6 md:px-16 py-12 bg-white">
-        <h2 className="text-4xl font-extrabold mb-8 text-gray-900 text-center md:text-left">
-            Our Courses
-        </h2>
-      {/* Filters */}
-      <CourseFilters onFilterChange={setFilters} />
-
-      {/* Grid of Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 justify-center">
-        {courseList.map((course, index) => (
-          <CourseCard key={index} course={course} />
-        ))}
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-4xl font-extrabold text-gray-900">Our Courses</h2>
+        <Link
+          href="/courses"
+          className="text-sm font-semibold text-purple-600 hover:text-purple-700"
+        >
+          View all courses →
+        </Link>
       </div>
+
+      {isLoading ? (
+        <CourseGridSkeleton count={TEASER_LIMIT} />
+      ) : list.length === 0 ? (
+        <p className="text-center text-gray-500 py-12">
+          No courses available yet — check back soon.
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 justify-center">
+          {list.map((course) => (
+            <CourseCard
+              key={course._id}
+              course={toCourseCardModel(course as unknown as CourseFromApi)}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

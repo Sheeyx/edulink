@@ -51,7 +51,9 @@ export type Section = {
   lessons?: Lesson[];
 };
 
-export type Member = {
+// Lightweight instructor preview embedded in a Course response — not the
+// full Member entity (see libs/types/member/types.ts for that).
+export type CourseAuthorPreview = {
   _id: string;
   memberFullName?: string;
   memberImage?: string;
@@ -82,7 +84,7 @@ export type Course = {
   // from getCourse
   sectionsWithLessons: Section[];
 
-  memberData?: Member;
+  memberData?: CourseAuthorPreview;
 };
 
 /* ========= GraphQL response shapes ========= */
@@ -137,7 +139,7 @@ export type SectionsByCourseResp = {
 
 export type CourseFromApi = {
   createCourse: any;
-  courseImage: null;
+  courseImage: string | null;
   _id: string;
   courseTitle: string;
   courseDesc: string;

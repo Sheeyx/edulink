@@ -21,7 +21,9 @@ import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 
 /* ───────────────────────────────────────────── */
 
-type CourseFromApi = {
+// Locally-scoped, edit-form-specific subset — distinct from the exported
+// CourseFromApi in libs/types/course/types.ts, so named to avoid confusion.
+type EditCourseApiShape = {
   _id: string;
   courseTitle: string;
   courseDesc: string;
@@ -35,8 +37,8 @@ type CourseFromApi = {
   courseStartDate?: string | null;
 };
 
-type GetCourseResp = { getCourse: CourseFromApi };
-type UpdateCourseResp = { updateCourse: CourseFromApi };
+type EditCourseGetResp = { getCourse: EditCourseApiShape };
+type EditCourseUpdateResp = { updateCourse: EditCourseApiShape };
 
 type EditFormState = {
   title: string;
@@ -127,7 +129,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
       setLoadErr(null);
 
       try {
-        const data = await gqlFetchAuth<GetCourseResp>(
+        const data = await gqlFetchAuth<EditCourseGetResp>(
           GET_COURSE,
           { input: courseId },
           undefined,
@@ -251,7 +253,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
         // ❌ courseStartDate yubormaymiz (CourseUpdate’da yo‘q)
       };
 
-      await gqlFetchAuth<UpdateCourseResp>(
+      await gqlFetchAuth<EditCourseUpdateResp>(
         UPDATE_COURSE,
         { input: courseInput },
         undefined,
