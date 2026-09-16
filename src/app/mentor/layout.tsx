@@ -4,7 +4,7 @@
 import type { ReactNode } from "react";
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import Sidebar from "@/app/mentor/components/Sidebar";
+import Sidebar from "@/app/mentor/_components/Sidebar";
 import { useAuth } from "@/providers/auth-context";
 
 const COLLAPSE_STORAGE_KEY = "mentor-sidebar-collapsed";

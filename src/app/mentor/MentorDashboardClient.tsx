@@ -4,8 +4,8 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useRefreshRoleOnce } from "@/hooks/useRefreshRoleOnce";
-import { buildActions, buildTiles } from "./components/actions-data";
-import MainArea from "./components/MainArea";
+import { buildActions, buildTiles } from "./_components/actions-data";
+import MainArea from "./_components/MainArea";
 
 export type PanelType =
   | null

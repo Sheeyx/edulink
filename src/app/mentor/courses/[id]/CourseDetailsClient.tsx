@@ -4,26 +4,26 @@
 import * as React from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
-import SectionsBlock from "../components/Sections/SectionsBlock";
-import EditSectionModal from "../components/Sections/EditSectionModal";
-import CreateSectionModal from "../components/Sections/CreateSections";
-import DeleteSectionModal from "../components/Sections/components/DeleteSectionModal";
+import SectionsBlock from "../_components/Sections/SectionsBlock";
+import EditSectionModal from "../_components/Sections/EditSectionModal";
+import CreateSectionModal from "../_components/Sections/CreateSections";
+import DeleteSectionModal from "../_components/Sections/_components/DeleteSectionModal";
 
-import PageShell from "../components/PageShell";
-import CourseHeaderCard from "../components/CourseHeaderCard";
+import PageShell from "../_components/PageShell";
+import CourseHeaderCard from "../_components/CourseHeaderCard";
 import CourseDetailTabs, {
   type CourseDetailTab,
-} from "../components/CourseDetailTabs";
+} from "../_components/CourseDetailTabs";
 
-import ResourcesBlock from "../components/Resources/ResourcesBlock";
-import CreateResourceModal from "../components/Resources/CreateResourceModal";
-import EditResourceModal from "../components/Resources/EditResourceModal";
-import DeleteResourceModal from "../components/Resources/DeleteResourceModal";
+import ResourcesBlock from "../_components/Resources/ResourcesBlock";
+import CreateResourceModal from "../_components/Resources/CreateResourceModal";
+import EditResourceModal from "../_components/Resources/EditResourceModal";
+import DeleteResourceModal from "../_components/Resources/DeleteResourceModal";
 
-import ScheduleBlock from "../components/Schedule/ScheduleBlock";
-import CreateScheduleModal from "../components/Schedule/CreateScheduleModal";
-import EditScheduleModal from "../components/Schedule/EditScheduleModal";
-import DeleteScheduleModal from "../components/Schedule/DeleteScheduleModal";
+import ScheduleBlock from "../_components/Schedule/ScheduleBlock";
+import CreateScheduleModal from "../_components/Schedule/CreateScheduleModal";
+import EditScheduleModal from "../_components/Schedule/EditScheduleModal";
+import DeleteScheduleModal from "../_components/Schedule/DeleteScheduleModal";
 
 import { useCourseDetails } from "@/hooks/useCourseDetails";
 import { useCourseSchedules } from "@/hooks/useCourseSchedules";
@@ -45,8 +45,8 @@ import CreateAssignmentModal from "../../assignments/CreateAssignmentModal";
 
 import SubmissionsModal, {
   type SubmissionsModalTarget,
-} from "../components/Assignments/SubmissionsModal";
-import AssignmentsTab from "../components/Assignments/AssignmentsTab";
+} from "../_components/Assignments/SubmissionsModal";
+import AssignmentsTab from "../_components/Assignments/AssignmentsTab";
 
 import AttendanceStatsCard from "@/components/attendance/AttendanceStatsCard";
 import { useAttendanceStats } from "@/hooks/useAttendanceStats";
