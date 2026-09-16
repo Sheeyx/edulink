@@ -67,20 +67,19 @@ export default function UserInfo() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setOpen((p) => !p)}
-        className="w-9 h-9 rounded-full bg-[#8d6e63] text-white grid place-items-center font-semibold text-sm hover:opacity-90 transition overflow-hidden"
+        className="w-9 h-9 p-0 border-0 rounded-full bg-[#8d6e63] text-white grid place-items-center font-semibold text-sm hover:opacity-90 transition overflow-hidden"
         aria-haspopup="menu"
         aria-expanded={open}
       >
         {avatarSrc ? (
           <Image
-  src={avatarSrc}
-  alt={displayName}
-  width={36}
-  height={36}
-  className="w-9 h-9 object-cover rounded-full"
-  unoptimized
-/>
-
+            src={avatarSrc}
+            alt={displayName}
+            width={36}
+            height={36}
+            className="block h-full w-full object-cover rounded-full"
+            unoptimized
+          />
         ) : (
           initials
         )}
