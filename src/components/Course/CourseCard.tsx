@@ -25,9 +25,9 @@ export default function CourseCard({ course }: { course: Course }) {
   const hasImage = Boolean(course.image?.trim()) && !imgError;
 
   return (
-    <div className="border rounded-xl shadow-sm bg-white p-4 w-full max-w-xs">
+    <div className="flex h-full w-full flex-col border rounded-xl shadow-sm bg-white p-4">
       {/* Image / Placeholder */}
-      <div className="relative w-full h-40 rounded-lg overflow-hidden bg-gray-100 group">
+      <div className="relative w-full h-40 shrink-0 rounded-lg overflow-hidden bg-gray-100 group">
         {hasImage ? (
           <Image
             src={course.image}
@@ -44,11 +44,11 @@ export default function CourseCard({ course }: { course: Course }) {
         )}
       </div>
 
-      <h3 className="mt-4 font-bold text-md leading-snug text-gray-700">
+      <h3 className="mt-4 line-clamp-2 font-bold text-md leading-snug text-gray-700">
         {course.title}
       </h3>
-      <p className="text-sm text-gray-600 mb-1">{course.subtitle}</p>
-      <p className="text-sm text-gray-500 mb-2">{course.instructor}</p>
+      <p className="mb-1 line-clamp-2 text-sm text-gray-600">{course.subtitle}</p>
+      <p className="mb-2 line-clamp-1 text-sm text-gray-500">{course.instructor}</p>
 
       <div className="flex flex-wrap items-center gap-2 text-sm mb-2">
         <div className="flex items-center gap-1 text-yellow-500 font-medium">
@@ -72,18 +72,21 @@ export default function CourseCard({ course }: { course: Course }) {
         </span>
       </div>
 
-      <div className="flex items-center gap-2 font-semibold">
-        <span className="text-lg text-black">{course.price}</span>
-        {course.oldPrice ? (
-          <span className="line-through text-gray-400 text-sm">
-            {course.oldPrice}
-          </span>
-        ) : null}
-      </div>
+      {/* Pushes price/button to the bottom so every card ends flush, regardless of how much text is above */}
+      <div className="mt-auto">
+        <div className="flex items-center gap-2 font-semibold">
+          <span className="text-lg text-black">{course.price}</span>
+          {course.oldPrice ? (
+            <span className="line-through text-gray-400 text-sm">
+              {course.oldPrice}
+            </span>
+          ) : null}
+        </div>
 
-      <button className="mt-3 w-full bg-purple-600 text-white font-semibold py-2 rounded-lg hover:bg-purple-700 transition">
-        Add to cart
-      </button>
+        <button className="mt-3 w-full bg-purple-600 text-white font-semibold py-2 rounded-lg hover:bg-purple-700 transition">
+          Add to cart
+        </button>
+      </div>
     </div>
   );
 }

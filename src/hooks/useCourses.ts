@@ -1,11 +1,12 @@
-// src/hooks/useInfiniteCourses.ts
+// src/hooks/useCourses.ts
 "use client";
 
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { gql } from "graphql-request";
 import { graphql } from "@/libs/graphql-client";
 
 export type CoursesHookInput = {
+  page: number;
   limit?: number;
   language?: "English" | "TOPIK" | "Korean";
   level?: "Beginner" | "Intermediate" | "Advanced";
@@ -29,8 +30,6 @@ export type APICourse = {
 type GetCoursesResponse = {
   getCourses: { list: APICourse[]; metaCounter: { total: number } };
 };
-
-type PageData = GetCoursesResponse["getCourses"] & { page: number };
 
 const GET_COURSES = gql/* GraphQL */ `
   query GetCouses($input: CoursesInquiry!) {
@@ -75,37 +74,31 @@ function clean<T extends Record<string, any>>(obj: T) {
 }
 
 function buildSearch(baseInput: CoursesHookInput) {
-  const uiLang = baseInput.language;
-  const uiLevel = baseInput.level;
-
   return clean({
-    languageType: uiLang ? LANG_MAP[uiLang] : undefined,
-    courseLevel: uiLevel ? LEVEL_MAP[uiLevel] : undefined,
+    languageType: baseInput.language ? LANG_MAP[baseInput.language] : undefined,
+    courseLevel: baseInput.level ? LEVEL_MAP[baseInput.level] : undefined,
   });
 }
 
-export function useInfiniteCourses(baseInput: CoursesHookInput) {
-  const limit = Number(baseInput.limit ?? 12);
+export function useCourses(input: CoursesHookInput) {
+  const limit = Number(input.limit ?? 12);
+  const page = Math.max(1, Number(input.page ?? 1));
 
-  return useInfiniteQuery<PageData>({
-    queryKey: ["courses", baseInput],
-    queryFn: async ({ pageParam = 1 }): Promise<PageData> => {
+  return useQuery({
+    queryKey: ["courses", page, limit, input.language, input.level],
+    queryFn: async () => {
       const variables = {
         input: {
-          page: Number(pageParam),
+          page,
           limit,
-          search: buildSearch(baseInput),
+          search: buildSearch(input),
         },
       };
 
       const data = await graphql.request<GetCoursesResponse>(GET_COURSES, variables);
-      return { ...data.getCourses, page: Number(pageParam) };
+      return data.getCourses;
     },
-    initialPageParam: 1,
-    getNextPageParam: (lastPage) => {
-      const already = lastPage.page * limit;
-      return already < lastPage.metaCounter.total ? lastPage.page + 1 : undefined;
-    },
+    placeholderData: keepPreviousData,
     staleTime: 60_000,
   });
 }

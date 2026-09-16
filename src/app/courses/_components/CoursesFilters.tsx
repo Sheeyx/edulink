@@ -1,8 +1,8 @@
 "use client";
 
-import { pillsActive, pillsBase, pillsIdle } from "@/libs/constants";
+import { Globe2, GraduationCap, Star, X } from "lucide-react";
+import { Select } from "@/components/ui/form/FormFields";
 import { Lang, Level, Rating } from "../_libs/filter.types";
-
 
 type Props = {
   lang: Lang;
@@ -14,6 +14,25 @@ type Props = {
   onReset: () => void;
 };
 
+const LANG_OPTIONS: { value: Lang; label: string }[] = [
+  { value: "All", label: "All Languages" },
+  { value: "English", label: "English" },
+  { value: "TOPIK", label: "Korean" },
+];
+
+const LEVEL_OPTIONS: { value: Level; label: string }[] = [
+  { value: "All", label: "All Levels" },
+  { value: "Beginner", label: "Beginner" },
+  { value: "Intermediate", label: "Intermediate" },
+  { value: "Advanced", label: "Advanced" },
+];
+
+const RATING_OPTIONS: { value: Rating; label: string }[] = [
+  { value: "All", label: "All Ratings" },
+  { value: "4.5+", label: "4.5+ Stars" },
+  { value: "4.8+", label: "4.8+ Stars" },
+];
+
 export default function CoursesFilters({
   lang,
   level,
@@ -23,30 +42,41 @@ export default function CoursesFilters({
   onRating,
   onReset,
 }: Props) {
-  const pill = (active: boolean) =>
-    `${pillsBase} ${active ? pillsActive : pillsIdle}`;
+  const hasActiveFilters = lang !== "All" || level !== "All" || rating !== "All";
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-3">
-      <button onClick={onReset} className={pill(lang === "All" && level === "All" && rating === "All")}>
-        All Courses
-      </button>
+    <div className="flex flex-wrap items-center justify-start gap-2.5">
+      <Select
+        icon={<Globe2 className="h-4 w-4" />}
+        value={lang}
+        options={LANG_OPTIONS}
+        onChange={onLang}
+        active={lang !== "All"}
+      />
+      <Select
+        icon={<GraduationCap className="h-4 w-4" />}
+        value={level}
+        options={LEVEL_OPTIONS}
+        onChange={onLevel}
+        active={level !== "All"}
+      />
+      <Select
+        icon={<Star className="h-4 w-4" />}
+        value={rating}
+        options={RATING_OPTIONS}
+        onChange={onRating}
+        active={rating !== "All"}
+      />
 
-      <button onClick={() => onLang("English")} className={pill(lang === "English")}>
-        English
-      </button>
-
-      <button onClick={() => onLang("TOPIK")} className={pill(lang === "TOPIK")}>
-        Korean
-      </button>
-
-      <button onClick={() => onLevel("All")} className={pill(level === "All")}>
-        All Levels
-      </button>
-
-      <button onClick={() => onRating("All")} className={pill(rating === "All")}>
-        All Ratings
-      </button>
+      {hasActiveFilters && (
+        <button
+          onClick={onReset}
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-500 transition hover:bg-gray-100 hover:text-rose-600"
+        >
+          <X className="h-3.5 w-3.5" />
+          Clear
+        </button>
+      )}
     </div>
   );
 }
