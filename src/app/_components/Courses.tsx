@@ -19,7 +19,7 @@ export default function CourseGrid() {
         <h2 className="text-4xl font-extrabold text-gray-900">Our Courses</h2>
         <Link
           href="/courses"
-          className="text-sm font-semibold text-purple-600 hover:text-purple-700"
+          className="text-sm font-semibold text-brand-primary hover:text-brand-selected"
         >
           View all courses →
         </Link>

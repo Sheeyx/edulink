@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FiMenu, FiX, FiShoppingCart, FiGlobe } from "react-icons/fi";
+import Image from "next/image";
 import Link from "next/link";
 import UserInfo from "../User/UserInfo";
 import { useAuth } from "@/providers/auth-context";
@@ -14,7 +15,17 @@ export default function Navbar() {
     <nav className="w-full fixed top-0 bg-white shadow z-50">
       <div className="relative max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo */}
-        <Link href="/" className="text-2xl font-bold text-purple-700">Edulink</Link>
+        <Link href="/" className="flex items-center gap-2">
+          <Image
+            src="/images/logo/logo.jpeg"
+            alt="Hubee"
+            width={36}
+            height={36}
+            className="rounded-lg"
+            priority
+          />
+          <span className="text-2xl font-bold text-brand-primary">Hubee</span>
+        </Link>
 
         {/* Desktop Links — absolutely centered so it never shifts with the
             logo/right-side widths (e.g. skeleton vs. real content swap) */}
@@ -31,11 +42,11 @@ export default function Navbar() {
           </div>
         ) : (
           <div className="hidden md:flex gap-6 text-gray-700 font-medium absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <Link href="/" className="hover:text-purple-700">Home</Link>
-            <Link href="/courses" className="hover:text-purple-700">Courses</Link>
-            <Link href="/blog" className="hover:text-purple-700">Blog</Link>
-            <Link href="/about" className="hover:text-purple-700">About</Link>
-            <Link href="/contact" className="hover:text-purple-700">Contact</Link>
+            <Link href="/" className="hover:text-brand-primary">Home</Link>
+            <Link href="/courses" className="hover:text-brand-primary">Courses</Link>
+            <Link href="/blog" className="hover:text-brand-primary">Blog</Link>
+            <Link href="/about" className="hover:text-brand-primary">About</Link>
+            <Link href="/contact" className="hover:text-brand-primary">Contact</Link>
           </div>
         )}
 
@@ -45,7 +56,7 @@ export default function Navbar() {
             type="button"
             title="Cart"
             aria-label="Cart"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-gray-500 transition hover:bg-purple-50 hover:text-purple-700"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-gray-500 transition hover:bg-brand-primary/10 hover:text-brand-primary"
           >
             <FiShoppingCart className="h-5 w-5" />
           </button>
@@ -59,8 +70,8 @@ export default function Navbar() {
             <UserInfo />
           ) : (
             <>
-              <Link href="/auth/login" className="px-4 py-2 border border-purple-600 text-purple-600 font-semibold rounded hover:bg-purple-50">Log in</Link>
-              <Link href="/auth/register" className="px-4 py-2 bg-purple-600 text-white font-semibold rounded hover:bg-purple-700">Sign up</Link>
+              <Link href="/auth/login" className="px-4 py-2 border border-brand-primary text-brand-primary font-semibold rounded hover:bg-brand-primary/10">Log in</Link>
+              <Link href="/auth/register" className="px-4 py-2 bg-brand-primary text-white font-semibold rounded hover:bg-brand-selected">Sign up</Link>
             </>
           )}
 
@@ -68,14 +79,14 @@ export default function Navbar() {
             type="button"
             title="Language"
             aria-label="Language"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-purple-600 text-purple-600 transition hover:bg-purple-50"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-primary text-brand-primary transition hover:bg-brand-primary/10"
           >
             <FiGlobe className="h-4 w-4" />
           </button>
         </div>
 
         {/* Mobile Toggle */}
-        <button className="md:hidden text-2xl text-purple-700" onClick={() => setIsOpen(!isOpen)}>
+        <button className="md:hidden text-2xl text-brand-primary" onClick={() => setIsOpen(!isOpen)}>
           {isOpen ? <FiX /> : <FiMenu />}
         </button>
       </div>
@@ -93,11 +104,11 @@ export default function Navbar() {
             </div>
           ) : (
             <>
-              <Link href="/" className="block text-gray-700 hover:text-purple-700">Home</Link>
-              <Link href="/courses" className="block text-gray-700 hover:text-purple-700">Courses</Link>
-              <Link href="/blog" className="block text-gray-700 hover:text-purple-700">Blog</Link>
-              <Link href="/about" className="block text-gray-700 hover:text-purple-700">About</Link>
-              <Link href="/contact" className="block text-gray-700 hover:text-purple-700">Contact</Link>
+              <Link href="/" className="block text-gray-700 hover:text-brand-primary">Home</Link>
+              <Link href="/courses" className="block text-gray-700 hover:text-brand-primary">Courses</Link>
+              <Link href="/blog" className="block text-gray-700 hover:text-brand-primary">Blog</Link>
+              <Link href="/about" className="block text-gray-700 hover:text-brand-primary">About</Link>
+              <Link href="/contact" className="block text-gray-700 hover:text-brand-primary">Contact</Link>
             </>
           )}
 
@@ -111,8 +122,8 @@ export default function Navbar() {
               <UserInfo />
             ) : (
               <>
-                <Link href="/auth/login" className="block text-purple-600 border border-purple-600 rounded px-4 py-2 text-center">Log in</Link>
-                <Link href="/auth/register" className="block bg-purple-600 text-white rounded px-4 py-2 text-center">Sign up</Link>
+                <Link href="/auth/login" className="block text-brand-primary border border-brand-primary rounded px-4 py-2 text-center">Log in</Link>
+                <Link href="/auth/register" className="block bg-brand-primary text-white rounded px-4 py-2 text-center">Sign up</Link>
               </>
             )}
           </div>

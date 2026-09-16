@@ -7,7 +7,7 @@ export default function Footer() {
         
         {/* Company Info */}
         <div>
-          <h2 className="text-2xl font-bold text-purple-700 mb-2">Edulink</h2>
+          <h2 className="text-2xl font-bold text-brand-primary mb-2">Hubee</h2>
           <p className="text-sm leading-relaxed">
             A modern platform for learning English and Korean online through live and video lessons. Anywhere. Anytime.
           </p>
@@ -15,38 +15,38 @@ export default function Footer() {
 
         {/* Quick Links */}
         <div>
-          <h3 className="text-lg font-semibold text-purple-700 mb-3">Quick Links</h3>
+          <h3 className="text-lg font-semibold text-brand-primary mb-3">Quick Links</h3>
           <ul className="space-y-2 text-sm">
             <li>
-              <a href="/" className="hover:text-purple-600 transition duration-200">Home</a>
+              <a href="/" className="hover:text-brand-primary transition duration-200">Home</a>
             </li>
             <li>
-              <a href="#courses" className="hover:text-purple-600 transition duration-200">Courses</a>
+              <a href="#courses" className="hover:text-brand-primary transition duration-200">Courses</a>
             </li>
             <li>
-              <a href="#about" className="hover:text-purple-600 transition duration-200">About</a>
+              <a href="#about" className="hover:text-brand-primary transition duration-200">About</a>
             </li>
             <li>
-              <a href="#contact" className="hover:text-purple-600 transition duration-200">Contact</a>
+              <a href="#contact" className="hover:text-brand-primary transition duration-200">Contact</a>
             </li>
           </ul>
         </div>
 
         {/* Contact & Socials */}
         <div>
-          <h3 className="text-lg font-semibold text-purple-700 mb-3">Contact</h3>
-          <p className="text-sm mb-4">Phone: <a href="tel:+998901234567" className="hover:text-purple-600">+998 90 123 45 67</a></p>
-          <div className="flex space-x-4 text-xl text-purple-700">
-            <a href="https://t.me/yourchannel" target="_blank" className="hover:text-purple-500 transition">
+          <h3 className="text-lg font-semibold text-brand-primary mb-3">Contact</h3>
+          <p className="text-sm mb-4">Phone: <a href="tel:+998901234567" className="hover:text-brand-primary">+998 90 123 45 67</a></p>
+          <div className="flex space-x-4 text-xl text-brand-primary">
+            <a href="https://t.me/yourchannel" target="_blank" className="hover:text-brand-selected transition">
               <FaTelegramPlane />
             </a>
-            <a href="https://instagram.com/yourprofile" target="_blank" className="hover:text-purple-500 transition">
+            <a href="https://instagram.com/yourprofile" target="_blank" className="hover:text-brand-selected transition">
               <FaInstagram />
             </a>
-            <a href="https://youtube.com/yourchannel" target="_blank" className="hover:text-purple-500 transition">
+            <a href="https://youtube.com/yourchannel" target="_blank" className="hover:text-brand-selected transition">
               <FaYoutube />
             </a>
-            <a href="https://facebook.com/yourpage" target="_blank" className="hover:text-purple-500 transition">
+            <a href="https://facebook.com/yourpage" target="_blank" className="hover:text-brand-selected transition">
               <FaFacebookF />
             </a>
           </div>
@@ -55,7 +55,7 @@ export default function Footer() {
 
       {/* Bottom copyright */}
       <div className="bg-gray-100 text-center py-4 text-sm text-gray-600 border-t">
-        © {new Date().getFullYear()} Edulink. All rights reserved.
+        © {new Date().getFullYear()} Hubee. All rights reserved.
       </div>
     </footer>
   );

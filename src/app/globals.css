@@ -3,6 +3,31 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* ===== Hubee brand palette (light) ===== */
+  --brand-page: #fff8ee;
+  --brand-card: #ffffff;
+  --brand-header: #fff3e0;
+  --brand-input: #fff1db;
+
+  --brand-primary: #ffb703;
+  --brand-primary-light: #ffd166;
+  --brand-selected: #fb8500;
+
+  --brand-success: #7cb518;
+  --brand-danger: #e63946;
+  --brand-warning: #ffa000;
+  --brand-info: #219ebc;
+
+  --brand-text: #1f1f1f;
+  --brand-text-secondary: #4f4f4f;
+  --brand-text-muted: #9e9e9e;
+
+  --brand-divider: #ffe0b2;
+  --brand-border: #ffcc80;
+
+  --brand-gradient-start: #ffd166;
+  --brand-gradient-end: #f77f00;
 }
 
 @theme inline {
@@ -10,12 +35,61 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-brand-page: var(--brand-page);
+  --color-brand-card: var(--brand-card);
+  --color-brand-header: var(--brand-header);
+  --color-brand-input: var(--brand-input);
+
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-primary-light: var(--brand-primary-light);
+  --color-brand-selected: var(--brand-selected);
+
+  --color-brand-success: var(--brand-success);
+  --color-brand-danger: var(--brand-danger);
+  --color-brand-warning: var(--brand-warning);
+  --color-brand-info: var(--brand-info);
+
+  --color-brand-text: var(--brand-text);
+  --color-brand-text-secondary: var(--brand-text-secondary);
+  --color-brand-text-muted: var(--brand-text-muted);
+
+  --color-brand-divider: var(--brand-divider);
+  --color-brand-border: var(--brand-border);
+
+  --color-brand-gradient-start: var(--brand-gradient-start);
+  --color-brand-gradient-end: var(--brand-gradient-end);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+
+    /* ===== Hubee brand palette (dark) ===== */
+    --brand-page: #121726;
+    --brand-card: #1f2437;
+    --brand-header: #161c30;
+    --brand-input: #232a44;
+
+    --brand-primary: #6c5ce7;
+    --brand-primary-light: #8a7ff0;
+    --brand-selected: #5649c0;
+
+    --brand-success: #0abf53;
+    --brand-danger: #f25757;
+    --brand-warning: #faa41a;
+    --brand-info: #18a0fb;
+
+    --brand-text: #ffffff;
+    --brand-text-secondary: #bbc1d8;
+    --brand-text-muted: #7e8596;
+
+    --brand-divider: #313854;
+    --brand-border: #3a4063;
+
+    --brand-gradient-start: #6c5ce7;
+    --brand-gradient-end: #574ace;
   }
 }
 
