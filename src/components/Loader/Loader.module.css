@@ -1,0 +1,304 @@
+.loader {
+  --ink: #16295c;
+  --ink-soft: #4a5b8c;
+  --paper: #fbfcff;
+  --paper-shade: #eef2fb;
+  --highlight: #ffd644;
+  --cover: #2743a6;
+  --cover-dark: #1d3486;
+
+  --flip-duration: 2.4s;
+  --shadow-duration: 2.4s;
+  --message-duration: 7.2s;
+  --progress-duration: 1.6s;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+.fullScreen {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ------------------------------------------------------------------ */
+/* Scene                                                               */
+/* ------------------------------------------------------------------ */
+
+.scene {
+  position: relative;
+  width: 150px;
+  height: 128px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.book {
+  position: relative;
+  width: 150px;
+  height: 96px;
+  margin-bottom: 6px;
+  perspective: 500px;
+}
+
+.shadow {
+  width: 128px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(22, 41, 92, 0.28) 0%,
+    rgba(22, 41, 92, 0) 72%
+  );
+  animation: shadowBreathe var(--shadow-duration) ease-in-out infinite;
+}
+
+@keyframes shadowBreathe {
+  0%,
+  100% {
+    transform: scaleX(1);
+  }
+  50% {
+    transform: scaleX(0.92);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Covers                                                              */
+/* ------------------------------------------------------------------ */
+
+.cover {
+  position: absolute;
+  bottom: 0;
+  width: 75px;
+  height: 90px;
+  border-radius: 4px;
+  z-index: 0;
+}
+
+.coverLeft {
+  left: 0;
+  background: var(--cover-dark);
+  transform: skewY(6deg);
+  transform-origin: bottom right;
+}
+
+.coverRight {
+  right: 0;
+  background: var(--cover);
+  transform: skewY(-6deg);
+  transform-origin: bottom left;
+}
+
+/* ------------------------------------------------------------------ */
+/* Resting pages                                                       */
+/* ------------------------------------------------------------------ */
+
+.page {
+  position: absolute;
+  bottom: 3px;
+  width: 66px;
+  height: 82px;
+  border-radius: 3px;
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(22, 41, 92, 0.16) 0px,
+    rgba(22, 41, 92, 0.16) 1px,
+    transparent 1px,
+    transparent 10px
+  );
+  z-index: 1;
+}
+
+.pageLeft {
+  left: 6px;
+  transform: skewY(6deg);
+  transform-origin: bottom right;
+}
+
+.pageRight {
+  right: 6px;
+  transform: skewY(-6deg);
+  transform-origin: bottom left;
+}
+
+.highlightStroke {
+  position: absolute;
+  top: 9px;
+  left: 8px;
+  width: 32px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--highlight);
+  opacity: 0.85;
+}
+
+/* ------------------------------------------------------------------ */
+/* Turning pages                                                       */
+/* ------------------------------------------------------------------ */
+
+.flipPage {
+  position: absolute;
+  bottom: 3px;
+  left: 75px;
+  width: 66px;
+  height: 82px;
+  border-radius: 3px;
+  background: var(--paper);
+  box-shadow: 1px 0 3px rgba(22, 41, 92, 0.18);
+  transform-origin: left center;
+  animation-name: pageFlip;
+  animation-duration: var(--flip-duration);
+  animation-timing-function: cubic-bezier(0.45, 0.05, 0.35, 1);
+  animation-iteration-count: infinite;
+}
+
+.flipPage1 {
+  z-index: 4;
+  animation-delay: 0s;
+}
+
+.flipPage2 {
+  z-index: 3;
+  animation-delay: 0.35s;
+}
+
+.flipPage3 {
+  z-index: 2;
+  animation-delay: 0.7s;
+}
+
+@keyframes pageFlip {
+  0% {
+    transform: rotateY(0deg);
+    background-color: var(--paper);
+  }
+  66% {
+    transform: rotateY(-120deg);
+    background-color: var(--paper);
+  }
+  67% {
+    background-color: var(--paper-shade);
+  }
+  100% {
+    transform: rotateY(-180deg);
+    background-color: var(--paper-shade);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Messages                                                             */
+/* ------------------------------------------------------------------ */
+
+.messages {
+  position: relative;
+  width: 260px;
+  height: 22px;
+  text-align: center;
+}
+
+.message {
+  position: absolute;
+  inset: 0;
+  color: var(--ink-soft);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 22px;
+  opacity: 0;
+  animation-name: messageCycle;
+  animation-duration: var(--message-duration);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes messageCycle {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  4% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  28% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  33%,
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Progress bar                                                        */
+/* ------------------------------------------------------------------ */
+
+.progressTrack {
+  position: relative;
+  width: 160px;
+  height: 7px;
+  border-radius: 4px;
+  background: rgba(22, 41, 92, 0.08);
+  overflow: hidden;
+}
+
+.progressBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--highlight);
+  animation: progressSweep var(--progress-duration) ease-in-out infinite;
+}
+
+@keyframes progressSweep {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced motion                                                       */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .flipPage {
+    animation: none;
+  }
+
+  .flipPage1 {
+    transform: rotateY(-24deg);
+  }
+
+  .flipPage2,
+  .flipPage3 {
+    opacity: 0;
+  }
+
+  .shadow {
+    animation-duration: calc(var(--shadow-duration) * 3);
+  }
+
+  .message {
+    animation-duration: calc(var(--message-duration) * 2);
+  }
+
+  .progressBar {
+    animation-duration: calc(var(--progress-duration) * 3);
+  }
+}

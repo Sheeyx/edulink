@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import CourseCard from "@/components/Course/CourseCard";
+import CourseGridSkeleton from "@/components/Course/CourseGridSkeleton";
 import { useCourses, type APICourse } from "@/hooks/useCourses";
 import Pagination from "@/components/ui/Pagination";
 
@@ -83,7 +84,7 @@ export default function CoursesPage() {
 
       {/* Grid */}
       {isLoading ? (
-        <div className="mt-10 text-center text-gray-500">Loading…</div>
+        <CourseGridSkeleton count={PAGE_LIMIT} />
       ) : list.length === 0 ? (
         <div className="mt-10 text-center text-gray-500">No courses found.</div>
       ) : (

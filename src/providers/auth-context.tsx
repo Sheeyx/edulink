@@ -37,6 +37,14 @@ type AuthContextValue = {
   user: AuthUser;
 
   /**
+   * True once the initial localStorage read has completed. Until then,
+   * `user` is always null even for a logged-in visitor — consumers that
+   * render differently for logged-in/out (e.g. the navbar) should show a
+   * neutral skeleton while `!ready` instead of assuming "logged out".
+   */
+  ready: boolean;
+
+  /**
    * ✅ now supports:
    * setUser(userObject)
    * setUser(prev => ({...prev, ...patch}))
@@ -86,22 +94,26 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 /* ===== Provider ===== */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, _setUser] = useState<AuthUser>(null);
+  const [ready, setReady] = useState(false);
 
   // Load user on mount
   useEffect(() => {
     try {
       const raw = localStorage.getItem("currentUser");
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
+      if (raw) {
+        const parsed = JSON.parse(raw);
 
-      // normalize role
-      if (parsed?.role) parsed.role = roleSafe(parsed.role);
+        // normalize role
+        if (parsed?.role) parsed.role = roleSafe(parsed.role);
 
-      _setUser(parsed);
+        _setUser(parsed);
+      }
     } catch (err) {
       console.error("Failed to parse currentUser:", err);
       localStorage.removeItem("currentUser");
       _setUser(null);
+    } finally {
+      setReady(true);
     }
   }, []);
 
@@ -154,8 +166,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, setUser, logout, roleSafe, redirectByRole }),
-    [user]
+    () => ({ user, ready, setUser, logout, roleSafe, redirectByRole }),
+    [user, ready]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
