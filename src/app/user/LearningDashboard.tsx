@@ -80,7 +80,7 @@ export default function LearningDashboardClient({
 
           <ActionRow
             icon={
-              <Badge bg="bg-purple-100" fg="text-purple-700">
+              <Badge bg="bg-brand-primary/15" fg="text-brand-selected">
                 <Compass className="w-6 h-6" />
               </Badge>
             }

@@ -124,7 +124,7 @@ export default function SubmissionsModal({ open, onClose, assignment }: Props) {
                   ) : (
                     <button
                       onClick={() => setGrading(s)}
-                      className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-purple-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-purple-800"
+                      className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-brand-selected px-3 py-1.5 text-xs font-semibold text-white hover:brightness-90"
                     >
                       <FiCheckCircle className="h-3.5 w-3.5" />
                       Grade

@@ -61,7 +61,7 @@ export default function CourseCard({ course }: { course: UICourseCard }) {
               ? "bg-gradient-to-r from-green-400 to-green-600"
               : course.level === "INTERMEDIATE"
               ? "bg-gradient-to-r from-yellow-400 to-orange-500"
-              : "bg-gradient-to-r from-purple-500 to-indigo-600"
+              : "bg-gradient-to-r from-brand-primary/80 to-indigo-600"
           }`}
         >
           {course.level}
@@ -79,7 +79,7 @@ export default function CourseCard({ course }: { course: UICourseCard }) {
           ) : null}
         </div>
 
-        <button className="mt-3 w-full bg-purple-600 text-white font-semibold py-2 rounded-lg hover:bg-purple-700 transition">
+        <button className="mt-3 w-full bg-brand-primary text-white font-semibold py-2 rounded-lg hover:bg-brand-selected transition">
           Add to cart
         </button>
       </div>

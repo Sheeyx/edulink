@@ -12,7 +12,7 @@ const courseStatusClass: Record<CourseStatus, string> = {
   ARCHIVED: "bg-amber-50 text-amber-700",
   SUSPENDED: "bg-rose-50 text-rose-600",
   COMPLETED: "bg-sky-50 text-sky-700",
-  PROGRESS: "bg-purple-50 text-purple-700",
+  PROGRESS: "bg-brand-primary/10 text-brand-selected",
 };
 
 function Stat({
@@ -71,7 +71,7 @@ export default function CourseHeaderCard({
             <Stat
               label="Price"
               value={
-                <span className="font-extrabold text-purple-700">
+                <span className="font-extrabold text-brand-selected">
                   {course.price.toLocaleString()} {course.currency}
                 </span>
               }
@@ -88,7 +88,7 @@ export default function CourseHeaderCard({
             </button>
             <button
               onClick={onAddSection}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-purple-700 px-4 py-2.5 text-sm font-extrabold text-white shadow-sm hover:bg-purple-800 transition md:flex-none md:px-6"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-brand-selected px-4 py-2.5 text-sm font-extrabold text-white shadow-sm hover:brightness-90 transition md:flex-none md:px-6"
             >
               <FiPlus className="h-4 w-4" />
               Add Section

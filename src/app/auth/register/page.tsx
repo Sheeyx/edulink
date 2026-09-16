@@ -202,7 +202,7 @@ export default function RegisterPage() {
                 <input
                   type="text"
                   placeholder="Your full name"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-500"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-primary/80"
                   value={form.fullName}
                   onChange={(e) => setForm({ ...form, fullName: e.target.value })}
                   required
@@ -215,7 +215,7 @@ export default function RegisterPage() {
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-500"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-primary/80"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   required
@@ -228,7 +228,7 @@ export default function RegisterPage() {
                 <input
                   type="tel"
                   placeholder="+01090909090"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-500"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-primary/80"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 />
@@ -241,7 +241,7 @@ export default function RegisterPage() {
                   <input
                     type={showPw ? "text" : "password"}
                     placeholder="Create a password"
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 pr-11 outline-none focus:border-violet-500"
+                    className="w-full rounded-xl border border-gray-300 px-4 py-3 pr-11 outline-none focus:border-brand-primary/80"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
                     required
@@ -264,7 +264,7 @@ export default function RegisterPage() {
                   <input
                     type={showPw2 ? "text" : "password"}
                     placeholder="Confirm your password"
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 pr-11 outline-none focus:border-violet-500"
+                    className="w-full rounded-xl border border-gray-300 px-4 py-3 pr-11 outline-none focus:border-brand-primary/80"
                     value={form.confirm}
                     onChange={(e) => setForm({ ...form, confirm: e.target.value })}
                     required
@@ -293,9 +293,9 @@ export default function RegisterPage() {
                 />
                 <span>
                   I accept the{" "}
-                  <a className="text-violet-600 hover:underline" href="#">Terms of Service</a>{" "}
+                  <a className="text-brand-primary hover:underline" href="#">Terms of Service</a>{" "}
                   and{" "}
-                  <a className="text-violet-600 hover:underline" href="#">Privacy Policy</a>.
+                  <a className="text-brand-primary hover:underline" href="#">Privacy Policy</a>.
                 </span>
               </label>
 
@@ -306,7 +306,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={!canSubmit}
-                className="mt-6 inline-flex w-full items-center justify-center rounded-xl px-4 py-3 font-semibold transition text-white disabled:opacity-60 disabled:cursor-not-allowed bg-gray-300 data-[enabled=true]:bg-violet-600 data-[enabled=true]:hover:bg-violet-500"
+                className="mt-6 inline-flex w-full items-center justify-center rounded-xl px-4 py-3 font-semibold transition text-white disabled:opacity-60 disabled:cursor-not-allowed bg-gray-300 data-[enabled=true]:bg-brand-primary data-[enabled=true]:hover:bg-brand-primary/80"
                 data-enabled={canSubmit}
               >
                 {loading ? "Creating account…" : "Sign Up with Email"}
@@ -342,7 +342,7 @@ export default function RegisterPage() {
 
               <p className="mt-8 text-center text-sm text-gray-600">
                 Already have an account?{" "}
-                <Link href="/auth/login" className="text-violet-600 hover:underline">Log in</Link>
+                <Link href="/auth/login" className="text-brand-primary hover:underline">Log in</Link>
               </p>
             </form>
           </div>

@@ -147,7 +147,7 @@ export default function TakeAttendanceModal({
             value={date}
             onChange={(e) => setDate(e.target.value)}
             disabled={loading}
-            className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+            className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
           />
         </div>
 
@@ -194,7 +194,7 @@ export default function TakeAttendanceModal({
                   onChange={(e) => setRowNotes(row.studentId, e.target.value)}
                   placeholder="Note (optional)"
                   disabled={loading}
-                  className="mt-1.5 w-full rounded-lg border border-gray-100 bg-slate-50 px-2.5 py-1.5 text-xs text-gray-700 outline-none focus:border-purple-300"
+                  className="mt-1.5 w-full rounded-lg border border-gray-100 bg-slate-50 px-2.5 py-1.5 text-xs text-gray-700 outline-none focus:border-brand-primary/40"
                 />
               </div>
             ))}
@@ -215,7 +215,7 @@ export default function TakeAttendanceModal({
 
         <button
           onClick={handleSubmit}
-          className="px-4 py-2 rounded-xl bg-purple-700 font-semibold text-white hover:bg-purple-800 disabled:opacity-50"
+          className="px-4 py-2 rounded-xl bg-brand-selected font-semibold text-white hover:brightness-90 disabled:opacity-50"
           disabled={loading || rosterLoading}
         >
           {loading ? "Saving..." : "Save Attendance"}

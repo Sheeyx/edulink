@@ -278,7 +278,7 @@ export default function CreateCourseClient() {
             </label>
             <input
               id="course-title"
-              className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+              className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
               value={form.title}
               onChange={(e) => handleInputChange("title", e.target.value)}
               placeholder="IELTS Speaking for Beginners"
@@ -296,7 +296,7 @@ export default function CreateCourseClient() {
             </label>
             <textarea
               id="course-description"
-              className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+              className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
               rows={4}
               value={form.description}
               onChange={(e) => handleInputChange("description", e.target.value)}
@@ -310,7 +310,7 @@ export default function CreateCourseClient() {
             <div>
               <label className="text-xs font-medium text-slate-700">Category</label>
               <select
-                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
                 value={form.category}
                 onChange={(e) => handleInputChange("category", e.target.value)}
               >
@@ -328,7 +328,7 @@ export default function CreateCourseClient() {
             <div>
               <label className="text-xs font-medium text-slate-700">Language</label>
               <select
-                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
                 value={form.languageType}
                 onChange={(e) => handleInputChange("languageType", e.target.value)}
                 required
@@ -356,7 +356,7 @@ export default function CreateCourseClient() {
               </label>
               <select
                 id="course-level"
-                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
                 value={form.level}
                 onChange={(e) =>
                   handleInputChange("level", e.target.value as CourseLevel)
@@ -381,7 +381,7 @@ export default function CreateCourseClient() {
                 id="max-students"
                 type="number"
                 min={1}
-                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
                 value={form.maxStudents}
                 onChange={(e) => handleInputChange("maxStudents", e.target.value)}
                 placeholder="10"
@@ -402,7 +402,7 @@ export default function CreateCourseClient() {
                 id="course-price"
                 type="number"
                 min={0}
-                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
                 value={form.price}
                 onChange={(e) => handleInputChange("price", e.target.value)}
                 placeholder="0"
@@ -417,7 +417,7 @@ export default function CreateCourseClient() {
                 <button
                   type="button"
                   onClick={() => setShowDatePicker(!showDatePicker)}
-                  className="mt-1 flex w-full items-center justify-between rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors hover:border-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                  className="mt-1 flex w-full items-center justify-between rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors hover:border-gray-400 focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
                 >
                   <span className={form.courseStartDate ? "text-slate-900" : "text-slate-400"}>
                     {form.courseStartDate ? formatDate(form.courseStartDate) : "Select start date"}
@@ -449,7 +449,7 @@ export default function CreateCourseClient() {
             </button>
             <button
               type="submit"
-              className="rounded-xl bg-purple-700 px-5 py-2 text-sm font-extrabold text-white transition-colors hover:bg-purple-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-xl bg-brand-selected px-5 py-2 text-sm font-extrabold text-white transition-colors hover:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isDisabled}
             >
               {saving || uploadingImage ? "Creating..." : "Create course"}
@@ -532,12 +532,12 @@ function DatePicker({ selectedDate, onSelectDate }: DatePickerProps) {
           className={`
             h-9 w-9 rounded-lg text-sm font-medium transition-all
             ${isSelected 
-              ? "bg-purple-700 text-white shadow-sm" 
+              ? "bg-brand-selected text-white shadow-sm" 
               : isPast
               ? "text-slate-300 cursor-not-allowed"
               : "text-slate-700 hover:bg-slate-100"
             }
-            ${isToday && !isSelected ? "ring-2 ring-purple-200" : ""}
+            ${isToday && !isSelected ? "ring-2 ring-brand-primary/25" : ""}
           `}
         >
           {day}

@@ -38,7 +38,7 @@ export default function PanelContent({ panel, memberId, onClose }: PanelContentP
 
   if (comingSoon[panel]) {
     return (
-      <div className="rounded-2xl bg-purple-50 border border-purple-100 px-4 py-6 text-center">
+      <div className="rounded-2xl bg-brand-primary/10 border border-brand-primary/15 px-4 py-6 text-center">
         <p className="font-extrabold text-gray-900">{comingSoon[panel]}</p>
         <p className="mt-1 text-sm text-gray-600">Coming soon.</p>
       </div>

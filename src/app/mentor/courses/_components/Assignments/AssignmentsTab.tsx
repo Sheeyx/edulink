@@ -78,7 +78,7 @@ export default function AssignmentsTab({ courseId, onAddAssignment }: Props) {
         <h3 className="text-base font-black text-gray-900 lg:text-lg">Assignments</h3>
         <button
           onClick={onAddAssignment}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-purple-700 px-3 py-1.5 text-xs font-bold text-white hover:bg-purple-800"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-brand-selected px-3 py-1.5 text-xs font-bold text-white hover:brightness-90"
         >
           <FiPlus className="h-3.5 w-3.5" />
           Add Assignment
@@ -95,9 +95,9 @@ export default function AssignmentsTab({ courseId, onAddAssignment }: Props) {
           Failed to load assignments.
         </div>
       ) : assignments.length === 0 ? (
-        <div className="rounded-2xl bg-purple-50 border border-purple-100 px-4 py-6 text-sm text-gray-600">
+        <div className="rounded-2xl bg-brand-primary/10 border border-brand-primary/15 px-4 py-6 text-sm text-gray-600">
           No assignments yet. Use{" "}
-          <span className="font-bold text-purple-700">Add Assignment</span> to
+          <span className="font-bold text-brand-selected">Add Assignment</span> to
           give students work to submit.
         </div>
       ) : (
@@ -173,7 +173,7 @@ export default function AssignmentsTab({ courseId, onAddAssignment }: Props) {
                     <button
                       type="button"
                       onClick={() => setEditingAssignment(a)}
-                      className="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2.5 py-0.5 text-[10px] font-medium text-purple-700 hover:bg-purple-100"
+                      className="inline-flex items-center gap-1 rounded-full bg-brand-primary/10 px-2.5 py-0.5 text-[10px] font-medium text-brand-selected hover:bg-brand-primary/15"
                     >
                       <FiEdit2 className="h-3 w-3" />
                       Edit

@@ -258,7 +258,7 @@ function RoleSelect({
 }) {
   const colorMap: Record<MemberRole, string> = {
     STUDENT: "bg-blue-100 text-blue-700 border-blue-200",
-    MENTOR: "bg-purple-100 text-purple-700 border-purple-200",
+    MENTOR: "bg-brand-primary/15 text-brand-selected border-brand-primary/25",
     ADMIN: "bg-orange-100 text-orange-700 border-orange-300",
   };
 

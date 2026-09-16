@@ -103,7 +103,7 @@ export default function CreateSectionModal({
               Section title
             </label>
             <input
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Introduction, Basics, Lesson 1…"
@@ -115,7 +115,7 @@ export default function CreateSectionModal({
             <input
               type="number"
               min={1}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
               value={order}
               onChange={(e) =>
                 setOrder(e.target.value === "" ? "" : Number(e.target.value))
@@ -144,7 +144,7 @@ export default function CreateSectionModal({
             </button>
             <button
               type="submit"
-              className="rounded-xl bg-purple-700 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-800 disabled:opacity-60"
+              className="rounded-xl bg-brand-selected px-4 py-2 text-sm font-semibold text-white hover:brightness-90 disabled:opacity-60"
               disabled={submitting}
             >
               {submitting ? "Creating…" : "Create"}

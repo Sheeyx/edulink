@@ -122,14 +122,14 @@ export default function CourseMeta({
         <div className="mt-6">
           <div className="flex items-center justify-between text-sm">
             <span className="font-extrabold text-gray-900">Lessons ready</span>
-            <span className="font-extrabold text-purple-700">
+            <span className="font-extrabold text-brand-selected">
               {progress.available}/{progress.total || lessons}
             </span>
           </div>
 
           <div className="mt-2 h-3 w-full rounded-full bg-gray-100 overflow-hidden">
             <div
-              className="h-full rounded-full bg-purple-600 transition-all"
+              className="h-full rounded-full bg-brand-primary transition-all"
               style={{ width: `${progress.percent}%` }}
             />
           </div>

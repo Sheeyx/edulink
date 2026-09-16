@@ -48,7 +48,7 @@ export default function AttendanceStatsCard({ stats, loading, title }: Props) {
           <Stat
             label="Rate"
             value={`${stats.attendanceRate}%`}
-            className="text-purple-700"
+            className="text-brand-selected"
           />
           <Stat label="Present" value={stats.presentCount} className="text-emerald-700" />
           <Stat label="Late" value={stats.lateCount} className="text-amber-700" />

@@ -40,7 +40,7 @@ export default function CourseDetailsHeader({
         {continueUrl ? (
           <Link
             href={continueUrl}
-            className="inline-flex items-center gap-2 rounded-2xl bg-purple-700 text-white px-4 py-2 text-sm font-extrabold hover:bg-purple-800 transition"
+            className="inline-flex items-center gap-2 rounded-2xl bg-brand-selected text-white px-4 py-2 text-sm font-extrabold hover:brightness-90 transition"
           >
             <PlayCircle className="w-4 h-4" />
             Continue

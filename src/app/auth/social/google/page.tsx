@@ -101,10 +101,10 @@ function BrandLoader({ infoText = "Connecting your Google account…" }: { infoT
       <div className="w-full max-w-md text-center">
         {/* Badge + spinning ring */}
         <div className="relative mx-auto mb-5 h-20 w-20">
-          <div className="absolute inset-0 rounded-full border-4 border-violet-200" />
-          <div className="absolute inset-0 rounded-full border-4 border-violet-600 border-t-transparent animate-spin" />
+          <div className="absolute inset-0 rounded-full border-4 border-brand-primary/25" />
+          <div className="absolute inset-0 rounded-full border-4 border-brand-primary border-t-transparent animate-spin" />
           <div className="absolute inset-1 rounded-full bg-white flex items-center justify-center shadow-sm animate-pulse">
-            <span className="text-violet-700 font-extrabold text-xl select-none">S</span>
+            <span className="text-brand-selected font-extrabold text-xl select-none">S</span>
           </div>
         </div>
 
@@ -114,7 +114,7 @@ function BrandLoader({ infoText = "Connecting your Google account…" }: { infoT
 
         {/* Shimmer progress bar */}
         <div className="mt-6 h-2 w-full overflow-hidden rounded-full bg-gray-200">
-          <div className="h-full w-1/2 rounded-full bg-gradient-to-r from-violet-400 via-violet-600 to-violet-400 animate-[shimmer_1.4s_ease-in-out_infinite]" />
+          <div className="h-full w-1/2 rounded-full bg-gradient-to-r from-brand-primary/60 via-brand-primary to-brand-primary/60 animate-[shimmer_1.4s_ease-in-out_infinite]" />
         </div>
 
         {/* Tips */}
@@ -302,7 +302,7 @@ export default function GoogleSocialRouter() {
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="Your name"
               required
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-500"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-primary/80"
             />
           </label>
 
@@ -314,7 +314,7 @@ export default function GoogleSocialRouter() {
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
               placeholder="+82 10-1234-5678"
               required
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-500"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-primary/80"
             />
           </label>
 
@@ -326,7 +326,7 @@ export default function GoogleSocialRouter() {
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               placeholder="At least 6 chars, include upper/lowercase and number"
               required
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-500"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-primary/80"
             />
             {!PASSWORD_REGEX.test(form.password) && form.password && (
               <p className="mt-1 text-xs text-red-600">
@@ -343,7 +343,7 @@ export default function GoogleSocialRouter() {
               onChange={(e) => setForm({ ...form, confirm: e.target.value })}
               placeholder="Confirm password"
               required
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-500"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-primary/80"
             />
             {form.confirm && form.password !== form.confirm && (
               <p className="mt-1 text-xs text-red-600">Passwords do not match.</p>
@@ -355,7 +355,7 @@ export default function GoogleSocialRouter() {
           <button
             type="submit"
             disabled={!canSubmit}
-            className="mt-2 inline-flex w-full items-center justify-center rounded-xl px-4 py-3 font-semibold transition text-white disabled:opacity-60 disabled:cursor-not-allowed bg-gray-300 data-[enabled=true]:bg-violet-600 data-[enabled=true]:hover:bg-violet-500"
+            className="mt-2 inline-flex w-full items-center justify-center rounded-xl px-4 py-3 font-semibold transition text-white disabled:opacity-60 disabled:cursor-not-allowed bg-gray-300 data-[enabled=true]:bg-brand-primary data-[enabled=true]:hover:bg-brand-primary/80"
             data-enabled={canSubmit}
           >
             Continue
@@ -372,7 +372,7 @@ export default function GoogleSocialRouter() {
           <p className="text-red-600 mb-3">{err}</p>
           <button
             onClick={() => router.replace("/auth/login")}
-            className="rounded-xl bg-violet-600 px-4 py-2 text-white"
+            className="rounded-xl bg-brand-primary px-4 py-2 text-white"
           >
             Go back to login
           </button>

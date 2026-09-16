@@ -30,7 +30,7 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
         <input
           id={id}
           ref={ref}
-          className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100 disabled:bg-gray-50"
+          className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15 disabled:bg-gray-50"
           {...rest}
         />
         {hint && <p className="text-xs text-gray-400">{hint}</p>}
@@ -57,7 +57,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         <textarea
           id={id}
           ref={ref}
-          className="w-full resize-none rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100 disabled:bg-gray-50"
+          className="w-full resize-none rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15 disabled:bg-gray-50"
           {...rest}
         />
         {hint && <p className="text-xs text-gray-400">{hint}</p>}
@@ -90,7 +90,7 @@ export const FileInput = ({
       <input
         id={id}
         type="file"
-        className="block w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-purple-700 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-purple-800 disabled:opacity-70"
+        className="block w-full text-sm text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-selected file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:brightness-90 disabled:opacity-70"
         {...rest}
       />
       {hint && <p className="text-xs text-gray-400">{hint}</p>}
@@ -166,10 +166,10 @@ export function Select<T extends string>({
           onClick={() => setOpen((prev) => !prev)}
           className={clsx(
             "group flex w-full items-center gap-2.5 rounded-2xl border py-1.5 pl-1.5 pr-4 text-left text-sm transition-all duration-200",
-            "focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100",
+            "focus:border-brand-primary/80 focus:outline-none focus:ring-4 focus:ring-brand-primary/15",
             active
-              ? "border-purple-200 bg-purple-50/70 shadow-sm shadow-purple-100"
-              : "border-gray-200 bg-white shadow-sm hover:border-purple-200 hover:shadow-md",
+              ? "border-brand-primary/25 bg-brand-primary/10 shadow-sm shadow-brand-primary/15"
+              : "border-gray-200 bg-white shadow-sm hover:border-brand-primary/25 hover:shadow-md",
             disabled && "cursor-not-allowed opacity-60"
           )}
         >
@@ -178,8 +178,8 @@ export function Select<T extends string>({
               className={clsx(
                 "flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors",
                 active
-                  ? "bg-purple-600 text-white"
-                  : "bg-purple-50 text-purple-600 group-hover:bg-purple-100"
+                  ? "bg-brand-primary text-white"
+                  : "bg-brand-primary/10 text-brand-primary group-hover:bg-brand-primary/15"
               )}
             >
               {icon}
@@ -214,12 +214,12 @@ export function Select<T extends string>({
                     className={clsx(
                       "flex w-full items-center justify-between gap-3 whitespace-nowrap rounded-xl px-3 py-2 text-left text-sm font-medium transition-colors",
                       isSelected
-                        ? "bg-purple-50 text-purple-700"
+                        ? "bg-brand-primary/10 text-brand-selected"
                         : "text-gray-600 hover:bg-gray-50"
                     )}
                   >
                     {opt.label}
-                    {isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-purple-600" />}
+                    {isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-brand-primary" />}
                   </button>
                 </li>
               );

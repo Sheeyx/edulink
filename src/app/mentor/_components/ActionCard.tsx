@@ -23,7 +23,7 @@ export default function ActionCard({ icon, title, subtitle, onClick }: Props) {
         shadow-[0_8px_20px_rgba(0,0,0,0.03)]
         transition
         hover:border-gray-900
-        focus:outline-none focus:ring-4 focus:ring-violet-200/60
+        focus:outline-none focus:ring-4 focus:ring-brand-primary/25
       "
     >
       <div className="flex gap-5">

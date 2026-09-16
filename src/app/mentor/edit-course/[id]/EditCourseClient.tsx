@@ -315,7 +315,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
         </div>
         <div className="mt-6 max-w-3xl rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_8px_24px_rgba(99,99,160,0.08)]">
           <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-purple-700" />
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-brand-selected" />
           </div>
         </div>
       </div>
@@ -394,7 +394,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
             </label>
             <input
               id="course-title"
-              className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+              className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
               value={form.title}
               onChange={(e) => handleInputChange("title", e.target.value)}
               placeholder="IELTS Speaking for Beginners"
@@ -409,7 +409,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
             </label>
             <textarea
               id="course-description"
-              className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+              className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
               rows={4}
               value={form.description}
               onChange={(e) => handleInputChange("description", e.target.value)}
@@ -423,7 +423,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
             <div>
               <label className="text-xs font-medium text-slate-700">Category</label>
               <select
-                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
                 value={form.category}
                 onChange={(e) => handleInputChange("category", e.target.value)}
                 required
@@ -442,7 +442,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
             <div>
               <label className="text-xs font-medium text-slate-700">Language</label>
               <select
-                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
                 value={form.languageType}
                 onChange={(e) => handleInputChange("languageType", e.target.value as any)}
                 required
@@ -467,7 +467,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
               </label>
               <select
                 id="course-level"
-                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
                 value={form.level}
                 onChange={(e) => handleInputChange("level", e.target.value as CourseLevel)}
               >
@@ -487,7 +487,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
                 id="max-students"
                 type="number"
                 min={1}
-                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
                 value={form.maxStudents}
                 onChange={(e) => handleInputChange("maxStudents", Number(e.target.value))}
                 placeholder="10"
@@ -500,7 +500,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
             <div>
               <label className="text-xs font-medium text-slate-700">Status</label>
               <select
-                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
                 value={form.status}
                 onChange={(e) => handleInputChange("status", e.target.value as CourseStatus)}
               >
@@ -518,7 +518,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
                 <button
                   type="button"
                   onClick={() => setShowDatePicker(!showDatePicker)}
-                  className="mt-1 flex w-full items-center justify-between rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors hover:border-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                  className="mt-1 flex w-full items-center justify-between rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors hover:border-gray-400 focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
                 >
                   <span className={form.courseStartDate ? "text-slate-900" : "text-slate-400"}>
                     {form.courseStartDate ? formatDate(form.courseStartDate) : "Select start date"}
@@ -544,7 +544,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
               id="course-price"
               type="number"
               min={0}
-              className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+              className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
               value={form.price}
               onChange={(e) => handleInputChange("price", e.target.value)}
               placeholder="0"
@@ -563,7 +563,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
             </button>
             <button
               type="submit"
-              className="rounded-xl bg-purple-700 px-5 py-2 text-sm font-extrabold text-white transition-colors hover:bg-purple-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-xl bg-brand-selected px-5 py-2 text-sm font-extrabold text-white transition-colors hover:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isDisabled}
             >
               {saving || uploadingImage ? "Saving..." : "Save changes"}
@@ -636,12 +636,12 @@ function DatePicker({ selectedDate, onSelectDate }: DatePickerProps) {
           className={`
             h-9 w-9 rounded-lg text-sm font-medium transition-all
             ${isSelected
-              ? "bg-purple-700 text-white shadow-sm"
+              ? "bg-brand-selected text-white shadow-sm"
               : isPast
               ? "text-slate-300 cursor-not-allowed"
               : "text-slate-700 hover:bg-slate-100"
             }
-            ${isToday && !isSelected ? "ring-2 ring-purple-200" : ""}
+            ${isToday && !isSelected ? "ring-2 ring-brand-primary/25" : ""}
           `}
         >
           {day}

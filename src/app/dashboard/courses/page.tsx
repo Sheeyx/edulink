@@ -74,7 +74,7 @@ function languageBadgeClasses(lang: LanguageType): string {
     case "ENGLISH":
       return `${base} bg-green-50 text-green-700 border-green-200`;
     case "RUSSIAN":
-      return `${base} bg-purple-50 text-purple-700 border-purple-200`;
+      return `${base} bg-brand-primary/10 text-brand-selected border-brand-primary/25`;
     case "UZBEK":
       return `${base} bg-amber-50 text-amber-700 border-amber-200`;
     default:

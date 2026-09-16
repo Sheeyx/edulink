@@ -60,7 +60,7 @@ function NavItem({
         "w-full rounded-2xl border transition",
         collapsed ? "flex justify-center p-3" : "text-left p-4",
         active
-          ? "border-purple-200 bg-purple-50 shadow-sm"
+          ? "border-brand-primary/25 bg-brand-primary/10 shadow-sm"
           : "border-gray-200 bg-white hover:bg-gray-50",
       ].join(" ")}
     >
@@ -69,7 +69,7 @@ function NavItem({
           className={[
             "grid place-items-center rounded-xl w-10 h-10 border shrink-0",
             active
-              ? "bg-purple-600 text-white border-purple-600"
+              ? "bg-brand-primary text-white border-brand-primary"
               : "bg-gray-50 text-gray-700 border-gray-200",
           ].join(" ")}
         >
@@ -157,9 +157,9 @@ export default function UserSidebar({
               Keep learning. One lesson at a time.
             </p>
 
-            <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-purple-50 border border-purple-100 px-3 py-2">
-              <GraduationCap className="w-4 h-4 text-purple-700" />
-              <span className="text-sm font-bold text-purple-800">{roleLabel}</span>
+            <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-primary/10 border border-brand-primary/15 px-3 py-2">
+              <GraduationCap className="w-4 h-4 text-brand-selected" />
+              <span className="text-sm font-bold text-brand-selected">{roleLabel}</span>
             </div>
           </>
         )}
@@ -169,7 +169,7 @@ export default function UserSidebar({
             onClick={onOpenProfile}
             title={collapsed ? "Edit Your Profile" : undefined}
             className={[
-              "rounded-2xl border-2 border-purple-600 text-purple-700 font-extrabold hover:bg-purple-50 transition",
+              "rounded-2xl border-2 border-brand-primary text-brand-selected font-extrabold hover:bg-brand-primary/10 transition",
               collapsed ? "grid place-items-center p-2.5" : "w-full py-3",
             ].join(" ")}
           >
@@ -180,7 +180,7 @@ export default function UserSidebar({
             onClick={onOpenCourses}
             title={collapsed ? "Go to My Courses" : undefined}
             className={[
-              "rounded-2xl bg-purple-700 text-white font-extrabold hover:bg-purple-800 transition",
+              "rounded-2xl bg-brand-selected text-white font-extrabold hover:brightness-90 transition",
               collapsed ? "grid place-items-center p-2.5" : "w-full py-3",
             ].join(" ")}
           >

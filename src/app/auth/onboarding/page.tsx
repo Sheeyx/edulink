@@ -125,7 +125,7 @@ export default function OnboardingPage() {
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="Your full name"
-            className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-500"
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-primary/80"
           />
         </label>
 
@@ -135,7 +135,7 @@ export default function OnboardingPage() {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="+82 10-1234-5678"
-            className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-violet-500"
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-primary/80"
           />
         </label>
 
@@ -144,7 +144,7 @@ export default function OnboardingPage() {
         <button
           type="submit"
           disabled={saving}
-          className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-violet-600 px-4 py-3 text-white font-semibold hover:bg-violet-500 transition disabled:opacity-70"
+          className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-brand-primary px-4 py-3 text-white font-semibold hover:bg-brand-primary/80 transition disabled:opacity-70"
         >
           {saving ? "Saving…" : "Finish"}
         </button>

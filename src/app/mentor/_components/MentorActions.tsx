@@ -77,7 +77,7 @@ export default function MentorActions({
 
       <ActionCard
         icon={
-          <IconWrap className="border-purple-600/70 text-purple-600">
+          <IconWrap className="border-brand-primary/70 text-brand-primary">
             <MessageSquare className="h-6 w-6" />
           </IconWrap>
         }

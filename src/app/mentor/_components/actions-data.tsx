@@ -71,7 +71,7 @@ export function buildActions(setPanel: (p: PanelType) => void): ActionItem[] {
     },
     {
       icon: (
-        <ActionIcon bg="bg-purple-50" fg="text-purple-700">
+        <ActionIcon bg="bg-brand-primary/10" fg="text-brand-selected">
           <MessageSquare className="w-6 h-6" />
         </ActionIcon>
       ),

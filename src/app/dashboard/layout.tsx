@@ -22,7 +22,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {/* FIXED SIDEBAR */}
       <aside className="w-72 bg-gradient-to-b from-[#1E1E2A] to-[#0F0F15] text-white p-6 space-y-6 rounded-r-3xl shadow-xl h-screen flex-shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-purple-600 font-bold">
+          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-brand-primary font-bold">
             E
           </div>
           <span className="text-2xl font-semibold tracking-wide">EDULINK</span>
@@ -52,7 +52,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <input
               type="text"
               placeholder="Search users, courses…"
-              className="px-4 py-2 rounded-xl border border-gray-200 bg-white shadow-sm w-72 focus:ring-2 focus:ring-purple-300"
+              className="px-4 py-2 rounded-xl border border-gray-200 bg-white shadow-sm w-72 focus:ring-2 focus:ring-brand-primary/40"
             />
 
             <div className="flex items-center gap-2 pr-3 pl-1 py-1 rounded-xl bg-white shadow-sm cursor-pointer">

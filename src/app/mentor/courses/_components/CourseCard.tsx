@@ -44,7 +44,7 @@ const LEVEL_BADGE: Record<CourseLevel, string> = {
   INTERMEDIATE: "bg-amber-500",
   UPPER_INTERMEDIATE: "bg-orange-500",
   ADVANCED: "bg-indigo-600",
-  PROFICIENCY: "bg-purple-700",
+  PROFICIENCY: "bg-brand-selected",
   ALL_LEVELS: "bg-gray-600",
 };
 
@@ -54,7 +54,7 @@ const STATUS_DOT: Record<CourseStatus, string> = {
   ARCHIVED: "bg-amber-500",
   SUSPENDED: "bg-rose-500",
   COMPLETED: "bg-sky-500",
-  PROGRESS: "bg-purple-500",
+  PROGRESS: "bg-brand-primary/80",
 };
 
 export default function MentorCourseCard({
@@ -104,7 +104,7 @@ export default function MentorCourseCard({
       {/* Body */}
       <div className="p-4">
         <Link href={`/mentor/courses/${_id}`} className="block">
-          <h3 className="line-clamp-1 text-base font-extrabold text-gray-900 hover:text-purple-700 transition-colors">
+          <h3 className="line-clamp-1 text-base font-extrabold text-gray-900 hover:text-brand-selected transition-colors">
             {courseTitle}
           </h3>
           <p className="mt-0.5 line-clamp-2 text-xs text-gray-600">{courseDesc}</p>
@@ -145,7 +145,7 @@ export default function MentorCourseCard({
         <div className="mt-4 grid grid-cols-2 gap-2">
           <Link
             href={`/mentor/courses/${_id}`}
-            className="inline-flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-extrabold bg-purple-700 text-white hover:bg-purple-800 transition"
+            className="inline-flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-extrabold bg-brand-selected text-white hover:brightness-90 transition"
           >
             <Eye className="h-4 w-4" />
             View

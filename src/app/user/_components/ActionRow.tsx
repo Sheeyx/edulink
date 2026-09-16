@@ -14,7 +14,7 @@ export default function ActionRow({ icon, title, desc, onClick }: ActionRowProps
         <h3 className="font-bold text-lg text-gray-900 mb-1">{title}</h3>
         <p className="text-sm text-gray-800">{desc}</p>
       </div>
-      <div className="bg-purple-600 rounded-full p-2.5">
+      <div className="bg-brand-primary rounded-full p-2.5">
         <ChevronRight className="w-5 h-5 text-white" />
       </div>
     </div>

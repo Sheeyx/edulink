@@ -66,7 +66,7 @@ export default function LessonRow({
       {hasUrl ? (
         <button
           onClick={onPlay}
-          className="inline-flex items-center gap-2 rounded-xl bg-purple-700 text-white px-4 py-2 text-sm font-extrabold hover:bg-purple-800"
+          className="inline-flex items-center gap-2 rounded-xl bg-brand-selected text-white px-4 py-2 text-sm font-extrabold hover:brightness-90"
         >
           <PlayCircle className="w-4 h-4" />
           Play

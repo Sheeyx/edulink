@@ -33,7 +33,7 @@ export default function CourseDetailTabs({ active, onChange }: Props) {
           onClick={() => onChange(tab)}
           className={`shrink-0 rounded-xl px-4 py-2 text-sm font-bold transition ${
             active === tab
-              ? "bg-purple-700 text-white"
+              ? "bg-brand-selected text-white"
               : "text-slate-600 hover:bg-slate-50"
           }`}
         >

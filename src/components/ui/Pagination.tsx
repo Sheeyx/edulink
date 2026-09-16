@@ -35,7 +35,7 @@ export default function Pagination({ page, totalPages, onChange }: Props) {
         type="button"
         onClick={() => onChange(page - 1)}
         disabled={page <= 1}
-        className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition hover:border-purple-300 hover:text-purple-600 disabled:cursor-not-allowed disabled:opacity-40"
+        className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition hover:border-brand-primary/40 hover:text-brand-primary disabled:cursor-not-allowed disabled:opacity-40"
         aria-label="Previous page"
       >
         <ChevronLeft className="h-4 w-4" />
@@ -54,8 +54,8 @@ export default function Pagination({ page, totalPages, onChange }: Props) {
             aria-current={p === page ? "page" : undefined}
             className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition ${
               p === page
-                ? "bg-purple-600 text-white shadow-sm"
-                : "text-gray-600 hover:bg-purple-50 hover:text-purple-700"
+                ? "bg-brand-primary text-white shadow-sm"
+                : "text-gray-600 hover:bg-brand-primary/10 hover:text-brand-selected"
             }`}
           >
             {p}
@@ -67,7 +67,7 @@ export default function Pagination({ page, totalPages, onChange }: Props) {
         type="button"
         onClick={() => onChange(page + 1)}
         disabled={page >= totalPages}
-        className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition hover:border-purple-300 hover:text-purple-600 disabled:cursor-not-allowed disabled:opacity-40"
+        className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition hover:border-brand-primary/40 hover:text-brand-primary disabled:cursor-not-allowed disabled:opacity-40"
         aria-label="Next page"
       >
         <ChevronRight className="h-4 w-4" />

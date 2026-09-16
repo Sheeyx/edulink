@@ -159,7 +159,7 @@ export default function LoginPage() {
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none ring-0 focus:border-violet-500"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none ring-0 focus:border-brand-primary/80"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   required
@@ -172,7 +172,7 @@ export default function LoginPage() {
                   <input
                     type={showPw ? "text" : "password"}
                     placeholder="Enter your password"
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 pr-11 outline-none ring-0 focus:border-violet-500"
+                    className="w-full rounded-xl border border-gray-300 px-4 py-3 pr-11 outline-none ring-0 focus:border-brand-primary/80"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
                     required
@@ -197,7 +197,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-violet-600 px-4 py-3 text-white font-medium hover:bg-violet-500 transition disabled:opacity-60"
+                className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-brand-primary px-4 py-3 text-white font-medium hover:bg-brand-primary/80 transition disabled:opacity-60"
               >
                 {loading ? "Logging in..." : "Log In"}
               </button>
@@ -231,7 +231,7 @@ export default function LoginPage() {
 
               <p className="mt-8 text-center text-sm text-gray-600">
                 Don't have an account?{" "}
-                <Link href="/auth/register" className="text-violet-600 hover:underline">Sign up</Link>
+                <Link href="/auth/register" className="text-brand-primary hover:underline">Sign up</Link>
               </p>
             </form>
           </div>

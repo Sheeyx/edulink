@@ -17,8 +17,8 @@ console.log(course, "course");
   return (
     <div className="rounded-3xl border border-gray-100 bg-white shadow-[0_10px_35px_rgba(99,99,160,0.08)] p-6">
       <div className="flex items-center gap-2">
-        <div className="w-10 h-10 rounded-2xl border border-purple-100 bg-purple-50 grid place-items-center">
-          <Layers className="w-5 h-5 text-purple-700" />
+        <div className="w-10 h-10 rounded-2xl border border-brand-primary/15 bg-brand-primary/10 grid place-items-center">
+          <Layers className="w-5 h-5 text-brand-selected" />
         </div>
         <div>
           <div className="text-lg font-black text-gray-900">Modules</div>

@@ -13,8 +13,8 @@ export default function AdminDashboardPage() {
           title="Total Students"
           value="2,847"
           trend="+12%"
-          icon={<FiUsers className="text-purple-500" size={28} />}
-          bg="from-purple-100 to-purple-50"
+          icon={<FiUsers className="text-brand-primary/80" size={28} />}
+          bg="from-brand-primary/15 to-brand-primary/10"
         />
 
         <KpiCard
@@ -62,7 +62,7 @@ export default function AdminDashboardPage() {
           mentor="Dr. Sarah Kim"
           students="482 Students"
           progress={87}
-          color="bg-purple-500"
+          color="bg-brand-primary/80"
         />
 
         <CourseRow

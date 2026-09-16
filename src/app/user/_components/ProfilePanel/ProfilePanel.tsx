@@ -174,7 +174,7 @@ export default function ProfilePanel() {
             <input
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-950 font-semibold outline-none focus:ring-4 focus:ring-purple-100"
+              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-950 font-semibold outline-none focus:ring-4 focus:ring-brand-primary/15"
               placeholder="Your full name"
             />
           </Field>
@@ -183,7 +183,7 @@ export default function ProfilePanel() {
             <input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-950 font-semibold outline-none focus:ring-4 focus:ring-purple-100"
+              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-950 font-semibold outline-none focus:ring-4 focus:ring-brand-primary/15"
               placeholder="+82 10-1234-5678"
             />
           </Field>
@@ -193,7 +193,7 @@ export default function ProfilePanel() {
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               rows={5}
-              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-950 font-semibold outline-none focus:ring-4 focus:ring-purple-100"
+              className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-950 font-semibold outline-none focus:ring-4 focus:ring-brand-primary/15"
               placeholder="Tell students about you..."
             />
           </Field>
@@ -204,7 +204,7 @@ export default function ProfilePanel() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 type={showPw ? "text" : "password"}
-                className="w-full rounded-2xl border border-gray-200 px-4 py-3 pr-12 text-gray-950 font-semibold outline-none focus:ring-4 focus:ring-purple-100"
+                className="w-full rounded-2xl border border-gray-200 px-4 py-3 pr-12 text-gray-950 font-semibold outline-none focus:ring-4 focus:ring-brand-primary/15"
                 placeholder="Leave empty to keep current password"
               />
               <button
@@ -227,7 +227,7 @@ export default function ProfilePanel() {
               type="button"
               onClick={onSave}
               disabled={disabled}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-purple-700 px-7 py-4 text-white font-extrabold text-lg hover:bg-purple-800 disabled:opacity-60 disabled:cursor-not-allowed transition"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-selected px-7 py-4 text-white font-extrabold text-lg hover:brightness-90 disabled:opacity-60 disabled:cursor-not-allowed transition"
             >
               {saving && <Loader2 className="w-5 h-5 animate-spin" />}
               {saving ? "Saving..." : "Save changes"}

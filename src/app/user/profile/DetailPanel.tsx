@@ -26,7 +26,7 @@ export default function DetailPanel({ panel, onBack }: Props) {
       <button
         type="button"
         onClick={onBack}
-        className="inline-flex items-center gap-2 text-purple-700 font-extrabold text-1xl hover:text-purple-800 transition"
+        className="inline-flex items-center gap-2 text-brand-selected font-extrabold text-1xl hover:text-brand-selected transition"
       >
         <ChevronLeft className="w-7 h-7" />
         Back to Dashboard

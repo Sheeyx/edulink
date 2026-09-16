@@ -96,7 +96,7 @@ export default function MentorCoursesList() {
 
         <Link
           href="/mentor/create-courses"
-          className="inline-flex items-center gap-2 rounded-2xl bg-purple-700 text-white font-extrabold px-5 py-3 shadow-sm hover:bg-purple-800 transition"
+          className="inline-flex items-center gap-2 rounded-2xl bg-brand-selected text-white font-extrabold px-5 py-3 shadow-sm hover:brightness-90 transition"
         >
           <Plus className="w-4 h-4" />
           Create Course
@@ -118,7 +118,7 @@ export default function MentorCoursesList() {
           <input
             name="q"
             placeholder="Search by title or description..."
-            className="w-full rounded-2xl border border-gray-200 pl-11 pr-4 py-2.5 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 transition"
+            className="w-full rounded-2xl border border-gray-200 pl-11 pr-4 py-2.5 outline-none focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15 transition"
             defaultValue={search}
           />
         </div>
@@ -166,8 +166,8 @@ export default function MentorCoursesList() {
         </div>
       ) : rows.length === 0 ? (
         <div className="rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-[0_8px_24px_rgba(99,99,160,0.08)]">
-          <div className="mx-auto grid place-items-center w-14 h-14 rounded-2xl bg-purple-50 border border-purple-100">
-            <BookOpen className="w-7 h-7 text-purple-700" />
+          <div className="mx-auto grid place-items-center w-14 h-14 rounded-2xl bg-brand-primary/10 border border-brand-primary/15">
+            <BookOpen className="w-7 h-7 text-brand-selected" />
           </div>
 
           <h2 className="mt-4 text-2xl font-black text-gray-900">
@@ -179,7 +179,7 @@ export default function MentorCoursesList() {
 
           <Link
             href="/mentor/create-courses"
-            className="inline-flex mt-5 items-center justify-center gap-2 rounded-2xl bg-purple-700 text-white px-5 py-3 font-extrabold hover:bg-purple-800 transition"
+            className="inline-flex mt-5 items-center justify-center gap-2 rounded-2xl bg-brand-selected text-white px-5 py-3 font-extrabold hover:brightness-90 transition"
           >
             <Plus className="w-4 h-4" />
             Create Course

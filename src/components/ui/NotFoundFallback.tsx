@@ -17,8 +17,8 @@ export default function NotFoundFallback({
   return (
     <div className="flex min-h-[50vh] items-center justify-center p-6">
       <div className="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-[0_8px_24px_rgba(99,99,160,0.08)]">
-        <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl border border-purple-100 bg-purple-50">
-          <SearchX className="h-7 w-7 text-purple-700" />
+        <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl border border-brand-primary/15 bg-brand-primary/10">
+          <SearchX className="h-7 w-7 text-brand-selected" />
         </div>
 
         <h2 className="mt-4 text-xl font-black text-gray-900">{title}</h2>
@@ -27,7 +27,7 @@ export default function NotFoundFallback({
         <div className="mt-6 flex items-center justify-center">
           <Link
             href={homeHref}
-            className="rounded-2xl bg-purple-700 px-5 py-2.5 text-sm font-extrabold text-white transition hover:bg-purple-800"
+            className="rounded-2xl bg-brand-selected px-5 py-2.5 text-sm font-extrabold text-white transition hover:brightness-90"
           >
             {homeLabel}
           </Link>

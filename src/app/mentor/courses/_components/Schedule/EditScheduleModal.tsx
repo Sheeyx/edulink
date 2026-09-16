@@ -116,7 +116,7 @@ export default function EditScheduleModal({
               value={lessonId}
               onChange={(e) => setLessonId(e.target.value)}
               disabled={loading}
-              className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+              className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
             >
               <option value="">No specific lesson</option>
               {lessonOptions.map((l) => (
@@ -143,7 +143,7 @@ export default function EditScheduleModal({
                   )
                 }
                 disabled={loading}
-                className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
               />
               {startAt.length > 1 && (
                 <button
@@ -163,7 +163,7 @@ export default function EditScheduleModal({
             type="button"
             onClick={() => setStartAt((prev) => [...prev, ""])}
             disabled={loading}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-purple-700 hover:text-purple-800"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-brand-selected hover:text-brand-selected"
           >
             <FiPlus className="h-3.5 w-3.5" />
             Add another time
@@ -178,7 +178,7 @@ export default function EditScheduleModal({
             value={status}
             onChange={(e) => setStatus(e.target.value as CourseScheduleStatus)}
             disabled={loading}
-            className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+            className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
           >
             {COURSE_SCHEDULE_STATUS.map((st) => (
               <option key={st} value={st}>
@@ -204,7 +204,7 @@ export default function EditScheduleModal({
                   )
                 }
                 disabled={loading}
-                className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-100"
+                className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
               />
               {meetLinks.length > 1 && (
                 <button
@@ -224,7 +224,7 @@ export default function EditScheduleModal({
             type="button"
             onClick={() => setMeetLinks((prev) => [...prev, ""])}
             disabled={loading}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-purple-700 hover:text-purple-800"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-brand-selected hover:text-brand-selected"
           >
             <FiPlus className="h-3.5 w-3.5" />
             Add another link
@@ -245,7 +245,7 @@ export default function EditScheduleModal({
 
         <button
           onClick={handleSubmit}
-          className="px-4 py-2 rounded-xl bg-purple-700 font-semibold text-white hover:bg-purple-800 disabled:opacity-50"
+          className="px-4 py-2 rounded-xl bg-brand-selected font-semibold text-white hover:brightness-90 disabled:opacity-50"
           disabled={loading}
         >
           {loading ? "Saving..." : "Save Changes"}

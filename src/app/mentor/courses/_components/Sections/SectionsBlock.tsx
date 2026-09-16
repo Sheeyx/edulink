@@ -129,9 +129,9 @@ export default function SectionsBlock({
       </div>
 
       {activeSections.length === 0 ? (
-        <div className="rounded-2xl bg-purple-50 border border-purple-100 px-4 py-6 text-sm text-gray-600">
+        <div className="rounded-2xl bg-brand-primary/10 border border-brand-primary/15 px-4 py-6 text-sm text-gray-600">
           No active sections yet. Use{" "}
-          <span className="font-bold text-purple-700">Add Section</span> to
+          <span className="font-bold text-brand-selected">Add Section</span> to
           create the first module.
         </div>
       ) : (
@@ -356,7 +356,7 @@ function SectionRow({
                 e.stopPropagation();
                 onEditSection(section.id);
               }}
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100"
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-selected hover:bg-brand-primary/15"
             >
               <FiEdit2 className="h-4 w-4" />
             </button>
@@ -457,7 +457,7 @@ function SectionRow({
                         <button
                           title="Edit lesson"
                           onClick={() => onEditLesson(section.id, lesson.id)}
-                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100"
+                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-selected hover:bg-brand-primary/15"
                         >
                           <FiEdit2 className="h-3 w-3" />
                         </button>
@@ -558,7 +558,7 @@ function SectionRow({
                           <button
                             type="button"
                             onClick={() => setEditingAssignment(a)}
-                            className="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2.5 py-0.5 text-[10px] font-medium text-purple-700 hover:bg-purple-100"
+                            className="inline-flex items-center gap-1 rounded-full bg-brand-primary/10 px-2.5 py-0.5 text-[10px] font-medium text-brand-selected hover:bg-brand-primary/15"
                           >
                             <FiEdit2 className="h-3 w-3" />
                             Edit

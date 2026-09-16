@@ -180,7 +180,7 @@ export default function SubmitAssignmentModal({ open, onClose, item, onSuccess }
 
         <button
           onClick={handleSubmit}
-          className="px-4 py-2 rounded-xl bg-purple-700 font-semibold text-white hover:bg-purple-800 disabled:opacity-50"
+          className="px-4 py-2 rounded-xl bg-brand-selected font-semibold text-white hover:brightness-90 disabled:opacity-50"
           disabled={loading}
         >
           {loading ? "Saving..." : isEditing ? "Save Changes" : "Submit"}

@@ -186,7 +186,7 @@ export default function EditProfileClient() {
           <button
             type="button"
             onClick={() => router.push("/auth/login")}
-            className="text-purple-700 hover:underline font-bold"
+            className="text-brand-selected hover:underline font-bold"
           >
             log in
           </button>
@@ -215,7 +215,7 @@ export default function EditProfileClient() {
           <div className="flex items-center gap-8">
             {/* Avatar Preview (circle) */}
             <div className="relative">
-              <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-purple-100 to-fuchsia-100 ring-4 ring-white shadow-xl">
+              <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-brand-primary/15 to-fuchsia-100 ring-4 ring-white shadow-xl">
                 {previewUrl ? (
                   <img
                     src={previewUrl}
@@ -224,7 +224,7 @@ export default function EditProfileClient() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <Camera className="w-12 h-12 text-purple-300" />
+                    <Camera className="w-12 h-12 text-brand-primary/40" />
                   </div>
                 )}
               </div>
@@ -243,7 +243,7 @@ export default function EditProfileClient() {
                 <div>
                   <label
                     htmlFor="photo-upload"
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-purple-700 text-white rounded-xl font-bold hover:bg-purple-800 transition cursor-pointer shadow-lg shadow-purple-700/30"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-brand-selected text-white rounded-xl font-bold hover:brightness-90 transition cursor-pointer shadow-lg shadow-brand-selected/30"
                   >
                     <Camera className="w-5 h-5" />
                     {uploading ? "Uploading..." : "Upload Photo"}
@@ -307,7 +307,7 @@ export default function EditProfileClient() {
             </label>
             <input
               type="text"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15 outline-none transition"
               value={form.memberFullName}
               onChange={(e) =>
                 setForm((s) => ({ ...s, memberFullName: e.target.value }))
@@ -325,7 +325,7 @@ export default function EditProfileClient() {
             </label>
             <input
               type="tel"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15 outline-none transition"
               value={form.memberPhone}
               onChange={(e) =>
                 setForm((s) => ({ ...s, memberPhone: e.target.value }))
@@ -341,7 +341,7 @@ export default function EditProfileClient() {
               Bio
             </label>
             <textarea
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition resize-none"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15 outline-none transition resize-none"
               rows={5}
               value={form.memberBio}
               onChange={(e) =>
@@ -370,7 +370,7 @@ export default function EditProfileClient() {
           <button
             type="submit"
             disabled={disabled}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-purple-700 text-white px-8 py-3.5 font-extrabold hover:bg-purple-800 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-lg shadow-purple-700/30"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-selected text-white px-8 py-3.5 font-extrabold hover:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-lg shadow-brand-selected/30"
           >
             {isPending ? (
               <>

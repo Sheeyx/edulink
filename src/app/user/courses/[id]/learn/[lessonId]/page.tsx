@@ -304,7 +304,7 @@ export default function LessonPlayerUdemyLike() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search lessons"
-                  className="w-full pl-9 pr-3 py-2 rounded-2xl border border-gray-200 bg-white text-sm outline-none focus:ring-2 focus:ring-purple-200"
+                  className="w-full pl-9 pr-3 py-2 rounded-2xl border border-gray-200 bg-white text-sm outline-none focus:ring-2 focus:ring-brand-primary/25"
                 />
               </div>
             </div>
@@ -365,7 +365,7 @@ export default function LessonPlayerUdemyLike() {
                                   }}
                                   className={[
                                     "flex items-start justify-between gap-3 px-4 py-3 border-t border-gray-200",
-                                    isActive ? "bg-purple-50" : "hover:bg-gray-50",
+                                    isActive ? "bg-brand-primary/10" : "hover:bg-gray-50",
                                   ].join(" ")}
                                 >
                                   <div className="flex items-start gap-3 min-w-0">
@@ -381,7 +381,7 @@ export default function LessonPlayerUdemyLike() {
                                       <div
                                         className={[
                                           "text-sm font-extrabold truncate",
-                                          isActive ? "text-purple-900" : "text-gray-900",
+                                          isActive ? "text-brand-selected" : "text-gray-900",
                                         ].join(" ")}
                                       >
                                         {i + 1}. {l.lessonTitle}

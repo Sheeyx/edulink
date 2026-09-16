@@ -59,7 +59,7 @@ export default function ResourcesBlock({ resources, onEdit, onDelete }: Props) {
       {resources.length === 0 ? (
         <div className="rounded-xl bg-slate-50 px-4 py-6 text-sm text-slate-500">
           No resources yet. Use{" "}
-          <span className="font-medium text-purple-700">Add Resource</span> to
+          <span className="font-medium text-brand-selected">Add Resource</span> to
           attach files students can download.
         </div>
       ) : (
@@ -70,7 +70,7 @@ export default function ResourcesBlock({ resources, onEdit, onDelete }: Props) {
               className="flex items-center justify-between gap-3 rounded-xl bg-white px-3 py-2.5 text-sm ring-1 ring-slate-100"
             >
               <div className="flex min-w-0 items-center gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-purple-50 text-purple-700">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-selected">
                   {TYPE_ICON[r.type] ?? <FiFile className="h-4 w-4" />}
                 </span>
 
@@ -110,7 +110,7 @@ export default function ResourcesBlock({ resources, onEdit, onDelete }: Props) {
                 <button
                   title="Edit resource"
                   onClick={() => onEdit(r)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15"
                 >
                   <FiEdit2 className="h-3.5 w-3.5" />
                 </button>

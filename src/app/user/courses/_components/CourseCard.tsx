@@ -132,14 +132,14 @@ export default function CourseCard({ course }: { course: EnrolledCourse }) {
         <div className="mt-3">
           <div className="flex items-center justify-between text-xs">
             <span className="font-bold text-gray-700">Lessons ready</span>
-            <span className="font-extrabold text-purple-700">
+            <span className="font-extrabold text-brand-selected">
               {available}/{total || lessons}
             </span>
           </div>
 
           <div className="mt-1.5 h-2 w-full rounded-full bg-gray-100 overflow-hidden">
             <div
-              className="h-full rounded-full bg-purple-600 transition-all"
+              className="h-full rounded-full bg-brand-primary transition-all"
               style={{ width: `${percent}%` }}
             />
           </div>
@@ -155,7 +155,7 @@ export default function CourseCard({ course }: { course: EnrolledCourse }) {
             <Link
               href={firstLessonUrl}
               className="inline-flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-extrabold
-                         bg-purple-700 text-white hover:bg-purple-800 transition"
+                         bg-brand-selected text-white hover:brightness-90 transition"
             >
               <PlayCircle className="w-4 h-4" />
               Continue
