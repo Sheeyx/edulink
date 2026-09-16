@@ -2,8 +2,7 @@
 "use client";
 
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { gql } from "graphql-request";
-import { graphql } from "@/libs/graphql-client";
+import { gqlFetch } from "@/libs/graphql";
 
 export type CoursesHookInput = {
   page: number;
@@ -31,7 +30,7 @@ type GetCoursesResponse = {
   getCourses: { list: APICourse[]; metaCounter: { total: number } };
 };
 
-const GET_COURSES = gql/* GraphQL */ `
+const GET_COURSES = /* GraphQL */ `
   query GetCouses($input: CoursesInquiry!) {
     getCourses(input: $input) {
       list {
@@ -95,7 +94,7 @@ export function useCourses(input: CoursesHookInput) {
         },
       };
 
-      const data = await graphql.request<GetCoursesResponse>(GET_COURSES, variables);
+      const data = await gqlFetch<GetCoursesResponse>(GET_COURSES, variables);
       return data.getCourses;
     },
     placeholderData: keepPreviousData,
