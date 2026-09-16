@@ -10,13 +10,15 @@ import {
   ChevronDown,
   ArrowLeft,
   Search,
-  CheckSquare,
-  Square,
+  CheckCircle2,
+  Circle,
+  PlayCircle,
 } from "lucide-react";
 
 import { gqlFetchAuth } from "@/libs/graphql";
 import { getAccessToken } from "@/providers/auth-context";
 import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
+import { useVideoProgress } from "./_hooks/useVideoProgress";
 
 /* ───────────────────────── GraphQL ───────────────────────── */
 
@@ -38,6 +40,14 @@ const GET_MY_ENROLLED_COURSE = /* GraphQL */ `
           lessonDuration
           lessonContentType
           lessonStatus
+          lessonProgress {
+            _id
+            progressPercentage
+            isCompleted
+            lastWatchedTime
+            watchedTime
+            videoDuration
+          }
         }
       }
     }
@@ -46,6 +56,15 @@ const GET_MY_ENROLLED_COURSE = /* GraphQL */ `
 
 /* ───────────────────────── Types ───────────────────────── */
 
+type LessonProgress = {
+  _id: string;
+  progressPercentage: number;
+  isCompleted: boolean;
+  lastWatchedTime: number;
+  watchedTime: number;
+  videoDuration: number;
+};
+
 type Lesson = {
   _id: string;
   lessonTitle: string;
@@ -53,6 +72,7 @@ type Lesson = {
   lessonDuration?: string | number | null;
   lessonContentType?: string | null;
   lessonStatus?: string | null;
+  lessonProgress?: LessonProgress | null;
 };
 
 type Section = {
@@ -152,6 +172,62 @@ export default function LessonPlayerUdemyLike() {
 
   const videoSrc = resolveMediaUrl(activeLesson?.lessonUrl);
 
+  const videoRef = React.useRef<HTMLVideoElement | null>(null);
+  const { progress, resumeTime, reportTimeUpdate, flush, complete } = useVideoProgress(
+    courseId,
+    lessonId
+  );
+  const completedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    completedRef.current = false;
+  }, [lessonId]);
+
+  // Flush the last known playback position when leaving this lesson
+  // (switching lessons or navigating away), so a partial watch isn't lost.
+  React.useEffect(() => {
+    const el = videoRef.current;
+    return () => {
+      if (el && el.currentTime > 0) {
+        void flush(el.currentTime);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lessonId]);
+
+  const handleLoadedMetadata = React.useCallback(() => {
+    const el = videoRef.current;
+    if (!el) return;
+    // Don't bother resuming into the last couple seconds — just start over.
+    if (resumeTime > 1 && resumeTime < el.duration - 2) {
+      el.currentTime = resumeTime;
+    }
+  }, [resumeTime]);
+
+  const handleTimeUpdate = React.useCallback(
+    (e: React.SyntheticEvent<HTMLVideoElement>) => {
+      reportTimeUpdate(e.currentTarget.currentTime);
+    },
+    [reportTimeUpdate]
+  );
+
+  const handlePause = React.useCallback(
+    (e: React.SyntheticEvent<HTMLVideoElement>) => {
+      void flush(e.currentTarget.currentTime);
+    },
+    [flush]
+  );
+
+  const handleEnded = React.useCallback(
+    async (e: React.SyntheticEvent<HTMLVideoElement>) => {
+      if (completedRef.current) return;
+      completedRef.current = true;
+      await flush(e.currentTarget.currentTime);
+      await complete();
+    },
+    [flush, complete]
+  );
+
   // auto-open section containing active lesson
   React.useEffect(() => {
     if (!course?.sectionsWithLessons?.length || !lessonId) return;
@@ -226,10 +302,15 @@ export default function LessonPlayerUdemyLike() {
             ) : videoSrc ? (
               <video
                 key={videoSrc}
+                ref={videoRef}
                 className="absolute inset-0 w-full h-full"
                 controls
                 playsInline
                 preload="metadata"
+                onLoadedMetadata={handleLoadedMetadata}
+                onTimeUpdate={handleTimeUpdate}
+                onPause={handlePause}
+                onEnded={handleEnded}
               >
                 <source src={videoSrc} />
               </video>
@@ -243,12 +324,39 @@ export default function LessonPlayerUdemyLike() {
           {/* Title strip */}
           <div className="bg-white">
             <div className="px-5 py-4">
-              <div className="text-lg font-black text-gray-900 truncate">
-                {course?.courseTitle || "Course"}
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-lg font-black text-gray-900 truncate">
+                    {course?.courseTitle || "Course"}
+                  </div>
+                  <div className="mt-1 text-sm text-gray-600 truncate">
+                    {activeLesson?.lessonTitle || "Select a lesson"}
+                  </div>
+                </div>
+
+                {activeLesson && (
+                  <div className="shrink-0">
+                    {progress?.isCompleted ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-success/10 px-3 py-1 text-xs font-bold text-brand-success">
+                        <CheckCircle2 className="h-4 w-4" /> Completed
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-600">
+                        {Math.round(progress?.progressPercentage ?? 0)}% watched
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
-              <div className="mt-1 text-sm text-gray-600 truncate">
-                {activeLesson?.lessonTitle || "Select a lesson"}
-              </div>
+
+              {activeLesson && !progress?.isCompleted && (
+                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    className="h-full rounded-full bg-brand-primary transition-all"
+                    style={{ width: `${Math.min(100, progress?.progressPercentage ?? 0)}%` }}
+                  />
+                </div>
+              )}
 
               {!isValidUrlValue(activeLesson?.lessonUrl) && activeLesson ? (
                 <div className="mt-2 text-xs text-red-600 font-bold">
@@ -354,6 +462,8 @@ export default function LessonPlayerUdemyLike() {
                             {lessons.map((l, i) => {
                               const isActive = l._id === lessonId;
                               const hasUrl = isValidUrlValue(l.lessonUrl);
+                              const isCompleted = !!l.lessonProgress?.isCompleted;
+                              const pct = Math.round(l.lessonProgress?.progressPercentage ?? 0);
 
                               return (
                                 <Link
@@ -369,11 +479,13 @@ export default function LessonPlayerUdemyLike() {
                                   ].join(" ")}
                                 >
                                   <div className="flex items-start gap-3 min-w-0">
-                                    <div className="mt-0.5 text-gray-700">
-                                      {isActive ? (
-                                        <CheckSquare className="w-5 h-5" />
+                                    <div className="mt-0.5">
+                                      {isCompleted ? (
+                                        <CheckCircle2 className="w-5 h-5 text-brand-success" />
+                                      ) : isActive ? (
+                                        <PlayCircle className="w-5 h-5 text-brand-selected" />
                                       ) : (
-                                        <Square className="w-5 h-5" />
+                                        <Circle className="w-5 h-5 text-gray-300" />
                                       )}
                                     </div>
 
@@ -387,7 +499,13 @@ export default function LessonPlayerUdemyLike() {
                                         {i + 1}. {l.lessonTitle}
                                       </div>
                                       <div className="mt-1 text-xs text-gray-500">
-                                        {hasUrl ? "Video ready" : "No URL"}
+                                        {!hasUrl
+                                          ? "No URL"
+                                          : isCompleted
+                                          ? "Completed"
+                                          : pct > 0
+                                          ? `${pct}% watched`
+                                          : "Video ready"}
                                       </div>
                                     </div>
                                   </div>
