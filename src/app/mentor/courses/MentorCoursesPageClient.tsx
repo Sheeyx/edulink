@@ -1,14 +1,16 @@
 "use client";
 
 import * as React from "react";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { gqlFetchAuth } from "@/libs/graphql";
 import CourseCard from "@/app/mentor/courses/_components/CourseCard";
+import Pagination from "@/components/ui/Pagination";
 import { GET_MENTOR_COURSES } from "@/graphql/query/courses/courses";
 import { BookOpen, Plus, Search } from "lucide-react";
 import Link from "next/link";
 
 type Course = {
-  courseImage: string | null ;
+  courseImage: string | null;
   _id: string;
   courseTitle: string;
   courseDesc: string;
@@ -42,32 +44,22 @@ type Resp = {
   getMentorCourses: { list: Course[]; metaCounter: { total: number } };
 };
 
-type Props = {
-  page?: number;
-  limit?: number;
-  search?: string;
-  sort?: "createdAt" | "updatedAt" | "courseTitle" | "coursePrice";
-  direction?: "ASC" | "DESC";
-};
+const LIMIT = 9; // multiples of 3 look cleaner in the grid
 
-export default function MentorCoursesList({
-  page = 1,
-  limit = 9, // 👈 optional: multiples of 3 look cleaner
-  search = "",
-  sort = "createdAt",
-  direction = "DESC",
-}: Props) {
-  const [loading, setLoading] = React.useState(true);
-  const [err, setErr] = React.useState<string | null>(null);
-  const [rows, setRows] = React.useState<Course[]>([]);
-  const [total, setTotal] = React.useState(0);
+export default function MentorCoursesList() {
+  const [page, setPage] = React.useState(1);
+  const [search, setSearch] = React.useState("");
 
-  async function fetchData(p = page, l = limit, q = search) {
-    setLoading(true);
-    setErr(null);
-    try {
-      const input: any = { page: p, limit: l, sort, direction };
-      if (q.trim()) input.search = q.trim();
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ["mentor-courses", page, LIMIT, search],
+    queryFn: async () => {
+      const input: Record<string, unknown> = {
+        page,
+        limit: LIMIT,
+        sort: "createdAt",
+        direction: "DESC",
+      };
+      if (search.trim()) input.search = search.trim();
 
       const data = await gqlFetchAuth<Resp>(
         GET_MENTOR_COURSES,
@@ -75,22 +67,19 @@ export default function MentorCoursesList({
         undefined,
         { withCredentials: true }
       );
+      return data.getMentorCourses;
+    },
+    placeholderData: keepPreviousData,
+  });
 
-      setRows(data.getMentorCourses.list);
-      setTotal(data.getMentorCourses.metaCounter.total);
-    } catch (e: any) {
-      setErr(e.message || "Failed to load courses.");
-    } finally {
-      setLoading(false);
-    }
-  }
+  const rows = data?.list ?? [];
+  const total = data?.metaCounter?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / LIMIT));
 
-  React.useEffect(() => {
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, limit, sort, direction]);
-
-  const totalPages = Math.max(1, Math.ceil(total / limit));
+  const handlePageChange = (next: number) => {
+    setPage(next);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div className="space-y-6">
@@ -119,7 +108,8 @@ export default function MentorCoursesList({
         onSubmit={(e) => {
           e.preventDefault();
           const fd = new FormData(e.currentTarget as HTMLFormElement);
-          fetchData(1, limit, String(fd.get("q") || ""));
+          setPage(1);
+          setSearch(String(fd.get("q") || ""));
         }}
         className="flex gap-2"
       >
@@ -141,12 +131,14 @@ export default function MentorCoursesList({
       </form>
 
       {/* Error */}
-      {err && (
+      {isError && (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
           <div className="font-extrabold text-red-900">Failed to load courses</div>
-          <div className="mt-1 text-sm text-red-800">{err}</div>
+          <div className="mt-1 text-sm text-red-800">
+            {error instanceof Error ? error.message : "Something went wrong."}
+          </div>
           <button
-            onClick={() => fetchData()}
+            onClick={() => refetch()}
             className="mt-4 rounded-2xl bg-red-700 text-white px-4 py-2 text-sm font-bold hover:bg-red-800 transition"
           >
             Try again
@@ -155,7 +147,7 @@ export default function MentorCoursesList({
       )}
 
       {/* Grid */}
-      {loading ? (
+      {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {Array.from({ length: 6 }).map((_, i) => (
             <div
@@ -216,11 +208,12 @@ export default function MentorCoursesList({
       )}
 
       {/* Footer */}
-      {!loading && rows.length > 0 && (
-        <div className="flex items-center justify-between">
+      {!isLoading && rows.length > 0 && (
+        <div className="flex flex-col items-center gap-4">
           <span className="text-sm text-gray-600">
-            Page 1 of {totalPages} • {total} total
+            Page {page} of {totalPages} • {total} total
           </span>
+          <Pagination page={page} totalPages={totalPages} onChange={handlePageChange} />
         </div>
       )}
     </div>

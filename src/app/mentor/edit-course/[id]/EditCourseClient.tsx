@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { FiCalendar } from "react-icons/fi";
 
@@ -88,8 +89,6 @@ const formatDate = (date: Date): string => {
 export default function EditCourseClient({ courseId }: { courseId: string }) {
   const router = useRouter();
 
-  const [loading, setLoading] = React.useState(true);
-  const [loadErr, setLoadErr] = React.useState<string | null>(null);
 
   const [form, setForm] = React.useState<EditFormState>(INITIAL_FORM);
 
@@ -121,49 +120,49 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
   }, [showDatePicker]);
 
   /* ───────── Load course ───────── */
+  const {
+    data: course,
+    isLoading: loading,
+    error: loadError,
+  } = useQuery({
+    queryKey: ["edit-course", courseId],
+    enabled: !!courseId,
+    queryFn: async () => {
+      const data = await gqlFetchAuth<EditCourseGetResp>(
+        GET_COURSE,
+        { input: courseId },
+        undefined,
+        { withCredentials: true }
+      );
+      return data.getCourse;
+    },
+  });
+
+  const loadErr = loadError ? getErrorMessage(loadError) : null;
+
   React.useEffect(() => {
-    if (!courseId) return;
+    if (!course) return;
 
-    (async () => {
-      setLoading(true);
-      setLoadErr(null);
+    setForm({
+      title: course.courseTitle ?? "",
+      description: course.courseDesc ?? "",
+      category: course.courseCategory ?? "",
+      languageType: course.languageType ?? "",
+      level: course.courseLevel ?? "BEGINNER",
+      status: course.courseStatus ?? "DRAFT",
+      price: String(course.coursePrice ?? 0),
+      maxStudents: Number(course.maxStudents ?? 10),
+      courseStartDate: course.courseStartDate ? new Date(course.courseStartDate) : null,
+    });
 
-      try {
-        const data = await gqlFetchAuth<EditCourseGetResp>(
-          GET_COURSE,
-          { input: courseId },
-          undefined,
-          { withCredentials: true }
-        );
-
-        const c = data.getCourse;
-
-        setForm({
-          title: c.courseTitle ?? "",
-          description: c.courseDesc ?? "",
-          category: c.courseCategory ?? "",
-          languageType: c.languageType ?? "",
-          level: c.courseLevel ?? "BEGINNER",
-          status: c.courseStatus ?? "DRAFT",
-          price: String(c.coursePrice ?? 0),
-          maxStudents: Number(c.maxStudents ?? 10),
-          courseStartDate: c.courseStartDate ? new Date(c.courseStartDate) : null,
-        });
-
-        if (c.courseImage) {
-          setExistingImageKey(c.courseImage);
-          setImagePreview(buildDownloadUrl(c.courseImage));
-        } else {
-          setExistingImageKey(null);
-          setImagePreview(null);
-        }
-      } catch (err) {
-        setLoadErr(getErrorMessage(err));
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [courseId]);
+    if (course.courseImage) {
+      setExistingImageKey(course.courseImage);
+      setImagePreview(buildDownloadUrl(course.courseImage));
+    } else {
+      setExistingImageKey(null);
+      setImagePreview(null);
+    }
+  }, [course]);
 
   /* ───────── Handlers ───────── */
 
