@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { FiMenu, FiX, FiShoppingCart, FiGlobe } from "react-icons/fi";
+import { FiMenu, FiX, FiGlobe } from "react-icons/fi";
+import { ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import UserInfo from "../User/UserInfo";
@@ -58,11 +59,14 @@ export default function Navbar() {
             href="/cart"
             title="Cart"
             aria-label={`Cart${cartCount > 0 ? `, ${cartCount} item${cartCount === 1 ? "" : "s"}` : ""}`}
-            className="relative flex h-10 w-10 items-center justify-center rounded-full text-gray-500 transition hover:bg-brand-primary/10 hover:text-brand-primary"
+            className="group relative flex h-10 w-10 items-center justify-center rounded-full bg-brand-primary/10 text-brand-selected transition hover:bg-brand-primary/20 hover:scale-105"
           >
-            <FiShoppingCart className="h-5 w-5" />
+            <ShoppingBag className="h-[18px] w-[18px] transition-transform group-hover:-rotate-6" strokeWidth={2.25} />
             {cartCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-selected px-1 text-[10px] font-bold text-white">
+              <span
+                key={cartCount}
+                className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-selected px-1 text-[10px] font-bold text-white ring-2 ring-white animate-[cart-pop_0.25s_ease-out]"
+              >
                 {cartCount}
               </span>
             )}
