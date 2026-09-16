@@ -3,7 +3,6 @@
 
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import {
   GraduationCap,
   PencilLine,
@@ -120,17 +119,6 @@ export default function Sidebar({
 }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { data: session } = useSession();
-
-  // optional, if you need token somewhere
-  const accessToken = React.useMemo(() => {
-    if (typeof window !== "undefined") {
-      const t = localStorage.getItem("accessToken");
-      if (t) return t;
-    }
-    const s = session as any;
-    return s?.accessToken ?? s?.user?.accessToken ?? undefined;
-  }, [session]);
 
   const avatarSrc: string = getFullAvatarUrl(name, avatarUrl);
 

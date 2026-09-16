@@ -3,9 +3,8 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "@/providers/auth-context";
+import { useAuth, getAccessToken } from "@/providers/auth-context";
 import { gqlFetchAuth } from "@/libs/graphql";
 import { useUpdateMember } from "@/hooks/mutations/useUpdateMember";
 import type { MemberUpdateInput } from "@/libs/types/member/types";
@@ -35,20 +34,11 @@ function sanitizeKey(raw?: string | null): string {
 export default function EditProfileClient() {
   const router = useRouter();
   const qc = useQueryClient();
-  const { data: session, status: sessionStatus } = useSession();
-  const { user, setUser } = useAuth();
+  const { user, setUser, ready } = useAuth();
 
   const memberId = user?.id ?? "";
 
-  // accessToken: localStorage -> NextAuth
-  const accessToken = React.useMemo(() => {
-    if (typeof window !== "undefined") {
-      const t = localStorage.getItem("accessToken");
-      if (t) return t;
-    }
-    const s = session as any;
-    return s?.accessToken ?? s?.user?.accessToken ?? undefined;
-  }, [session]);
+  const accessToken = getAccessToken() ?? undefined;
 
   const { data: member, isLoading: isMemberLoading } = useQuery({
     queryKey: ["member", memberId],
@@ -186,7 +176,7 @@ export default function EditProfileClient() {
     await updateMember({ input, token: accessToken });
   }
 
-  const disabled = isPending || isMemberLoading || sessionStatus === "loading";
+  const disabled = isPending || isMemberLoading || !ready;
 
   if (!memberId) {
     return (

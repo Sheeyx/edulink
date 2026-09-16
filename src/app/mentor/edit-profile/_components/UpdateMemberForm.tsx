@@ -3,9 +3,8 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "@/providers/auth-context";
+import { useAuth, getAccessToken } from "@/providers/auth-context";
 import { gqlFetchAuth } from "@/libs/graphql";
 import { useUpdateMember } from "@/hooks/mutations/useUpdateMember";
 import type { MemberUpdateInput } from "@/libs/types/member/types";
@@ -35,18 +34,9 @@ const GET_MEMBER = `
 export default function UpdateMemberForm({ memberId, initial, onDone }: Props) {
   const router = useRouter();
   const qc = useQueryClient();
-  const { data: session, status: sessionStatus } = useSession();
-  const { user, setUser } = useAuth();
+  const { user, setUser, ready } = useAuth();
 
-  // Resolve access token: localStorage -> NextAuth
-  const accessToken = React.useMemo(() => {
-    if (typeof window !== "undefined") {
-      const t = localStorage.getItem("accessToken");
-      if (t) return t;
-    }
-    const s = session as any;
-    return s?.accessToken ?? s?.user?.accessToken ?? undefined;
-  }, [session]);
+  const accessToken = getAccessToken() ?? undefined;
 
   const shouldFetch =
     !initial ||
@@ -147,7 +137,7 @@ export default function UpdateMemberForm({ memberId, initial, onDone }: Props) {
     await updateMember({ input, token: accessToken });
   }
 
-  const disabled = isPending || sessionStatus === "loading" || isMemberLoading;
+  const disabled = isPending || !ready || isMemberLoading;
 
   return (
     <form onSubmit={onSubmit} className="space-y-5 max-w-xl">

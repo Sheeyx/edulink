@@ -3,7 +3,6 @@
 
 import React, { useMemo, useState, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useRefreshRoleOnce } from "@/hooks/useRefreshRoleOnce";
 import { buildActions, buildTiles } from "./_components/actions-data";
 import MainArea from "./_components/MainArea";
 
@@ -34,8 +33,6 @@ export default function MentorDashboardClient({
   avatarUrl,
   initialPanel = null,
 }: Props) {
-  useRefreshRoleOnce?.();
-
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
