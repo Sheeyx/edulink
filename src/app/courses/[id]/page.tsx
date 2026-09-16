@@ -12,15 +12,16 @@ import CourseDetailClient from "./_components/CourseDetailClient";
 /* ───────────────────────────────────────────── */
 
 type PageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 /* ───────────────────────────────────────────── */
 
 export default async function CourseDetailPage({ params }: PageProps) {
-  const id = params.id.trim();
+  const { id: rawId } = await params;
+  const id = rawId.trim();
   if (!id) return notFound();
 
   const course = await getCourseById(id);
@@ -58,10 +59,11 @@ export default async function CourseDetailPage({ params }: PageProps) {
         students: course.currentEnrolledMembers ?? 0,
         level: course.courseLevel ?? "BEGINNER",
         language: course.languageType ?? "ENGLISH",
+        category: course.courseCategory ?? null,
         totalModules: course.courseTotalModules ?? sectionsUI.length,
         totalLessons: course.courseTotalLessons ?? 0,
-        price: formatPrice(course.coursePrice ?? 89000),
-        oldPrice: "₩149,000",
+        price: formatPrice(course.coursePrice),
+        oldPrice: null,
         updatedAt: course.updatedAt ?? "",
         instructor: {
           name: instructorName,

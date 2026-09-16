@@ -18,7 +18,13 @@ export default function CourseHero({ course }: { course: CourseDetail }) {
     <div className="lg:col-span-2">
       {/* Breadcrumb */}
       <div className="text-xs text-white/60 mb-3">
-        IT & Software <span className="mx-2">›</span> IT Certifications{" "}
+        Courses
+        {course.category && (
+          <>
+            {" "}
+            <span className="mx-2">›</span> {course.category}
+          </>
+        )}{" "}
         <span className="mx-2">›</span> {course.language}
       </div>
 
@@ -47,9 +53,6 @@ export default function CourseHero({ course }: { course: CourseDetail }) {
                 fill={i < roundedStars ? "currentColor" : "none"}
               />
             ))}
-          </span>
-          <span className="text-violet-300 underline underline-offset-2 cursor-pointer">
-            ({Math.max(0, Math.round(course.students / 40))} ratings)
           </span>
         </span>
 

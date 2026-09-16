@@ -1,4 +1,5 @@
-import { Course, USection } from "@/libs/types/course/types";
+import { Course } from "@/libs/types/course/types";
+import { USection } from "@/utils/section";
 
 export function mapSections(sections: Course["sectionsWithLessons"]): USection[] {
   return (sections ?? []).map((s, i) => ({

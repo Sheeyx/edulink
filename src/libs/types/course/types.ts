@@ -59,8 +59,8 @@ export type Member = {
 };
 
 export type Course = {
-  currentEnrolledMembers: number;
-  isEnrolled: boolean;
+  currentEnrolledMembers?: number;
+  isFull?: boolean;
   id: string;
   courseImage: string;
   _id: string;

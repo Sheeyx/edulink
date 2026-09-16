@@ -12,6 +12,8 @@ export const GET_COURSE = gql/* GraphQL */ `
       coursePrice
       courseStatus
       courseEnrolledMembers
+      currentEnrolledMembers
+      isFull
       courseTotalModules
       courseTotalLessons
       courseRating

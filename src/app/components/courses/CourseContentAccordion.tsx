@@ -36,13 +36,13 @@ export default function CourseContentAccordion({
   };
 
   return (
-    <div className="rounded-xl border overflow-hidden">
+    <div className="rounded-xl border border-gray-200 overflow-hidden">
       {sections.map((s, idx) => {
         const isOpen = open === idx;
         const lectures = s.lessons?.length ?? 0;
 
         return (
-          <div key={s._id ?? idx} className="border-b last:border-b-0">
+          <div key={s._id ?? idx} className="border-b border-gray-200 last:border-b-0">
             {/* SECTION HEADER */}
             <button
               onClick={() => setOpen(isOpen ? null : idx)}

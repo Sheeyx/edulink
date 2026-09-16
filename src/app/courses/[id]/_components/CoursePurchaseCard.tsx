@@ -3,12 +3,17 @@
 import * as React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { Play, Loader2 } from "lucide-react";
 
 import { gqlFetchAuth } from "@/libs/graphql";
+import { useAuth } from "@/providers/auth-context";
 import type { CourseDetail } from "./types";
 import { normalizeImageSrc } from "./utils/images";
 import { ENROLL_IN_COURSE } from "@/graphql/mutation/course/enrollInCourse";
+import { IS_ENROLLED_IN_COURSE } from "@/graphql/query/courses/isEnrolledInCourse";
+
+type IsEnrolledResp = { isEnrolledInCourse: boolean };
 
 export default function PurchaseCardInner({
   course,
@@ -18,21 +23,36 @@ export default function PurchaseCardInner({
   onPreview: () => void;
 }) {
   const router = useRouter();
+  const { user } = useAuth();
   const mediaImg = normalizeImageSrc(course.mediaImage);
 
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  const isEnrolled = !!(course as any).isEnrolled; // ✅ vaqtincha (type qo‘shib olasan)
+  const { data: isEnrolled = false } = useQuery({
+    queryKey: ["is-enrolled", course.id],
+    queryFn: async () => {
+      const res = await gqlFetchAuth<IsEnrolledResp>(IS_ENROLLED_IN_COURSE, {
+        input: course.id,
+      });
+      return res.isEnrolledInCourse;
+    },
+    enabled: !!user,
+  });
 
   async function handlePrimaryAction() {
-    // ✅ already bought → go learn
+    if (!user) {
+      router.push("/auth/login");
+      return;
+    }
+
+    // already enrolled → go learn
     if (isEnrolled) {
       router.push(`/courses/${course.id}/learn`);
       return;
     }
 
-    // ✅ not bought → enroll
+    // not enrolled → enroll
     try {
       setLoading(true);
       setError(null);
@@ -41,7 +61,6 @@ export default function PurchaseCardInner({
         input: course.id,
       });
 
-      // enroll bo‘lgach ham learning page’ga otkazamiz
       router.push(`/courses/${course.id}/learn`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Enrollment failed");
@@ -51,7 +70,7 @@ export default function PurchaseCardInner({
   }
 
   return (
-    <div className="rounded-2xl overflow-hidden border border-black/10 bg-white shadow-xl">
+    <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-xl">
       {/* Preview */}
       <div className="relative aspect-video bg-slate-100">
         <Image

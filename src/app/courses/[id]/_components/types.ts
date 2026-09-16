@@ -1,5 +1,3 @@
-import { ReactNode } from "react";
-
 // ./types.ts
 export type CourseDetail = {
   id: string;
@@ -9,6 +7,7 @@ export type CourseDetail = {
   students: number;
   level: string;
   language: string;
+  category?: string | null;
   totalModules: number;
   totalLessons: number;
   price: string;

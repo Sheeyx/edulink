@@ -11,9 +11,9 @@ export default function CourseTabs({
   onTab: (k: TabKey) => void;
 }) {
   return (
-    <div className="border-b flex gap-6 text-sm">
+    <div className="border-b border-gray-200 flex gap-6 text-sm">
       <TabButton active={active === "learn"} onClick={() => onTab("learn")}>
-        What you’ll learn
+        About
       </TabButton>
       <TabButton active={active === "content"} onClick={() => onTab("content")}>
         Curriculum

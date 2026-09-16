@@ -72,17 +72,16 @@ export default function CourseDetailClient({
               {/* Learn */}
               <div ref={learnRef} className="pt-8 scroll-mt-24">
                 <h2 className="text-2xl font-extrabold text-slate-900">
-                  What you’ll learn
+                  About this course
                 </h2>
-                <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-6">
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-slate-700">
-                    <li>✅ Python basics</li>
-                    <li>✅ Data types & operators</li>
-                    <li>✅ Lists, tuples, dicts</li>
-                    <li>✅ Loops</li>
-                    <li>✅ Functions</li>
-                    <li>✅ Exceptions</li>
-                  </ul>
+                <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-700">
+                  {course.desc ? (
+                    <p className="whitespace-pre-wrap leading-relaxed">{course.desc}</p>
+                  ) : (
+                    <p className="text-slate-500">
+                      The mentor hasn&apos;t added a description for this course yet.
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -104,7 +103,7 @@ export default function CourseDetailClient({
                   Reviews
                 </h2>
                 <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-600">
-                  Reviews UI goes here.
+                  No reviews yet.
                 </div>
               </div>
 
