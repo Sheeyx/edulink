@@ -30,6 +30,12 @@ export const UPDATE_LESSON = `
   }
 `;
 
+export const TOGGLE_LESSON_LOCK = `
+  mutation ToggleLessonLock($lessonId: String!) {
+    toggleLessonLock(lessonId: $lessonId)
+  }
+`;
+
 // src/graphql/mutations/lessons/removeLesson.ts
 export const REMOVE_LESSON = `
   mutation RemoveLesson($input: String!) {

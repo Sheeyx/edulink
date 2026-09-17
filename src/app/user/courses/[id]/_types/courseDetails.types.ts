@@ -1,3 +1,12 @@
+export type LessonProgress = {
+  _id: string;
+  progressPercentage: number;
+  isCompleted: boolean;
+  lastWatchedTime: number;
+  watchedTime: number;
+  videoDuration: number;
+};
+
 export type Lesson = {
   _id: string;
   sectionId: string;
@@ -6,7 +15,9 @@ export type Lesson = {
   lessonContentType?: string | null;
   lessonDuration?: string | number | null;
   lessonUrl?: string | null;
+  isLocked?: boolean | null;
   deletedAt?: string | null;
+  lessonProgress?: LessonProgress | null;
 };
 
 export type Section = {

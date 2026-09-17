@@ -10,6 +10,8 @@ import {
   FiMove,
   FiPlay, // ▶️ for video preview
   FiCheckSquare, // 📋 for attendance
+  FiLock, // 🔒 locked lesson
+  FiUnlock, // 🔓 unlocked lesson
 } from "react-icons/fi";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -22,6 +24,7 @@ import TakeAttendanceModal from "../Attendance/TakeAttendanceModal";
 import { useCourseAssignmentsList } from "@/hooks/useCourseAssignmentsList";
 import { toAssignmentUI, type AssignmentUI } from "@/libs/types/assignments/assignment";
 import { DELETE_ASSIGNMENT_MUTATION } from "@/graphql/mutation/assignments/deleteAssignment";
+import { TOGGLE_LESSON_LOCK } from "@/graphql/mutation/lessons/lesson";
 
 /* ─────────────────── Utils ─────────────────── */
 
@@ -216,6 +219,29 @@ function SectionRow({
     lessonId: string;
     lessonTitle: string;
   } | null>(null);
+  const [togglingLockId, setTogglingLockId] = React.useState<string | null>(null);
+
+  const handleToggleLock = async (lessonId: string) => {
+    if (togglingLockId) return;
+    setTogglingLockId(lessonId);
+    try {
+      const resp = await gqlFetchAuth<{ toggleLessonLock: boolean }>(
+        TOGGLE_LESSON_LOCK,
+        { lessonId }
+      );
+      const newLocked = resp.toggleLessonLock;
+      setLocalLessons((prev) =>
+        prev.map((l) =>
+          l.id === lessonId ? { ...l, isLocked: newLocked } : l
+        )
+      );
+    } catch (err: any) {
+      console.error("Failed to toggle lesson lock", err);
+      alert(err?.message || "Failed to update lesson lock. Please try again.");
+    } finally {
+      setTogglingLockId(null);
+    }
+  };
 
   const invalidateAssignments = () =>
     queryClient.invalidateQueries({ queryKey: ["course-assignments", courseId] });
@@ -407,11 +433,42 @@ function SectionRow({
                           <p className="mt-0.5 text-[11px] text-gray-500">
                             {lesson.contentType ?? "CONTENT"} •{" "}
                             {lesson.duration ?? "-"} min
+                            {lesson.isLocked ? (
+                              <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                                Locked
+                              </span>
+                            ) : (
+                              <span className="ml-2 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                                Unlocked
+                              </span>
+                            )}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2">
+                        {/* 🔒 Toggle lesson lock (visible to students only when unlocked) */}
+                        <button
+                          title={
+                            lesson.isLocked
+                              ? "Unlock lesson for students"
+                              : "Lock lesson (hide from students)"
+                          }
+                          disabled={togglingLockId === lesson.id}
+                          onClick={() => handleToggleLock(lesson.id)}
+                          className={`flex h-7 w-7 items-center justify-center rounded-lg disabled:opacity-60 ${
+                            lesson.isLocked
+                              ? "bg-amber-50 text-amber-700 hover:bg-amber-100"
+                              : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                          }`}
+                        >
+                          {lesson.isLocked ? (
+                            <FiLock className="h-3 w-3" />
+                          ) : (
+                            <FiUnlock className="h-3 w-3" />
+                          )}
+                        </button>
+
                         {/* ▶️ Preview video (only for VIDEO lessons) */}
                         {onPreviewLesson &&
                           lesson.contentType === "VIDEO" && (

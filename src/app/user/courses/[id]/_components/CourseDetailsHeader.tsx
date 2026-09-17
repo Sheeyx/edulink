@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowLeft, PlayCircle } from "lucide-react";
+import { ArrowLeft, PlayCircle, Video } from "lucide-react";
 
 export default function CourseDetailsHeader({
   title,
@@ -9,14 +8,17 @@ export default function CourseDetailsHeader({
   onBack,
   onRefresh,
   refreshing,
-  continueUrl,
+  onContinue,
+  liveJoinHref,
 }: {
   title: string;
   subtitle?: string;
   onBack: () => void;
   onRefresh: () => void;
   refreshing?: boolean;
-  continueUrl?: string | null;
+  onContinue?: (() => void) | null;
+  /** When set, shows a pulsing "Join Live Class" button — starts appearing ~15min before a scheduled session. */
+  liveJoinHref?: string | null;
 }) {
   return (
     <div className="flex items-start justify-between gap-4">
@@ -37,14 +39,27 @@ export default function CourseDetailsHeader({
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
-        {continueUrl ? (
-          <Link
-            href={continueUrl}
+        {liveJoinHref && (
+          <a
+            href={liveJoinHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative inline-flex items-center gap-2 rounded-2xl bg-red-500 text-white px-4 py-2 text-sm font-extrabold hover:bg-red-600 transition animate-pulse"
+          >
+            <span className="absolute -inset-1 rounded-2xl bg-red-500 opacity-75 animate-ping" />
+            <Video className="w-4 h-4 relative" />
+            <span className="relative">Join Live Class</span>
+          </a>
+        )}
+
+        {onContinue ? (
+          <button
+            onClick={onContinue}
             className="inline-flex items-center gap-2 rounded-2xl bg-brand-selected text-white px-4 py-2 text-sm font-extrabold hover:brightness-90 transition"
           >
             <PlayCircle className="w-4 h-4" />
             Continue
-          </Link>
+          </button>
         ) : (
           <button
             disabled

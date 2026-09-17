@@ -21,7 +21,7 @@ export default function CourseCard({ course }: { course: EnrolledCourse }) {
       mentorName
     )}&background=FFF3E0&color=B45500`;
 
-  const { total, available, percent, firstLessonUrl } = computeProgress(course);
+  const { total, available, percent } = computeProgress(course);
 
   const modules = course.courseTotalModules ?? course.sectionsWithLessons?.length ?? 0;
   const lessons = course.courseTotalLessons ?? total ?? 0;
@@ -151,9 +151,9 @@ export default function CourseCard({ course }: { course: EnrolledCourse }) {
 
         {/* actions */}
         <div className="mt-4 grid gap-2">
-          {firstLessonUrl ? (
+          {available > 0 ? (
             <Link
-              href={firstLessonUrl}
+              href={`/user/courses/${course._id}`}
               className="inline-flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-extrabold
                          bg-brand-selected text-white hover:brightness-90 transition"
             >

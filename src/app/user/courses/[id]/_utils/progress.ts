@@ -28,10 +28,15 @@ export function computeProgress(course: EnrolledCourseDetails) {
     (a, b) => (a.moduleOrder ?? 0) - (b.moduleOrder ?? 0)
   );
 
-  const firstLessonUrl =
-    sortedSections
-      .flatMap((s) => (s.lessons || []).filter(Boolean))
-      .find((l) => !l.deletedAt && !!l.lessonUrl)?.lessonUrl || null;
+  const orderedLessons = sortedSections.flatMap((s) => (s.lessons || []).filter(Boolean));
 
-  return { total, available, percent, firstLessonUrl };
+  // Resume at the first not-yet-completed playable lesson, or fall back to
+  // the first playable lesson if everything's done (or nothing's started).
+  const resumeLesson =
+    orderedLessons.find((l) => !l.deletedAt && !!l.lessonUrl && !l.isLocked && !l.lessonProgress?.isCompleted) ||
+    orderedLessons.find((l) => !l.deletedAt && !!l.lessonUrl && !l.isLocked);
+
+  const firstLessonId = resumeLesson?._id || null;
+
+  return { total, available, percent, firstLessonId };
 }

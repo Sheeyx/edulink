@@ -60,7 +60,7 @@ export default function PurchaseCardInner({
 
     // already enrolled → go learn
     if (isEnrolled) {
-      router.push(`/courses/${course.id}/learn`);
+      router.push(`/user/courses/${course.id}`);
       return;
     }
 
@@ -73,7 +73,7 @@ export default function PurchaseCardInner({
         input: course.id,
       });
 
-      router.push(`/courses/${course.id}/learn`);
+      router.push(`/user/courses/${course.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Enrollment failed");
     } finally {

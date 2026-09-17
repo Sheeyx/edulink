@@ -11,6 +11,7 @@ export type Lesson = {
   lessonTitle?: string;
   lessonContentType?: string;
   lessonDuration?: string;
+  isLocked?: boolean;
   createdAt?: string;
   updatedAt?: string;
   deletedAt?: string | null;
@@ -289,7 +290,8 @@ export type LessonUI = {
   title: string;
   duration?: string;
   contentType?: string;
-  lessonUrl?: string | null;  
+  lessonUrl?: string | null;
+  isLocked?: boolean;
 };
 
 // alias if some older code uses ULesson

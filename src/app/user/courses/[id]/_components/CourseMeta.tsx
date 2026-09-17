@@ -10,7 +10,7 @@ export default function CourseMeta({
   progress,
 }: {
   course: EnrolledCourseDetails;
-  progress: { total: number; available: number; percent: number; firstLessonUrl: string | null };
+  progress: { total: number; available: number; percent: number; firstLessonId: string | null };
 }) {
   const courseImg =
     buildDownloadUrl(course.courseImage) ||

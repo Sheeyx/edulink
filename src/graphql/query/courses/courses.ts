@@ -39,6 +39,7 @@ export const GET_COURSE = gql/* GraphQL */ `
           lessonContentType
           lessonDuration
           lessonUrl
+          isLocked
           createdAt
           updatedAt
         }
@@ -92,6 +93,7 @@ export const GET_COURSE_FOR_MENTOR = gql/* GraphQL */ `
           lessonContentType
           lessonDuration
           lessonUrl
+          isLocked
           createdAt
           updatedAt
         }
@@ -209,8 +211,7 @@ export const GET_SCHEDULE = /* GraphQL */ `
   }
 `;
 
-// Note: CourseSchedulesInquiry has no courseId filter on the backend today,
-// so callers fetch a page and filter by courseId client-side.
+// CourseSchedulesInquiry accepts an optional courseId (and status) filter.
 export const GET_SCHEDULES = /* GraphQL */ `
   query GetSchedules($input: CourseSchedulesInquiry!) {
     getSchedules(input: $input) {
@@ -318,6 +319,7 @@ export const GET_MY_ENROLLED_COURSES = /* GraphQL */ `
           lessonContentType
           lessonDuration
           lessonUrl
+          isLocked
         }
       }
       memberData {
@@ -373,9 +375,18 @@ export const GET_MY_ENROLLED_COURSE = /* GraphQL */ `
           lessonContentType
           lessonDuration
           lessonUrl
+          isLocked
           deletedAt
           createdAt
           updatedAt
+          lessonProgress {
+            _id
+            progressPercentage
+            isCompleted
+            lastWatchedTime
+            watchedTime
+            videoDuration
+          }
         }
       }
       memberData {

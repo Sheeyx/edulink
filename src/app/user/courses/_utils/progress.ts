@@ -23,14 +23,5 @@ export function computeProgress(course: EnrolledCourse) {
 
   const percent = total ? clampPercent((available / total) * 100) : 0;
 
-  const sortedSections = [...sections].sort(
-    (a, b) => (a.moduleOrder ?? 0) - (b.moduleOrder ?? 0)
-  );
-
-  const firstLessonUrl =
-    sortedSections
-      .flatMap((s) => (s.lessons || []).filter(Boolean))
-      .find((l) => l.lessonUrl)?.lessonUrl || null;
-
-  return { total, available, percent, firstLessonUrl };
+  return { total, available, percent };
 }
