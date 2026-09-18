@@ -6,6 +6,7 @@ import { ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import UserInfo from "../User/UserInfo";
+import NotificationBell from "../Notifications/NotificationBell";
 import { useAuth } from "@/providers/auth-context";
 import { useCart } from "@/providers/cart-context";
 
@@ -78,7 +79,10 @@ export default function Navbar() {
               <div className="h-9 w-24 animate-pulse rounded bg-gray-200" />
             </div>
           ) : user ? (
-            <UserInfo />
+            <>
+              <NotificationBell />
+              <UserInfo />
+            </>
           ) : (
             <>
               <Link href="/auth/login" className="px-4 py-2 border border-brand-primary text-brand-primary font-semibold rounded hover:bg-brand-primary/10">Log in</Link>
