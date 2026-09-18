@@ -1,14 +1,16 @@
 name: EDULINK CI/CD (npm)
 
-# Mirrors e-edu's ci-cd.yaml: build → scp the build output to the shared
-# VPS → run under PM2. Reuses the same SERVER_IP/SERVER_USER/SSH_PRIVATE_KEY
-# secrets as the backend workflow.
+# Pull-based deploy: the runner does nothing but SSH in and tell the server
+# to fetch + reset to the pushed branch, then build and reload PM2 there.
+# Reuses the same SERVER_IP/SERVER_USER/SSH_PRIVATE_KEY secrets as the
+# backend workflow.
 #
-# Additional secrets this workflow needs (production values, distinct from
-# the ones in .env.local): GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
-# NEXTAUTH_SECRET, NEXTAUTH_URL, TELEGRAM_BOT_TOKEN, NEXT_PUBLIC_BACKEND_URL,
-# B2_KEY_ID, B2_APPLICATION_KEY, B2_BUCKET_NAME, NEXT_PUBLIC_S3_ENDPOINT,
-# NEXT_PUBLIC_B2_BUCKET_NAME.
+# One-time setup this depends on, on the server:
+#   - /home/projects/edulink is already `git clone`d from this repo
+#   - /home/projects/edulink/.env.production exists and is populated
+#     (NOT committed — .gitignore excludes .env*, so it must be placed
+#     there manually and kept up to date by hand)
+#   - /home/projects/edulink/ecosystem.config.js is present (committed)
 
 on:
   push:
@@ -16,114 +18,56 @@ on:
 
 jobs:
   deploy:
+    name: Deploy Frontend to VPS
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          # Next.js 15 / React 19 require Node 18.18+; use the 20 LTS line.
-          node-version: '20'
-
-      - name: 📦 Install dependencies
-        run: npm ci
-
-      - name: 🔧 Create production env file
-        run: |
-          cat > .env.production <<EOF
-          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
-          NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
-          NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
-          TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
-          NEXT_PUBLIC_BACKEND_URL=${{ secrets.NEXT_PUBLIC_BACKEND_URL }}
-          B2_KEY_ID=${{ secrets.B2_KEY_ID }}
-          B2_APPLICATION_KEY=${{ secrets.B2_APPLICATION_KEY }}
-          B2_BUCKET_NAME=${{ secrets.B2_BUCKET_NAME }}
-          NEXT_PUBLIC_S3_ENDPOINT=${{ secrets.NEXT_PUBLIC_S3_ENDPOINT }}
-          NEXT_PUBLIC_B2_BUCKET_NAME=${{ secrets.NEXT_PUBLIC_B2_BUCKET_NAME }}
-          EOF
-
-      - name: 🔨 Build project
-        run: |
-          echo "🔨 Building edulink..."
-          npm run build
-
-          if [ ! -f ".next/BUILD_ID" ]; then
-            echo "❌ Build failed: .next/BUILD_ID not found"
-            exit 1
-          fi
-
-          echo "✅ Build successful"
-
-      - name: 📦 Create deploy package
-        run: |
-          tar -czf deploy.tar.gz \
-            .next \
-            public \
-            package.json \
-            package-lock.json \
-            next.config.ts \
-            .env.production
-
-          ls -lh deploy.tar.gz
-
-      - name: 🚚 Upload to server
-        uses: appleboy/scp-action@master
+      - name: 🚀 Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: deploy.tar.gz
-          target: /tmp/
-
-      - name: 🚀 Deploy on server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: GITHUB_BRANCH
           script: |
             set -e
 
-            echo "🚀 Deploying edulink (npm)..."
+            echo "Deploying branch: $GITHUB_BRANCH"
 
             # NVM
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
-            PROJECT_DIR="/home/projects/edulink"
-            mkdir -p "$PROJECT_DIR"
-            cd "$PROJECT_DIR"
+            echo "Go to project folder"
+            cd /home/projects/edulink
 
-            # Backup (oxirgi 3 ta)
-            if [ -d ".next" ]; then
-              echo "📋 Creating backup..."
-              tar -czf "../edulink-backup-$(date +%Y%m%d-%H%M%S).tar.gz" \
-                .next public package.json .env.production node_modules 2>/dev/null || true
-
-              cd ..
-              ls -t edulink-backup-*.tar.gz 2>/dev/null | tail -n +4 | xargs rm -f || true
-              cd "$PROJECT_DIR"
+            echo "Check .env.production"
+            if [ ! -f .env.production ]; then
+              echo ".env.production not found on server"
+              exit 1
             fi
 
-            # Extract
-            echo "📂 Extracting files..."
-            tar -xzf /tmp/deploy.tar.gz
-            rm -f /tmp/deploy.tar.gz
+            echo "Fetch latest code"
+            git fetch origin "$GITHUB_BRANCH"
 
-            # Install production deps only
-            echo "📦 Installing production dependencies..."
-            npm ci --omit=dev
+            echo "Clean untracked files but keep .env.production"
+            git clean -fd -e .env.production
 
-            # PM2 restart (next start -p 3007; backend owns 3003)
-            echo "🔄 Restarting PM2..."
-            pm2 delete edulink 2>/dev/null || true
-            pm2 start npm --name edulink -- run start -- -p 3007
+            echo "Reset to latest $GITHUB_BRANCH"
+            git reset --hard "origin/$GITHUB_BRANCH"
+
+            echo "Install dependencies"
+            npm ci
+
+            echo "Build Next.js app"
+            npm run build
+
+            echo "Reload PM2"
+            pm2 reload ecosystem.config.js --update-env || pm2 start ecosystem.config.js --update-env
+
+            echo "Save PM2 state"
             pm2 save
 
-            echo "✅ Deployment finished"
-            pm2 list
+            echo "Deploy completed successfully"
+        env:
+          GITHUB_BRANCH: ${{ github.ref_name }}

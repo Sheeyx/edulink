@@ -1,52 +1,52 @@
 #!/usr/bin/env bash
-# Manual server-side deploy script — mirrors the "🚀 Deploy on server" step
+# Manual server-side deploy script — mirrors the "🚀 Deploy over SSH" step
 # in .github/workflows/deploy.yml, so it must be kept in sync with that file.
 #
-# Usage (run ON THE SERVER, as the deploy user):
-#   1. Build locally/in CI and produce deploy.tar.gz containing:
-#        .next  public  package.json  package-lock.json  next.config.ts  .env.production
-#   2. Upload it to the server:
-#        scp deploy.tar.gz user@server:/tmp/
-#   3. SSH in and run this script:
-#        ssh user@server 'bash /home/projects/edulink/deploy.sh'
-#      (or run it locally on the server once it's already there)
+# Usage (run directly ON THE SERVER, as the deploy user):
+#   GITHUB_BRANCH=master bash /home/projects/edulink/deploy.sh
+# or over SSH from your machine:
+#   ssh user@server 'GITHUB_BRANCH=master bash /home/projects/edulink/deploy.sh'
+#
+# Requires /home/projects/edulink to already be a git clone of this repo,
+# with .env.production and ecosystem.config.js present in that folder.
 set -e
 
-echo "🚀 Deploying edulink (npm)..."
+GITHUB_BRANCH="${GITHUB_BRANCH:-master}"
+
+echo "Deploying branch: $GITHUB_BRANCH"
 
 # NVM
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
-PROJECT_DIR="/home/projects/edulink"
-mkdir -p "$PROJECT_DIR"
-cd "$PROJECT_DIR"
+echo "Go to project folder"
+cd /home/projects/edulink
 
-# Backup (keep last 3)
-if [ -d ".next" ]; then
-  echo "📋 Creating backup..."
-  tar -czf "../edulink-backup-$(date +%Y%m%d-%H%M%S).tar.gz" \
-    .next public package.json .env.production node_modules 2>/dev/null || true
-
-  cd ..
-  ls -t edulink-backup-*.tar.gz 2>/dev/null | tail -n +4 | xargs rm -f || true
-  cd "$PROJECT_DIR"
+echo "Check .env.production"
+if [ ! -f .env.production ]; then
+  echo ".env.production not found on server"
+  exit 1
 fi
 
-# Extract
-echo "📂 Extracting files..."
-tar -xzf /tmp/deploy.tar.gz
-rm -f /tmp/deploy.tar.gz
+echo "Fetch latest code"
+git fetch origin "$GITHUB_BRANCH"
 
-# Install production deps only
-echo "📦 Installing production dependencies..."
-npm ci --omit=dev
+echo "Clean untracked files but keep .env.production"
+git clean -fd -e .env.production
 
-# PM2 restart (next start -p 3007; backend owns 3003)
-echo "🔄 Restarting PM2..."
-pm2 delete edulink 2>/dev/null || true
-pm2 start npm --name edulink -- run start -- -p 3007
+echo "Reset to latest $GITHUB_BRANCH"
+git reset --hard "origin/$GITHUB_BRANCH"
+
+echo "Install dependencies"
+npm ci
+
+echo "Build Next.js app"
+npm run build
+
+echo "Reload PM2"
+pm2 reload ecosystem.config.js --update-env || pm2 start ecosystem.config.js --update-env
+
+echo "Save PM2 state"
 pm2 save
 
-echo "✅ Deployment finished"
-pm2 list
+echo "Deploy completed successfully"
