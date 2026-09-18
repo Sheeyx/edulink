@@ -1,6 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { gqlFetchAuth } from "@/libs/graphql";
-import { GET_ALL_MEMBERS_BY_ADMIN } from "@/graphql/query/admin/getAllMembersByAdmin";
+import {
+  GET_ALL_MEMBERS_BY_ADMIN,
+  type AdminMembersResponse,
+  type UsersInquiryInput,
+} from "@/graphql/query/admin/getAllMembersByAdmin";
 import { useAuth } from "@/providers/auth-context";
 
 export function useAdminStudents({
@@ -28,11 +32,10 @@ export function useAdminStudents({
       }
 
       // ✅ ALWAYS send `search` (UISearch!)
-      const input: any = {
+      const input: UsersInquiryInput = {
         page,
         limit,
-        search: {
-        },
+        search: {},
       };
 
       // 🔍 Search by name/email (optional – adapt to your UISearch fields)
@@ -59,7 +62,7 @@ export function useAdminStudents({
       //   }
       // }
 
-      const data = await gqlFetchAuth(GET_ALL_MEMBERS_BY_ADMIN, { input });
+      const data = await gqlFetchAuth<AdminMembersResponse>(GET_ALL_MEMBERS_BY_ADMIN, { input });
 
       return data.getAllMembersByAdmin;
     },

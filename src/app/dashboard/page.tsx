@@ -1,6 +1,7 @@
 // src/app/admin/page.tsx
 "use client";
 
+import type { ReactNode } from "react";
 import { FiUsers, FiBook, FiUserCheck } from "react-icons/fi";
 
 export default function AdminDashboardPage() {
@@ -87,7 +88,19 @@ export default function AdminDashboardPage() {
 
 /* ------- COMPONENTS ------- */
 
-function KpiCard({ title, value, trend, icon, bg }: any) {
+function KpiCard({
+  title,
+  value,
+  trend,
+  icon,
+  bg,
+}: {
+  title: string;
+  value: string;
+  trend: string;
+  icon: ReactNode;
+  bg: string;
+}) {
   return (
     <div className={`bg-gradient-to-br ${bg} p-6 rounded-3xl shadow-sm`}>
       <div className="flex items-center justify-between">
@@ -103,7 +116,17 @@ function KpiCard({ title, value, trend, icon, bg }: any) {
   );
 }
 
-function UserRow({ name, role, email, status }: any) {
+function UserRow({
+  name,
+  role,
+  email,
+  status,
+}: {
+  name: string;
+  role: string;
+  email: string;
+  status: string;
+}) {
   const color =
     status === "Active"
       ? "bg-green-100 text-green-600"
@@ -120,7 +143,19 @@ function UserRow({ name, role, email, status }: any) {
   );
 }
 
-function CourseRow({ title, mentor, students, progress, color }: any) {
+function CourseRow({
+  title,
+  mentor,
+  students,
+  progress,
+  color,
+}: {
+  title: string;
+  mentor: string;
+  students: string;
+  progress: number;
+  color: string;
+}) {
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-2">

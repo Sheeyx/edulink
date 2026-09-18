@@ -24,7 +24,7 @@ export default function MainArea({ actions, panel, memberId, onClosePanel }: Pro
     <section className="space-y-6">
       {/* Hero header */}
       <div className="rounded-2xl bg-gradient-to-r from-brand-gradient-start to-brand-gradient-end text-white p-6 shadow-[0_8px_24px_rgba(251,133,0,0.16)]">
-        <h1 className="text-2xl font-black">Let's teach something great</h1>
+        <h1 className="text-2xl font-black">Let&apos;s teach something great</h1>
         <p className="text-white/80 mt-1">
           Manage your courses, assignments, and students in one place.
         </p>

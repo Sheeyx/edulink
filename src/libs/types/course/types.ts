@@ -28,7 +28,7 @@ export type CreateFormState = {
   status: CourseStatus;
   maxStudents: number
   price: string; // keep string because input returns string
-  courseStartDate:any
+  courseStartDate: Date | null
 };
 
 export type CreateCourseResp = {
@@ -139,7 +139,6 @@ export type SectionsByCourseResp = {
 
 
 export type CourseFromApi = {
-  createCourse: any;
   courseImage: string | null;
   _id: string;
   courseTitle: string;

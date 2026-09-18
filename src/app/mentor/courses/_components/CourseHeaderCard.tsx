@@ -2,6 +2,7 @@
 
 "use client";
 
+import Image from "next/image";
 import { CourseStatus } from "@/libs/enums/course.enums";
 import { CourseUI } from "@/libs/types/course/types";
 import { FiCalendar, FiPlus } from "react-icons/fi";
@@ -104,14 +105,16 @@ export default function CourseHeaderCard({
         </div>
 
         {/* Image */}
-        <div className="order-first h-40 w-full overflow-hidden rounded-2xl bg-gray-100 md:order-none md:h-44">
-          <img
+        <div className="relative order-first h-40 w-full overflow-hidden rounded-2xl bg-gray-100 md:order-none md:h-44">
+          <Image
             src={
               course.image ||
               "https://ui-avatars.com/api/?name=Course&background=FFF1DB&color=B45500&size=256"
             }
             alt={course.title}
-            className="h-full w-full object-cover"
+            fill
+            sizes="(max-width: 768px) 100vw, 40vw"
+            className="object-cover"
           />
         </div>
       </div>

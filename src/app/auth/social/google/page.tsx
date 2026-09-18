@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { gqlFetch } from "@/libs/graphql";
 import { useAuth } from "@/providers/auth-context";
@@ -91,8 +91,44 @@ function persistTokens(
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,30}$/;
 
-const googleSubFrom = (session: any): string | undefined =>
-  session?.user?.sub || (session?.user as any)?.id || undefined;
+type GoogleSessionUser = {
+  email?: string | null;
+  name?: string | null;
+  image?: string | null;
+  sub?: string;
+  id?: string;
+};
+
+type GoogleSocialMemberData = {
+  _id: string;
+  memberRole?: string | null;
+  memberStatus?: string | null;
+  memberAuth?: string | null;
+  memberEmail: string;
+  memberPhone?: string | null;
+  memberGoogleId?: string | null;
+  memberTelegramId?: string | null;
+  memberKakaoId?: string | null;
+  memberUsername?: string | null;
+  memberFullName?: string | null;
+  memberImage?: string | null;
+  memberBio?: string | null;
+  memberPoints?: number | null;
+  memberRank?: string | null;
+  memberLikes?: number | null;
+  memberCoursesCompleted?: number | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresIn: number;
+  refreshTokenExpiresIn: number;
+};
+
+const googleSubFrom = (session: ReturnType<typeof useSession>["data"]): string | undefined => {
+  const user = session?.user as GoogleSessionUser | undefined;
+  return user?.sub || user?.id || undefined;
+};
 
 /* ===== Pretty “Udemy-like” Loader ===== */
 function BrandLoader({ infoText = "Connecting your Google account…" }: { infoText?: string }) {
@@ -141,12 +177,12 @@ export default function GoogleSocialRouter() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { setUser } = useAuth();
-  const sp = useSearchParams();
-
-  const intent = (sp.get("intent") || "signup").toLowerCase() as "login" | "signup";
   const email = useMemo(() => session?.user?.email || "", [session]);
   const nameFromGoogle = useMemo(() => session?.user?.name || "", [session]);
-  const image = useMemo(() => (session?.user as any)?.image || "", [session]);
+  const image = useMemo(
+    () => (session?.user as GoogleSessionUser | undefined)?.image || "",
+    [session]
+  );
   const googleSub = useMemo(() => googleSubFrom(session), [session]);
 
   const [phase, setPhase] = useState<"checking" | "ask_details" | "submitting" | "done">("checking");
@@ -172,7 +208,7 @@ export default function GoogleSocialRouter() {
         const check = await gqlFetch<{
           checkSocialIdExists: {
             exists: boolean;
-            memberData?: any;
+            memberData?: GoogleSocialMemberData;
           };
         }>(CHECK_SOCIAL, {
           input: { memberAuth: "GOOGLE", memberGoogleId: googleSub },
@@ -204,12 +240,12 @@ export default function GoogleSocialRouter() {
           // ❌ Not found → ask for phone/password for signup
           setPhase("ask_details");
         }
-      } catch (e: any) {
-        setErr(e.message || "Error checking social user.");
+      } catch (e: unknown) {
+        setErr(e instanceof Error ? e.message : "Error checking social user.");
         setPhase("done");
       }
     })();
-  }, [status, googleSub]);
+  }, [status, googleSub, router, setUser]);
 
   /* ===== Step 2: Signup flow ===== */
   async function handleSignup(e: React.FormEvent) {
@@ -257,8 +293,8 @@ export default function GoogleSocialRouter() {
 
       router.replace(redirectByRole(u.memberRole));
       setPhase("done");
-    } catch (e: any) {
-      setErr(e.message || "Signup failed.");
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : "Signup failed.");
       setPhase("ask_details");
     }
   }

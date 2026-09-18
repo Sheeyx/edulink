@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { FaTelegramPlane, FaInstagram, FaYoutube, FaFacebookF } from "react-icons/fa";
 
 export default function Footer() {
@@ -18,7 +19,7 @@ export default function Footer() {
           <h3 className="text-lg font-semibold text-brand-primary mb-3">Quick Links</h3>
           <ul className="space-y-2 text-sm">
             <li>
-              <a href="/" className="hover:text-brand-primary transition duration-200">Home</a>
+              <Link href="/" className="hover:text-brand-primary transition duration-200">Home</Link>
             </li>
             <li>
               <a href="#courses" className="hover:text-brand-primary transition duration-200">Courses</a>

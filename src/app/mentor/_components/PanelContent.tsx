@@ -2,7 +2,6 @@
 "use client";
 
 import React from "react";
-import { useSearchParams } from "next/navigation";
 import type { PanelType } from "@/app/mentor/MentorDashboardClient";
 import UpdateMemberForm from "@/app/mentor/edit-profile/_components/UpdateMemberForm"; // your real form
 
@@ -13,8 +12,6 @@ type PanelContentProps = {
 };
 
 export default function PanelContent({ panel, memberId, onClose }: PanelContentProps) {
-  const sp = useSearchParams();
-
   if (panel === "profile") {
     return <UpdateMemberForm memberId={memberId} onDone={onClose} />;
   }

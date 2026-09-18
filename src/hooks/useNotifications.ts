@@ -16,7 +16,7 @@ export type AppNotification = {
   type: string;
   title: string;
   body: string;
-  data?: Record<string, any> | null;
+  data?: Record<string, unknown> | null;
   isRead: boolean;
   createdAt: string;
 };

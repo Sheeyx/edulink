@@ -24,6 +24,22 @@ mutation Signup($input: MemberInput!) {
 
 const PHONE_REGEX = /^[+0-9()\-\s]{7,20}$/;
 
+type MemberAuthProvider = "SYSTEM" | "GOOGLE" | "KAKAO" | "TELEGRAM";
+
+type SignupResp = {
+  signup: {
+    _id: string;
+    memberRole?: string | null;
+    memberEmail: string;
+    memberFullName?: string | null;
+    memberImage?: string | null;
+    accessToken: string;
+    refreshToken: string;
+    accessTokenExpiresIn: number;
+    refreshTokenExpiresIn: number;
+  };
+};
+
 function redirectByRole(role?: string | null) {
   const r = (role || "").toUpperCase();
   if (r === "MENTOR") return "/mentor";
@@ -58,14 +74,14 @@ export default function OnboardingPage() {
 
     try {
       setSaving(true);
-      const res = await gqlFetch<{ signup: any }>(SIGNUP, {
+      const res = await gqlFetch<SignupResp>(SIGNUP, {
         input: {
           memberEmail: email,
           memberPassword: "G" + Math.random().toString(36).slice(2, 7) + "9XyZ",
           memberFullName: fullName.trim(),
           memberPhone: phone.trim(),
           memberRole: "STUDENT",
-          memberAuth: provider as any, // "GOOGLE"
+          memberAuth: provider as MemberAuthProvider, // "GOOGLE"
           memberGoogleId: sid,
           ...(image ? { memberImage: image } : {}),
         },
@@ -92,8 +108,8 @@ export default function OnboardingPage() {
       localStorage.setItem("currentUser", JSON.stringify(u));
       setUser(u);
       router.replace(redirectByRole(u.role));
-    } catch (e: any) {
-      setErr(e.message || "Could not complete onboarding.");
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : "Could not complete onboarding.");
     } finally {
       setSaving(false);
     }

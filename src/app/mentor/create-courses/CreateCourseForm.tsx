@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { FiCalendar } from "react-icons/fi";
 
@@ -9,13 +10,11 @@ import { gqlFetchAuth } from "@/libs/graphql";
 import { CREATE_COURSE } from "@/graphql/mutation/course/course";
 import { uploadFilesToB2 } from "@/services/b2Upload";
 import { getAccessToken } from "@/providers/auth-context";
-import { COURSE_LEVEL, COURSE_STATUS, LANGUAGE_OPTIONS, CATEGORY_OPTIONS, CourseLevel, CourseStatus } from "@/libs/enums/course.enums";
+import { COURSE_LEVEL, LANGUAGE_OPTIONS, CATEGORY_OPTIONS, CourseLevel, CourseStatus } from "@/libs/enums/course.enums";
 import { CreateCourseResp, CreateFormState } from "@/libs/types/course/types";
 
 
 const LEVEL_OPTIONS = Object.values(COURSE_LEVEL);
-const STATUS_OPTIONS = Object.values(COURSE_STATUS);
-const LANG_OPTIONS = Object.values(LANGUAGE_OPTIONS);
 const CATEG_OPTIONS = Object.values(CATEGORY_OPTIONS);
 
 const INITIAL_FORM: CreateFormState = {
@@ -237,10 +236,12 @@ export default function CreateCourseClient() {
               <div className="flex items-center gap-4">
                 <div className="relative h-20 w-20 overflow-hidden rounded-xl border border-dashed border-slate-300 bg-slate-50">
                   {imagePreview ? (
-                    <img
+                    <Image
                       src={imagePreview}
                       alt="Course thumbnail preview"
-                      className="h-full w-full object-cover"
+                      fill
+                      unoptimized
+                      className="object-cover"
                     />
                   ) : (
                     <div className="flex h-full w-full flex-col items-center justify-center text-[10px] text-slate-400">

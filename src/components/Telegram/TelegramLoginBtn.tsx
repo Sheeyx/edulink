@@ -5,9 +5,9 @@ import Script from "next/script";
 
 export default function TelegramLoginButton() {
   useEffect(() => {
-    // @ts-ignore
+    // @ts-expect-error - TelegramLoginWidget is injected globally by the Telegram widget script
     window.TelegramLoginWidget = {
-      dataOnauth: (user: any) => {
+      dataOnauth: (user: Record<string, unknown>) => {
         fetch("/api/auth/telegram-login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -21,7 +21,7 @@ export default function TelegramLoginButton() {
 
   return (
     <>
-      <Script src="https://telegram.org/js/telegram-widget.js?7" strategy="beforeInteractive" />
+      <Script src="https://telegram.org/js/telegram-widget.js?7" strategy="afterInteractive" />
       <div
         className="my-4"
         dangerouslySetInnerHTML={{

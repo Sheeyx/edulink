@@ -75,7 +75,6 @@ export default function SectionsBlock({
   onReorderLessons,
   onCreateAssignmentForSection,
   onCreateAssignmentForLesson,
-  onCreateGeneralAssignment,
   onViewSubmissions,
   onPreviewLesson,
 }: Props) {
@@ -180,8 +179,6 @@ function SectionRow({
   onEditLesson,
   onDeleteLesson,
   onReorderLessons,
-  onCreateAssignmentForSection,
-  onCreateAssignmentForLesson,
   onViewSubmissions,
   onPreviewLesson,
   assignments,
@@ -235,9 +232,9 @@ function SectionRow({
           l.id === lessonId ? { ...l, isLocked: newLocked } : l
         )
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to toggle lesson lock", err);
-      alert(err?.message || "Failed to update lesson lock. Please try again.");
+      alert(err instanceof Error ? err.message : "Failed to update lesson lock. Please try again.");
     } finally {
       setTogglingLockId(null);
     }
@@ -261,7 +258,7 @@ function SectionRow({
     e.dataTransfer.effectAllowed = "move";
   };
 
-  const handleDragOver = (id: string) => (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
   };
@@ -301,9 +298,9 @@ function SectionRow({
       });
 
       setAssignmentToDelete(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to delete assignment", err);
-      setDeleteError(err?.message || "Failed to delete assignment");
+      setDeleteError(err instanceof Error ? err.message : "Failed to delete assignment");
     } finally {
       setDeleteLoading(false);
       }
@@ -407,7 +404,7 @@ function SectionRow({
             <div>
               {lessons.length === 0 ? (
                 <p className="text-xs italic text-slate-500">
-                  No lessons yet. Use the "Lesson" button to add one.
+                  No lessons yet. Use the &quot;Lesson&quot; button to add one.
                 </p>
               ) : (
                 <ul className="space-y-2">
@@ -416,7 +413,7 @@ function SectionRow({
                       key={lesson.id}
                       draggable
                       onDragStart={handleDragStart(lesson.id)}
-                      onDragOver={handleDragOver(lesson.id)}
+                      onDragOver={handleDragOver}
                       onDrop={handleDrop(lesson.id)}
                       className={`flex items-center justify-between rounded-xl bg-white px-3 py-2 text-xs border border-gray-100 ${
                         draggedId === lesson.id ? "opacity-60" : ""

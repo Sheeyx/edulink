@@ -128,8 +128,8 @@ export default function LoginPage() {
       const byRole = resolveRedirect(data.login.memberRole);
       const destination = sanitizeCallbackUrl(byRole);
       router.push(destination);
-    } catch (e: any) {
-      setErr(e.message || "Login failed");
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : "Login failed");
     } finally {
       setLoading(false);
     }
@@ -230,7 +230,7 @@ export default function LoginPage() {
               </div>
 
               <p className="mt-8 text-center text-sm text-gray-600">
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <Link href="/auth/register" className="text-brand-primary hover:underline">Sign up</Link>
               </p>
             </form>

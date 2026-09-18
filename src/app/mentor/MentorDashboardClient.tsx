@@ -3,7 +3,7 @@
 
 import React, { useMemo, useState, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { buildActions, buildTiles } from "./_components/actions-data";
+import { buildActions } from "./_components/actions-data";
 import MainArea from "./_components/MainArea";
 
 export type PanelType =
@@ -28,9 +28,7 @@ type Props = MentorDashboardProps & {
 };
 
 export default function MentorDashboardClient({
-  name,
   memberId,
-  avatarUrl,
   initialPanel = null,
 }: Props) {
   const router = useRouter();
@@ -52,21 +50,6 @@ export default function MentorDashboardClient({
   }, [pathname]);
 
   // State → URL helpers
-  const openProfile = () => {
-    setPanel("profile");
-    router.push("/mentor/edit-profile");
-  };
-
-  const openCourses = () => {
-    setPanel("courses");
-    router.push("/mentor"); // your /mentor page shows courses when panel=courses
-  };
-
-  const openCreateCourse = () => {
-    setPanel("create-course");
-    router.push("/mentor?mode=create");
-  };
-
   const closePanel = () => {
     setPanel(null);
     router.push("/mentor");
@@ -78,17 +61,6 @@ export default function MentorDashboardClient({
       buildActions((p: PanelType) => {
         if (p === "profile") router.push("/mentor/edit-profile");
         else if (p === "courses") router.push("/mentor");
-        setPanel(p);
-      }),
-    [router]
-  );
-
-  const tiles = useMemo(
-    () =>
-      buildTiles((p: PanelType) => {
-        if (p === "profile") router.push("/mentor/edit-profile");
-        else if (p === "create-course") router.push("/mentor?mode=create");
-        else router.push("/mentor");
         setPanel(p);
       }),
     [router]

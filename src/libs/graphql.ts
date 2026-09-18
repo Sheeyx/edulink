@@ -1,5 +1,12 @@
 // src/libs/graphql.ts
-type GQLErrorItem = { message?: string; extensions?: any };
+type GQLErrorItem = {
+  message?: string;
+  extensions?: {
+    originalError?: { message?: string };
+    exception?: { message?: string };
+    message?: string;
+  };
+};
 type GraphQLResponse<T> = { data?: T; errors?: GQLErrorItem[] };
 
 function normalizeBackend(url?: string): string {
@@ -20,7 +27,7 @@ function pickGraphQLError(errors?: GQLErrorItem[]): string {
 
 async function doFetch<T>(
   query: string,
-  variables?: Record<string, any>,
+  variables?: Record<string, unknown>,
   opts?: {
     token?: string | null;
     withCredentials?: boolean;
@@ -69,9 +76,9 @@ async function doFetch<T>(
 }
 
 /** Public: unauthenticated GraphQL call */
-export async function gqlFetch<T = any>(
+export async function gqlFetch<T = unknown>(
   query: string,
-  variables?: Record<string, any>,
+  variables?: Record<string, unknown>,
   options?: { withCredentials?: boolean; signal?: AbortSignal }
 ): Promise<T> {
   return doFetch<T>(query, variables, {
@@ -84,9 +91,9 @@ export async function gqlFetch<T = any>(
  * Public: authenticated GraphQL call.
  * - If `token` is omitted and we’re on the client, it tries `localStorage.getItem("accessToken")`.
  */
-export async function gqlFetchAuth<T = any>(
+export async function gqlFetchAuth<T = unknown>(
   query: string,
-  variables?: Record<string, any>,
+  variables?: Record<string, unknown>,
   token?: string | null,
   options?: { withCredentials?: boolean; signal?: AbortSignal }
 ): Promise<T> {

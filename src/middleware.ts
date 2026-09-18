@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
 // No NextAuth `withAuth` here. Let your pages/components handle auth.
-export function middleware(_req: NextRequest) {
+export function middleware() {
   return NextResponse.next();
 }
 

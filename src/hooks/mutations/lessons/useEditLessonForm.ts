@@ -84,9 +84,9 @@ export function useEditLessonForm({
         });
 
         onSuccess?.();
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error(err);
-        setError(err?.message || "Failed to save lesson.");
+        setError(err instanceof Error ? err.message : "Failed to save lesson.");
       } finally {
         setLoading(false);
       }

@@ -36,21 +36,6 @@ type UpdateCourseByAdminResp = {
 
 const PAGE_LIMIT = 10;
 
-const LANGUAGE_OPTIONS: Array<LanguageType | "ALL"> = [
-  "ALL",
-  "KOREAN",
-  "ENGLISH",
-  "RUSSIAN",
-  "UZBEK",
-];
-
-const STATUS_OPTIONS: Array<CourseStatus | "ALL"> = [
-  "ALL",
-  "PUBLISHED",
-  "DRAFT",
-  "ARCHIVED",
-];
-
 /* ===== Helpers ===== */
 
 function formatDate(value: string): string {

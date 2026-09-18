@@ -110,15 +110,12 @@ export function useCreateAssignment({
           { input }
         );
 
-        const errors = (res as any).errors as GQLErrorItem[] | undefined;
+        const errors = res.errors;
         if (errors?.length) {
           throw new Error(pickGraphQLError(errors));
         }
 
-        // Support both shapes: res.data.createAssignment and res.createAssignment
-        const dataPart = (res as any).data as CreateAssignmentResponse | undefined;
-        const assignment =
-          dataPart?.createAssignment || (res as any).createAssignment;
+        const assignment = res.createAssignment;
 
         if (!assignment) {
           throw new Error("Assignment was not created. Please try again.");

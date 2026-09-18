@@ -1,6 +1,4 @@
 // app/mentor/courses/[id]/components/Lessons/createLesson.ts
-import { gqlFetchAuth } from "@/libs/graphql";
-
 export const CREATE_LESSON = `
   mutation CreateLesson($input: LessonInput!) {
     createLesson(input: $input) {
@@ -33,19 +31,4 @@ export type LessonFromApi = {
   createdAt: string;
   updatedAt: string;
 };
-
-type CreateLessonVars = {
-  input: {
-    sectionId: string;
-    lessonTitle: string;
-    lessonContentType: LessonContentType;
-    lessonDuration: number;
-    lessonUrl?: string;
-  };
-};
-
-type CreateLessonResp = {
-  createLesson: LessonFromApi;
-};
-
 

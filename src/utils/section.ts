@@ -17,17 +17,14 @@ export type USection = {
 
 export function mapSectionsForUI(sections: Section[] = []): USection[] {
   return sections.map((s, i) => {
-    const moduleOrder = (s as any).moduleOrder ?? (s as any).order ?? i + 1;
-    const moduleTitle =
-      (s as any).moduleTitle ??
-      (s as any).title ??
-      `Section ${moduleOrder}`;
+    const moduleOrder = s.moduleOrder ?? i + 1;
+    const moduleTitle = s.moduleTitle ?? `Section ${moduleOrder}`;
 
-    const lessons = ((s as any).lessons ?? []).map((l: any, j: number) => ({
+    const lessons = (s.lessons ?? []).map((l, j) => ({
       _id: l._id,
-      title: l.lessonTitle ?? l.title ?? `Lesson ${j + 1}`,
-      duration: (l.lessonDuration ?? l.duration ?? "") as string,
-      kind: (l.lessonContentType ?? l.kind ?? "video") as string,
+      title: l.lessonTitle ?? `Lesson ${j + 1}`,
+      duration: l.lessonDuration ?? "",
+      kind: l.lessonContentType ?? "video",
     }));
 
     return {

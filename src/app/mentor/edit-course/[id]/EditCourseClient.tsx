@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { FiCalendar } from "react-icons/fi";
@@ -167,11 +168,8 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
   /* ───────── Handlers ───────── */
 
   const handleInputChange = React.useCallback(
-    (
-      field: keyof EditFormState,
-      value: string | number | CourseLevel | CourseStatus | Date | null
-    ) => {
-      setForm((prev) => ({ ...prev, [field]: value as any }));
+    <K extends keyof EditFormState>(field: K, value: EditFormState[K]) => {
+      setForm((prev) => ({ ...prev, [field]: value }));
     },
     []
   );
@@ -275,11 +273,14 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
 
       setSuccessMsg("Course updated successfully.");
       router.push(`/mentor/courses/${courseId}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errObj = err as {
+        response?: { errors?: Array<{ message?: string }> };
+        errors?: Array<{ message?: string }>;
+      };
       const msg =
-        err?.response?.errors?.[0]?.message ||
-        err?.errors?.[0]?.message ||
-        err?.message ||
+        errObj?.response?.errors?.[0]?.message ||
+        errObj?.errors?.[0]?.message ||
         getErrorMessage(err);
 
       setSaveErr(msg);
@@ -330,7 +331,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
           <h1 className="text-2xl md:text-3xl font-black text-gray-900">Edit Course</h1>
         </div>
         <div className="mt-6 max-w-3xl rounded-2xl border border-red-200 bg-red-50 p-5">
-          <div className="font-extrabold text-red-900">Couldn't load this course</div>
+          <div className="font-extrabold text-red-900">Couldn&apos;t load this course</div>
           <p className="mt-1 text-sm text-red-800">{loadErr}</p>
         </div>
       </div>
@@ -367,7 +368,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
               <div className="flex items-center gap-4">
                 <div className="relative h-20 w-20 overflow-hidden rounded-xl border border-dashed border-slate-300 bg-slate-50">
                   {imagePreview ? (
-                    <img src={imagePreview} alt="Course thumbnail preview" className="h-full w-full object-cover" />
+                    <Image src={imagePreview} alt="Course thumbnail preview" fill unoptimized className="object-cover" />
                   ) : (
                     <div className="flex h-full w-full flex-col items-center justify-center text-[10px] text-slate-400">
                       <span>Thumbnail</span>
@@ -444,7 +445,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
               <select
                 className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"
                 value={form.languageType}
-                onChange={(e) => handleInputChange("languageType", e.target.value as any)}
+                onChange={(e) => handleInputChange("languageType", e.target.value)}
                 required
               >
                 <option value="" disabled>

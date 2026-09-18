@@ -1,13 +1,16 @@
 import React from "react";
+import Image from "next/image";
 
 export default function HeroBanner() {
   return (
     <div className="flex flex-col md:flex-row items-center justify-between p-6 max-w-6xl mx-auto">
       {/* Left Side: Student in Online Class */}
       <div className="relative bg-white rounded-xl overflow-hidden shadow-lg max-w-md w-full">
-        <img
-          src="/images/home/lesson-banner.png" // ← Replace with your generated image path
+        <Image
+          src="/images/home/lesson-banner.png"
           alt="Student attending online class"
+          width={768}
+          height={512}
           className="w-full h-auto object-cover"
         />
         <div className="absolute bottom-4 left-4 flex gap-3">

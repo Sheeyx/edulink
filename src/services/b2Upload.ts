@@ -74,7 +74,7 @@ export async function uploadFilesToB2(
     throw new Error(`Upload request failed: ${res.status} ${res.statusText}`);  // ✅ Fixed: template literal syntax
   }
 
-  let json: any;
+  let json: { data?: { filesUploader?: string[] }; errors?: Array<{ message?: string }> };
   try {
     json = JSON.parse(text);
   } catch (err) {

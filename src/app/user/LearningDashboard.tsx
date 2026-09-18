@@ -12,9 +12,7 @@ import ActionRow from "./_components/ActionRow";
 import DetailPanel from "./profile/DetailPanel";
 
 export default function LearningDashboardClient({
-  role,
   name,
-  avatarUrl,
 }: LearningDashboardProps) {
   const router = useRouter();
   const sp = useSearchParams();

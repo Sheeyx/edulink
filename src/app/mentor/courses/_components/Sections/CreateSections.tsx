@@ -80,8 +80,8 @@ export default function CreateSectionModal({
       );
       onCreated();
       onClose();
-    } catch (e: any) {
-      setErr(e.message || "Failed to create section.");
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : "Failed to create section.");
     } finally {
       setSubmitting(false);
     }

@@ -28,7 +28,6 @@ type Props = {
 export default function EditSectionModal({
   open,
   onClose,
-  courseId,
   sectionId,
   initialTitle,
   initialOrder,
@@ -67,8 +66,8 @@ export default function EditSectionModal({
       setLoading(true);
 
       // Build minimal input based on what changed
-      const input: any = {
-        _id: sectionId,
+      const input: { _id: string; moduleTitle: string; moduleOrder?: number } = {
+        _id: sectionId!, // guarded by the `!open || !sectionId` early return above
         moduleTitle: title.trim(),
       };
 
@@ -86,8 +85,8 @@ export default function EditSectionModal({
 
       onUpdated();
       onClose();
-    } catch (e: any) {
-      setErr(e.message || "Failed to update section.");
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : "Failed to update section.");
     } finally {
       setLoading(false);
     }

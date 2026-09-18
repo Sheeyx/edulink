@@ -5,7 +5,7 @@ import { getCourseById } from "@/graphql/api/course";
 import { getSectionsByCourse } from "@/graphql/api/section";
 
 import { mapSections as mapInlineSections } from "@/utils/courses";
-import { mapSectionsForUI } from "@/utils/section";
+import { mapSectionsForUI, type USection } from "@/utils/section";
 
 import CourseDetailClient from "./_components/CourseDetailClient";
 
@@ -27,7 +27,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
   const course = await getCourseById(id);
   if (!course) return notFound();
 
-  let sectionsUI: unknown[] = [];
+  let sectionsUI: USection[] = [];
 
   try {
     const { list } = await getSectionsByCourse({

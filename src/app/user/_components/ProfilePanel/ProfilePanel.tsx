@@ -5,7 +5,7 @@ import { Loader2, Eye, EyeOff } from "lucide-react";
 
 import { gqlFetchAuth } from "@/libs/graphql";
 import { uploadFilesToB2 } from "@/services/b2Upload";
-import { getAccessToken, useAuth } from "@/providers/auth-context";
+import { getAccessToken, useAuth, type MemberRole } from "@/providers/auth-context";
 import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 
 import { FALLBACK_AVATAR } from "./constants";
@@ -42,23 +42,13 @@ export default function ProfilePanel() {
     };
   }, []);
 
-  if (!user) {
-    return (
-      <p className="text-[18px] md:text-[22px] leading-snug text-gray-900">
-        Please login to edit your profile.
-      </p>
-    );
-  }
-
-  const initialAvatarUrl = buildDownloadUrl(
-    (user as any).memberImage ?? (user as any).image ?? ""
-  );
+  const initialAvatarUrl = buildDownloadUrl(user?.memberImage ?? user?.image ?? "");
 
   const [fullName, setFullName] = React.useState<string>(
-    (user as any).memberFullName ?? (user as any).name ?? ""
+    user?.memberFullName ?? user?.name ?? ""
   );
-  const [phone, setPhone] = React.useState<string>((user as any).memberPhone ?? "");
-  const [bio, setBio] = React.useState<string>((user as any).memberBio ?? "");
+  const [phone, setPhone] = React.useState<string>(user?.memberPhone ?? "");
+  const [bio, setBio] = React.useState<string>(user?.memberBio ?? "");
 
   const [password, setPassword] = React.useState<string>("");
   const [showPw, setShowPw] = React.useState(false);
@@ -86,15 +76,12 @@ export default function ProfilePanel() {
   };
 
   async function onSave() {
-    if (disabled) return;
+    if (!user || disabled) return;
 
     setSaving(true);
 
     try {
-      let imageKey: string | null =
-        ((user as any).memberImage as string | null) ??
-        ((user as any).image as string | null) ??
-        null;
+      let imageKey: string | null = user.memberImage ?? user.image ?? null;
 
       if (avatarFile) {
         const token = getAccessToken();
@@ -104,8 +91,15 @@ export default function ProfilePanel() {
         imageKey = uploaded[0];
       }
 
-      const input: Record<string, any> = {
-        _id: (user as any)._id ?? (user as any).id,
+      const input: {
+        _id: string;
+        memberFullName: string;
+        memberPhone: string;
+        memberBio: string;
+        memberImage: string | null;
+        memberPassword?: string;
+      } = {
+        _id: user._id ?? user.id,
         memberFullName: fullName.trim(),
         memberPhone: phone.trim(),
         memberBio: bio.trim(),
@@ -125,11 +119,11 @@ export default function ProfilePanel() {
 
       // Keep your current AuthUser shape (basic)
       setUser({
-        id: (user as any).id ?? updated._id,
-        email: updated.memberEmail ?? (user as any).email ?? "",
-        name: updated.memberFullName ?? (user as any).name ?? null,
-        role: ((updated.memberRole as any) ?? (user as any).role) ?? null,
-        image: updated.memberImage ?? (user as any).image ?? null,
+        id: user.id ?? updated._id,
+        email: updated.memberEmail ?? user.email ?? "",
+        name: updated.memberFullName ?? user.name ?? null,
+        role: (updated.memberRole as MemberRole | null | undefined) ?? user.role ?? null,
+        image: updated.memberImage ?? user.image ?? null,
       });
 
       // update avatar preview to server key
@@ -140,11 +134,19 @@ export default function ProfilePanel() {
       setPassword("");
 
       showToast("success", "Profile updated", "Your changes were saved successfully.");
-    } catch (e: any) {
+    } catch (e: unknown) {
       showToast("error", "Update failed", pickGraphQLError(e));
     } finally {
       setSaving(false);
     }
+  }
+
+  if (!user) {
+    return (
+      <p className="text-[18px] md:text-[22px] leading-snug text-gray-900">
+        Please login to edit your profile.
+      </p>
+    );
   }
 
   return (

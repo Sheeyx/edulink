@@ -80,10 +80,10 @@ export default function StudentsPage() {
       setSuccessMsg("Member updated successfully ✅");
       // hide message after 2 seconds
       setTimeout(() => setSuccessMsg(null), 2000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("[updateMemberByAdmin] error:", err);
       if (typeof window !== "undefined") {
-        alert(err?.message || "Failed to update member.");
+        alert(err instanceof Error ? err.message : "Failed to update member.");
       }
     } finally {
       setUpdatingId(null);
@@ -169,7 +169,7 @@ export default function StudentsPage() {
               </tr>
             </thead>
             <tbody>
-              {list.map((s: any) => (
+              {list.map((s) => (
                 <tr key={s._id} className="border-t border-gray-100">
                   <td className="py-4 px-6 font-medium text-gray-900">
                     {s.memberFullName}

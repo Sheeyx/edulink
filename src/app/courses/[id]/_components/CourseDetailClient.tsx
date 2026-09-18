@@ -7,7 +7,7 @@ import CourseHero from "./CourseHero";
 import CoursePurchaseCard from "./CoursePurchaseCard";
 import CourseTabs from "./CourseTabs";
 
-import CourseContentAccordion from "./CourseContentAccordion";
+import CourseContentAccordion, { type Section } from "./CourseContentAccordion";
 
 import type { CourseDetail, TabKey } from "./types";
 import { normalizeImageSrc } from "./utils/images";
@@ -17,7 +17,7 @@ export default function CourseDetailClient({
   sections,
 }: {
   course: CourseDetail;
-  sections: any[];
+  sections: Section[];
 }) {
   const [activeTab, setActiveTab] = React.useState<TabKey>("learn");
 

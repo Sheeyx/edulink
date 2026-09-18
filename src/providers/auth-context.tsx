@@ -144,7 +144,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Persisting setter (supports function updater)
   const setUser = (action: SetUserAction) => {
     _setUser((prev) => {
-      const next = typeof action === "function" ? (action as any)(prev) : action;
+      const next = typeof action === "function" ? action(prev) : action;
 
       try {
         if (next) localStorage.setItem("currentUser", JSON.stringify(next));

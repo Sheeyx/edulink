@@ -166,8 +166,8 @@ export default function RegisterPage() {
       setUser(currentUser);
 
       router.push(resolveRedirect(res.memberRole));
-    } catch (e: any) {
-      setErr(e.message || "Sign up failed");
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : "Sign up failed");
     } finally {
       setLoading(false);
     }
@@ -279,7 +279,7 @@ export default function RegisterPage() {
                   </button>
                 </div>
                 {form.confirm && form.password !== form.confirm && (
-                  <p className="mt-1 text-sm text-red-600">Passwords don't match.</p>
+                  <p className="mt-1 text-sm text-red-600">Passwords don&apos;t match.</p>
                 )}
               </label>
 

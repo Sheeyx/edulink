@@ -63,12 +63,10 @@ export default function MentorCourseCard({
   courseDesc,
   courseImage,
   courseLevel,
-  languageType,
   coursePrice,
   courseStatus,
   courseEnrolledMembers = 0,
   courseTotalModules = 0,
-  courseTotalLessons = 0,
   courseRating = 0,
   memberData,
 }: MentorCourseCardProps) {

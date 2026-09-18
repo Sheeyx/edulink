@@ -101,9 +101,9 @@ export function useCourseDetails(courseId: string) {
       
 
       setCourse(mapped);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("[useCourseDetails] error:", err);
-      setError(err?.message || "Failed to fetch course.");
+      setError(err instanceof Error ? err.message : "Failed to fetch course.");
       setCourse(null);
     } finally {
       setLoading(false);

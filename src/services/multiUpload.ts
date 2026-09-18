@@ -105,7 +105,7 @@ export function uploadFiles({
         return;
       }
 
-      let json: any;
+      let json: { data?: { filesUploader?: string[] }; errors?: Array<{ message?: string }> };
       try {
         json = JSON.parse(text);
       } catch (err) {
@@ -124,7 +124,7 @@ export function uploadFiles({
       try {
         const urls: string[] = json.data?.filesUploader ?? [];
         resolve(urls);
-      } catch (err) {
+      } catch {
         reject(new Error("Unexpected response shape from filesUploader"));
       }
     };

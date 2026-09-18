@@ -32,17 +32,3 @@ export const SIGN_UP = gql`
 		}
 	}
 `;
-
-// CHECK_SOCIAL_USER
-
-const CHECK_SOCIAL_USER = gql`
-  query CheckSocial($input: CheckSocialUserInput!) {
-    checkSocialIdExists(input: $input) {
-      exists
-      member {
-        id
-        memberEmail
-      }
-    }
-  }
-`;

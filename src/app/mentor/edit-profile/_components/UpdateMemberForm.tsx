@@ -9,6 +9,15 @@ import { gqlFetchAuth } from "@/libs/graphql";
 import { useUpdateMember } from "@/hooks/mutations/useUpdateMember";
 import type { MemberUpdateInput } from "@/libs/types/member/types";
 
+type MemberBasic = {
+  _id: string;
+  memberFullName?: string | null;
+  memberPhone?: string | null;
+  memberBio?: string | null;
+  memberImage?: string | null;
+  memberEmail?: string | null;
+};
+
 type Props = {
   memberId: string;
   initial?: Partial<
@@ -49,7 +58,7 @@ export default function UpdateMemberForm({ memberId, initial, onDone }: Props) {
     queryKey: ["member", memberId],
     enabled: !!memberId && shouldFetch && !!accessToken,
     queryFn: async () => {
-      const res = await gqlFetchAuth<{ getMember: any }>(
+      const res = await gqlFetchAuth<{ getMember: MemberBasic }>(
         GET_MEMBER,
         { id: memberId },
         accessToken,
@@ -60,7 +69,7 @@ export default function UpdateMemberForm({ memberId, initial, onDone }: Props) {
   });
 
   const oldData = React.useMemo(() => {
-    const fetched = member || {};
+    const fetched: Partial<MemberBasic> = member || {};
     return {
       memberFullName: initial?.memberFullName ?? fetched.memberFullName ?? "",
       memberPhone: initial?.memberPhone ?? fetched.memberPhone ?? "",
@@ -91,10 +100,9 @@ export default function UpdateMemberForm({ memberId, initial, onDone }: Props) {
     isPending,
     error: updateError,
   } = useUpdateMember({
-    onSuccess: async (payload: any) => {
+    onSuccess: async (payload) => {
       const updated =
-        payload?.updateMember ??
-        payload?.member ?? {
+        payload?.updateMember ?? {
           _id: memberId,
           memberFullName: form.memberFullName,
           memberImage: form.memberImage,

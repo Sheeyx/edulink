@@ -14,6 +14,22 @@ export type CreateLessonValues = {
   lessonUrl?: string;
 };
 
+type CreateLessonPayload = {
+  _id: string;
+  sectionId: string;
+  lessonTitle: string;
+  lessonContentType: string;
+  lessonDuration?: number | null;
+  lessonUrl?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+};
+
+type CreateLessonResp = {
+  createLesson?: CreateLessonPayload;
+  data?: { createLesson?: CreateLessonPayload };
+};
+
 export function useCreateLesson() {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -57,7 +73,7 @@ export function useCreateLesson() {
           lessonUrl: finalLessonUrl,
         };
 
-        const res = await gqlFetchAuth(CREATE_LESSON_MUTATION, { input });
+        const res = await gqlFetchAuth<CreateLessonResp>(CREATE_LESSON_MUTATION, { input });
 
         return res.createLesson || res.data?.createLesson;
       } catch (err) {

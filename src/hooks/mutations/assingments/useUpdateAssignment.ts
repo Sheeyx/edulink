@@ -68,7 +68,13 @@ export function useUpdateAssignment({ courseId }: UseUpdateAssignmentArgs) {
         const finalAttachments = [...existingAttachments, ...uploadedUrls];
 
         // 3) build input
-        const input: any = { _id: assignmentId };
+        const input: {
+          _id: string;
+          title?: string;
+          description?: string;
+          dueDate?: string;
+          attachments?: string[];
+        } = { _id: assignmentId };
 
         if (title?.trim()) input.title = title.trim();
         if (description?.trim()) input.description = description.trim();
@@ -84,7 +90,7 @@ export function useUpdateAssignment({ courseId }: UseUpdateAssignmentArgs) {
           { input }
         );
 
-        const assignment = (res as any).data?.updateAssignment ?? res.updateAssignment;
+        const assignment = res.updateAssignment;
 
         // 5) invalidate cache
         await queryClient.invalidateQueries({

@@ -9,8 +9,18 @@ import { gqlFetchAuth } from "@/libs/graphql";
 import { useUpdateMember } from "@/hooks/mutations/useUpdateMember";
 import type { MemberUpdateInput } from "@/libs/types/member/types";
 import { uploadFilesToB2 } from "@/services/b2Upload";
+import Image from "next/image";
 import { Camera, Loader2 } from "lucide-react";
 import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
+
+type MemberBasic = {
+  _id: string;
+  memberFullName?: string | null;
+  memberPhone?: string | null;
+  memberBio?: string | null;
+  memberImage?: string | null;
+  memberEmail?: string | null;
+};
 
 const GET_MEMBER = `
   query GetMember($id: String!) {
@@ -44,7 +54,7 @@ export default function EditProfileClient() {
     queryKey: ["member", memberId],
     enabled: !!memberId && !!accessToken,
     queryFn: async () => {
-      const res = await gqlFetchAuth<{ getMember: any }>(
+      const res = await gqlFetchAuth<{ getMember: MemberBasic }>(
         GET_MEMBER,
         { id: memberId },
         accessToken,
@@ -89,10 +99,9 @@ export default function EditProfileClient() {
     isPending,
     error: updateError,
   } = useUpdateMember({
-    onSuccess: async (payload: any) => {
+    onSuccess: async (payload) => {
       const updated =
-        payload?.updateMember ??
-        payload?.member ?? {
+        payload?.updateMember ?? {
           _id: memberId,
           memberFullName: form.memberFullName,
           memberImage: form.memberImage,
@@ -144,9 +153,9 @@ export default function EditProfileClient() {
       // 3️⃣ After success, use final backend URL for preview
       const uploadedUrl = buildDownloadUrl(key);
       setPreviewUrl(uploadedUrl);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("handleFileChange error:", err);
-      setUploadError(err.message ?? "Upload failed");
+      setUploadError(err instanceof Error ? err.message : "Upload failed");
 
       // revert preview back to old image if exists
       const cleanOld = sanitizeKey(member?.memberImage);
@@ -215,12 +224,14 @@ export default function EditProfileClient() {
           <div className="flex items-center gap-8">
             {/* Avatar Preview (circle) */}
             <div className="relative">
-              <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-brand-primary/15 to-brand-primary/15 ring-4 ring-white shadow-xl">
+              <div className="relative w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-brand-primary/15 to-brand-primary/15 ring-4 ring-white shadow-xl">
                 {previewUrl ? (
-                  <img
+                  <Image
                     src={previewUrl}
                     alt="Profile preview"
-                    className="w-full h-full object-cover"
+                    fill
+                    unoptimized
+                    className="object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">

@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/Modal";
 import {
   TextInput,
-  Textarea,
   FileInput,
   ErrorAlert,
 } from "@/components/ui/form/FormFields";
@@ -99,7 +98,7 @@ export default function CreateLessonModal({
           <select
             value={lessonContentType}
             onChange={(e) =>
-              setLessonContentType(e.target.value as any)
+              setLessonContentType(e.target.value as "TEXT" | "VIDEO" | "AUDIO")
             }
             disabled={loading}
             className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition focus:border-brand-primary/80 focus:ring-2 focus:ring-brand-primary/15"

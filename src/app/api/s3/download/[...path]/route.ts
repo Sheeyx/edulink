@@ -63,10 +63,11 @@ export async function GET(
       status: upstream.status,
       headers,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("🔥 Proxy route error:", err);
+    const details = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
-      { message: "Proxy error", details: String(err?.message || err) },
+      { message: "Proxy error", details },
       { status: 500 }
     );
   }

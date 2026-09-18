@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { FiVideo, FiHelpCircle, FiCode } from "react-icons/fi";
 
-type Lesson = {
+export type Lesson = {
   _id: string;
   title: string;
   duration?: string;
@@ -11,7 +11,7 @@ type Lesson = {
   itemsCount?: number;
 };
 
-type Section = {
+export type Section = {
   _id: string;
   title: string;
   order?: number;

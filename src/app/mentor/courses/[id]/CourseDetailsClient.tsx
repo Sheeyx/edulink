@@ -212,9 +212,9 @@ export default function CourseDetailsClient({
       setDeleteResourceErr(null);
       await removeResourceById(deletingResource.id);
       setDeletingResource(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setDeleteResourceErr(err?.message || "Failed to delete resource.");
+      setDeleteResourceErr(err instanceof Error ? err.message : "Failed to delete resource.");
     } finally {
       setDeleteResourceLoading(false);
     }
@@ -312,9 +312,9 @@ export default function CourseDetailsClient({
       await removeSectionById(sectionToDelete.id);
       setDeleteOpen(false);
       setSectionToDelete(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setDeleteErr(err?.message || "Failed to delete section.");
+      setDeleteErr(err instanceof Error ? err.message : "Failed to delete section.");
     } finally {
       setDeleteLoading(false);
     }
@@ -478,14 +478,13 @@ export default function CourseDetailsClient({
     }
 
     // current lesson (existing lessonUrl)
-    const current: any = (() => {
+    const current: LessonUI | null = (() => {
       if (!course) return null;
       const sec = course.sections.find((s) => s.id === editingLesson.sectionId);
       return sec?.lessons?.find((l) => l.id === editingLesson.lessonId) ?? null;
     })();
 
-    const existingLessonUrl: string | undefined =
-      current?.lessonUrl || current?.videoUrl || undefined;
+    const existingLessonUrl: string | undefined = current?.lessonUrl || undefined;
 
     let nextLessonUrl: string | null | undefined = existingLessonUrl;
 
@@ -510,7 +509,7 @@ export default function CourseDetailsClient({
       nextLessonUrl = null; // if backend doesn't accept null -> use ""
     }
 
-    const input: any = {
+    const input: UpdateLessonInput & { lessonUrl?: string | null } = {
       _id: editingLesson.lessonId,
       lessonTitle: data.title,
       lessonContentType: data.contentType,
@@ -547,10 +546,10 @@ export default function CourseDetailsClient({
       await reload();
       setDeleteLessonOpen(false);
       setDeletingLesson(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       setDeleteLessonErr(
-        err?.message || "Failed to delete lesson. Please try again."
+        err instanceof Error ? err.message : "Failed to delete lesson. Please try again."
       );
     } finally {
       setDeleteLessonLoading(false);
@@ -569,9 +568,7 @@ export default function CourseDetailsClient({
       const lesson = sec.lessons.find((l) => l.id === lessonId);
       if (!lesson) return;
 
-      const key =
-        ((lesson as any).lessonUrl as string | undefined) ||
-        ((lesson as any).videoUrl as string | undefined);
+      const key = lesson.lessonUrl || undefined;
 
       if (!key) {
         alert("This lesson does not have a video.");

@@ -6,35 +6,23 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
 
+function isFullUrl(value?: string | null): boolean {
+  return !!value && (value.startsWith("http://") || value.startsWith("https://"));
+}
+
+function sanitizeKey(raw?: string | null): string {
+  if (!raw) return "";
+  return raw.trim().replace(/,+$/, "").replace(/^\/+/, "");
+}
+
 export default function UserInfo() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  if (!user) return null;
-
-  const displayName = user.name || user.email || "User";
-
-  const initials =
-    displayName
-      .trim()
-      .split(" ")
-      .map((p) => p[0]?.toUpperCase())
-      .slice(0, 1)
-      .join("") || "U";
-
-  function isFullUrl(value?: string | null): boolean {
-    return !!value && (value.startsWith("http://") || value.startsWith("https://"));
-  }
-
-  function sanitizeKey(raw?: string | null): string {
-    if (!raw) return "";
-    return raw.trim().replace(/,+$/, "").replace(/^\/+/, "");
-  }
-
   const avatarSrc = useMemo(() => {
-    const raw = ((user as any).image || (user as any).memberImage || "") as string;
+    const raw = (user?.image || user?.memberImage || "") as string;
     if (!raw) return null;
 
     // ✅ If it's already a full URL, don't sanitize it
@@ -56,6 +44,18 @@ export default function UserInfo() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  if (!user) return null;
+
+  const displayName = user.name || user.email || "User";
+
+  const initials =
+    displayName
+      .trim()
+      .split(" ")
+      .map((p) => p[0]?.toUpperCase())
+      .slice(0, 1)
+      .join("") || "U";
 
   const handleProfileClick = () => {
     setOpen(false);
