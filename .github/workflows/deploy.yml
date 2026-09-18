@@ -119,10 +119,10 @@ jobs:
             echo "📦 Installing production dependencies..."
             npm ci --omit=dev
 
-            # PM2 restart (next start -p 3000; backend already owns 3003)
+            # PM2 restart (next start -p 3007; backend owns 3003)
             echo "🔄 Restarting PM2..."
             pm2 delete edulink 2>/dev/null || true
-            pm2 start npm --name edulink -- run start -- -p 3000
+            pm2 start npm --name edulink -- run start -- -p 3007
             pm2 save
 
             echo "✅ Deployment finished"
