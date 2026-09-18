@@ -6,11 +6,11 @@ name: EDULINK CI/CD (npm)
 # backend workflow.
 #
 # One-time setup this depends on, on the server:
-#   - /home/projects/edulink is already `git clone`d from this repo
-#   - /home/projects/edulink/.env.production exists and is populated
+#   - /var/www/edulink is already `git clone`d from this repo
+#   - /var/www/edulink/.env.production exists and is populated
 #     (NOT committed — .gitignore excludes .env*, so it must be placed
 #     there manually and kept up to date by hand)
-#   - /home/projects/edulink/ecosystem.config.js is present (committed)
+#   - /var/www/edulink/ecosystem.config.js is present (committed)
 
 on:
   push:
@@ -39,7 +39,7 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
             echo "Go to project folder"
-            cd /home/projects/edulink
+            cd /var/www/edulink
 
             echo "Check .env.production"
             if [ ! -f .env.production ]; then

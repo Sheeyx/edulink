@@ -3,11 +3,11 @@
 # in .github/workflows/deploy.yml, so it must be kept in sync with that file.
 #
 # Usage (run directly ON THE SERVER, as the deploy user):
-#   GITHUB_BRANCH=master bash /home/projects/edulink/deploy.sh
+#   GITHUB_BRANCH=master bash /var/www/edulink/deploy.sh
 # or over SSH from your machine:
-#   ssh user@server 'GITHUB_BRANCH=master bash /home/projects/edulink/deploy.sh'
+#   ssh user@server 'GITHUB_BRANCH=master bash /var/www/edulink/deploy.sh'
 #
-# Requires /home/projects/edulink to already be a git clone of this repo,
+# Requires /var/www/edulink to already be a git clone of this repo,
 # with .env.production and ecosystem.config.js present in that folder.
 set -e
 
@@ -20,7 +20,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
 echo "Go to project folder"
-cd /home/projects/edulink
+cd /var/www/edulink
 
 echo "Check .env.production"
 if [ ! -f .env.production ]; then
