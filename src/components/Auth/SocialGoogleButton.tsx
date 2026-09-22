@@ -1,14 +1,16 @@
 // src/components/Auth/SocialGoogleButton.tsx
 "use client";
 
-import { signIn } from "next-auth/react";
 import { FaGoogle } from "react-icons/fa";
+import { getGoogleAuthUrl } from "@/libs/auth/googleAuthUrl";
 
 export default function SocialGoogleButton({ className = "" }: { className?: string }) {
   return (
     <button
       type="button"
-      onClick={() => signIn("google", { callbackUrl: "/auth/social/google" })}
+      onClick={() => {
+        window.location.href = getGoogleAuthUrl();
+      }}
       className={`w-14 h-14 flex items-center justify-center rounded-xl border border-gray-200 hover:bg-gray-50 transition ${className}`}
       aria-label="Continue with Google"
     >

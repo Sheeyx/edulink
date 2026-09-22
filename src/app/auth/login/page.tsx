@@ -9,7 +9,7 @@ import { FaGoogle } from "react-icons/fa";
 import { SiKakaotalk } from "react-icons/si";
 import { useAuth } from "@/providers/auth-context";
 import { gqlFetch } from "@/libs/graphql";
-import { signIn } from "next-auth/react";
+import { getGoogleAuthUrl } from "@/libs/auth/googleAuthUrl";
 
 type LoginInput = { memberEmail: string; memberPassword: string };
 type LoginResult = {
@@ -62,6 +62,8 @@ export default function LoginPage() {
         `An account with ${emailParam} already exists. Please log in with your email and password.`
       );
       setForm((prev) => ({ ...prev, email: emailParam }));
+    } else if (error === "google_auth_failed") {
+      setErr("Google sign-in failed. Please try again or use your email and password.");
     }
   }, [params]);
 
@@ -211,9 +213,10 @@ export default function LoginPage() {
               <div className="mt-6 flex items-center justify-center gap-3">
                <button
   type="button"
- onClick={() =>
-        signIn("google", { callbackUrl: "/auth/social/google?intent=login" })
-      }  className="w-14 h-14 flex items-center justify-center rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+  onClick={() => {
+    window.location.href = getGoogleAuthUrl();
+  }}
+  className="w-14 h-14 flex items-center justify-center rounded-xl border border-gray-200 hover:bg-gray-50 transition"
   aria-label="Sign in with Google"
 >
   <FaGoogle size={22} className="text-[#DB4437]" />

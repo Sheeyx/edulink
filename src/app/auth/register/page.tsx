@@ -9,7 +9,7 @@ import { FaGoogle } from "react-icons/fa";
 import { SiKakaotalk } from "react-icons/si";
 import { useAuth } from "@/providers/auth-context";
 import { gqlFetch } from "@/libs/graphql";
-import { signIn } from "next-auth/react";
+import { getGoogleAuthUrl } from "@/libs/auth/googleAuthUrl";
 
 // ===== API Types =====
 type MemberInput = {
@@ -323,7 +323,9 @@ export default function RegisterPage() {
               <div className="mt-4 flex items-center justify-center gap-3">
                 <button
   type="button"
-  onClick={() => signIn("google", { callbackUrl: "/auth/social/google?intent=signup" })}
+  onClick={() => {
+    window.location.href = getGoogleAuthUrl();
+  }}
   className="w-14 h-14 flex items-center justify-center rounded-xl border border-gray-200 hover:bg-gray-50 transition"
   aria-label="Sign up with Google"
 >
