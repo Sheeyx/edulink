@@ -61,7 +61,7 @@ export default function UserLayout({ children }: { children: ReactNode }) {
     }
 
     if (role === "ADMIN") {
-      router.replace("/admin");
+      router.replace("/dashboard");
       return;
     }
 

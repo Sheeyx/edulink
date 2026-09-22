@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { gqlFetchAuth } from "@/libs/graphql";
+import { gqlFetch, gqlFetchAuth } from "@/libs/graphql";
 
 /* ===== Types ===== */
 export type MemberRole = "STUDENT" | "MENTOR" | "ADMIN";
@@ -68,6 +68,28 @@ function redirectByRole(r?: string | null) {
 
 const LOGOUT_MUTATION = `mutation Logout { logout }`;
 
+// The backend has no REST "/auth/me" — this GraphQL query is its
+// cookie-only equivalent, packing email/role/id into a string ("Hi {email}
+// you are {role} (memberId) {id}") without needing to already know our id.
+const CHECK_AUTH_ROLES_QUERY = `query CheckAuthRoles { checkAuthRoles }`;
+const CHECK_AUTH_PATTERN = /^Hi\s+(.+?)\s+you are\s+(\S+)\s+\(memberId\)\s+(\S+)$/;
+
+export type SessionIdentity = { id: string; email: string; role: MemberRole };
+
+/** Verifies the httpOnly session cookie against the backend. Returns null
+ * for any anonymous visitor or expired/invalid session — never throws. */
+export async function fetchSessionIdentity(): Promise<SessionIdentity | null> {
+  try {
+    const data = await gqlFetch<{ checkAuthRoles: string }>(CHECK_AUTH_ROLES_QUERY);
+    const match = CHECK_AUTH_PATTERN.exec(data.checkAuthRoles);
+    if (!match) return null;
+    const [, email, rawRole, id] = match;
+    return { id, email, role: roleSafe(rawRole) };
+  } catch {
+    return null;
+  }
+}
+
 /* ===== Context ===== */
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
@@ -95,6 +117,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setReady(true);
     }
+  }, []);
+
+  // Verify the cached profile against the actual session cookie. This is a
+  // background correction, not a gate: it never redirects (AuthProvider
+  // wraps public pages too) and never blocks `ready` — it only fixes stale
+  // state, e.g. a cookie that expired since the last visit, or a role that
+  // changed server-side. Protected layouts (/user, /mentor, /dashboard)
+  // are what actually redirect, once `user`/`ready` settle.
+  useEffect(() => {
+    (async () => {
+      const identity = await fetchSessionIdentity();
+      if (identity) {
+        setUser((prev) => ({
+          id: identity.id || prev?.id || "",
+          email: identity.email || prev?.email || "",
+          name: prev?.name ?? null,
+          role: identity.role,
+          image: prev?.image ?? null,
+        }));
+      } else {
+        setUser(null);
+      }
+    })();
   }, []);
 
   // Cross-tab sync

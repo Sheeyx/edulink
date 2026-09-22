@@ -10,7 +10,7 @@ import { useAuth } from "@/providers/auth-context";
 const COLLAPSE_STORAGE_KEY = "mentor-sidebar-collapsed";
 
 export default function MentorLayout({ children }: { children: ReactNode }) {
-        const { user } = useAuth();
+        const { user, ready } = useAuth();
         const router = useRouter();
         const name = user?.name || "Mentor";
         const avatarUrl = user?.image || "";
@@ -32,6 +32,37 @@ export default function MentorLayout({ children }: { children: ReactNode }) {
                         return next;
                 });
         };
+
+        const role = (user?.role || "").toString().toUpperCase();
+
+        // 🔐 Guard all /mentor routes
+        React.useEffect(() => {
+                if (!ready) return;
+
+                if (!user) {
+                        router.replace("/auth/login");
+                        return;
+                }
+
+                if (role === "MENTOR") return;
+
+                if (role === "STUDENT") {
+                        router.replace("/user");
+                        return;
+                }
+
+                if (role === "ADMIN") {
+                        router.replace("/dashboard");
+                        return;
+                }
+
+                router.replace("/auth/login");
+        }, [ready, user, role, router]);
+
+        // block UI while deciding
+        if (!ready || !user || role !== "MENTOR") {
+                return <div className="min-h-[50vh]" />;
+        }
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 mt-20 p-6">

@@ -2,10 +2,40 @@
 "use client";
 
 import { FiHome, FiUsers, FiBook, FiCreditCard, FiHelpCircle, FiSettings } from "react-icons/fi";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/providers/auth-context";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
+  const { user, ready } = useAuth();
+  const router = useRouter();
+  const role = (user?.role || "").toString().toUpperCase();
+
+  // 🔐 Guard all /dashboard routes
+  useEffect(() => {
+    if (!ready) return;
+
+    if (!user) {
+      router.replace("/auth/login");
+      return;
+    }
+
+    if (role === "ADMIN") return;
+
+    if (role === "STUDENT") {
+      router.replace("/user");
+      return;
+    }
+
+    if (role === "MENTOR") {
+      router.replace("/mentor");
+      return;
+    }
+
+    router.replace("/auth/login");
+  }, [ready, user, role, router]);
+
   const menu = [
     { label: "Dashboard", icon: <FiHome />, href: "/dashboard" },
     { label: "Students", icon: <FiUsers />, href: "/dashboard/students" },
@@ -16,9 +46,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { label: "Settings", icon: <FiSettings />, href: "/dashboard/settings" },
   ];
 
+  // block UI while deciding
+  if (!ready || !user || role !== "ADMIN") {
+    return <div className="min-h-screen bg-[#F8F9FB]" />;
+  }
+
   return (
     <div className="flex bg-[#F8F9FB] h-screen overflow-hidden">
-      
+
       {/* FIXED SIDEBAR */}
       <aside className="w-72 bg-gradient-to-b from-[#1E1E2A] to-[#0F0F15] text-white p-6 space-y-6 rounded-r-3xl shadow-xl h-screen flex-shrink-0">
         <div className="flex items-center gap-3">
@@ -57,7 +92,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
             <div className="flex items-center gap-2 pr-3 pl-1 py-1 rounded-xl bg-white shadow-sm cursor-pointer">
               <div>
-                <p className="text-sm font-medium">Sheyx</p>
+                <p className="text-sm font-medium">{user.name || user.email}</p>
                 <p className="text-xs text-gray-500">Admin</p>
               </div>
             </div>
