@@ -43,7 +43,10 @@ async function doFetch<T>(
     method: "POST",
     headers,
     body: JSON.stringify({ query, variables }),
-    credentials: opts?.withCredentials ? "include" : "same-origin",
+    // Always send/receive the httpOnly auth cookies the backend sets on
+    // login/signup/refresh — this is our own API, never a third party, so
+    // there's no reason to ever drop credentials.
+    credentials: "include",
     cache: "no-store",
     signal: opts?.signal,
   });
@@ -89,7 +92,10 @@ export async function gqlFetch<T = unknown>(
 
 /**
  * Public: authenticated GraphQL call.
- * - If `token` is omitted and we’re on the client, it tries `localStorage.getItem("accessToken")`.
+ * Auth normally travels via the httpOnly cookie the backend sets on
+ * login/signup (always sent — see `doFetch`). `token` is only needed for
+ * the rare caller that already has a bearer token handy; it's never read
+ * from storage here.
  */
 export async function gqlFetchAuth<T = unknown>(
   query: string,
@@ -97,16 +103,8 @@ export async function gqlFetchAuth<T = unknown>(
   token?: string | null,
   options?: { withCredentials?: boolean; signal?: AbortSignal }
 ): Promise<T> {
-  let resolved = token ?? null;
-  if (!resolved && typeof window !== "undefined") {
-    try {
-      resolved = localStorage.getItem("accessToken");
-    } catch {
-      // ignore
-    }
-  }
   return doFetch<T>(query, variables, {
-    token: resolved,
+    token: token ?? null,
     withCredentials: options?.withCredentials ?? true,
     signal: options?.signal,
   });

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { gqlFetchAuth } from "@/libs/graphql";
 
 /* ===== Types ===== */
 export type MemberRole = "STUDENT" | "MENTOR" | "ADMIN";
@@ -23,12 +24,6 @@ export type AuthUser = {
   memberImage?: string | null;
   memberStatus?: string | null;
   memberAuth?: string | null;
-
-  // ✅ tokens (optional)
-  accessToken?: string | null;
-  refreshToken?: string | null;
-  accessTokenExpiresIn?: number | null;
-  refreshTokenExpiresIn?: number | null;
 } | null;
 
 type SetUserAction = AuthUser | ((prev: AuthUser) => AuthUser);
@@ -51,7 +46,7 @@ type AuthContextValue = {
    */
   setUser: (u: SetUserAction) => void;
 
-  logout: () => void;
+  logout: () => Promise<void>;
   roleSafe: (r?: string | null) => MemberRole;
   redirectByRole: (r?: string | null) => "/user" | "/mentor" | "/dashboard";
 };
@@ -71,22 +66,7 @@ function redirectByRole(r?: string | null) {
   return "/user";
 }
 
-export function setTokens(access: string, refresh: string, accessSec: number, refreshSec: number) {
-  try {
-    localStorage.setItem("accessToken", access || "");
-    localStorage.setItem("refreshToken", refresh || "");
-    localStorage.setItem("accessTokenExpiresAt", String(Date.now() + (accessSec || 0) * 1000));
-    localStorage.setItem("refreshTokenExpiresAt", String(Date.now() + (refreshSec || 0) * 1000));
-  } catch {}
-}
-
-export function clearTokens() {
-  try {
-    ["accessToken", "refreshToken", "accessTokenExpiresAt", "refreshTokenExpiresAt"].forEach((k) =>
-      localStorage.removeItem(k)
-    );
-  } catch {}
-}
+const LOGOUT_MUTATION = `mutation Logout { logout }`;
 
 /* ===== Context ===== */
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -129,12 +109,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           _setUser(null);
         }
       }
-
-      if (e.key === "accessToken" && e.newValue === null) {
-        // token cleared in another tab → ensure user cleared too
-        const snapshot = localStorage.getItem("currentUser");
-        if (!snapshot) _setUser(null);
-      }
     };
 
     window.addEventListener("storage", onStorage);
@@ -157,12 +131,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const logout = () => {
-    clearTokens();
+  const logout = async () => {
+    // Clear local state immediately for a snappy UI…
     try {
       localStorage.removeItem("currentUser");
     } catch {}
     _setUser(null);
+
+    // …then revoke the httpOnly session cookie server-side. Best-effort:
+    // the user is logged out locally either way, and the cookie will also
+    // expire on its own if this call fails (offline, already-expired token).
+    try {
+      await gqlFetchAuth(LOGOUT_MUTATION);
+    } catch {}
   };
 
   const value = useMemo<AuthContextValue>(
@@ -178,22 +159,6 @@ export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("❌ useAuth must be used inside <AuthProvider>");
   return ctx;
-}
-
-/* ===== Optional exports for callers that need tokens ===== */
-export function getAccessToken(): string | null {
-  try {
-    return localStorage.getItem("accessToken");
-  } catch {
-    return null;
-  }
-}
-export function getRefreshToken(): string | null {
-  try {
-    return localStorage.getItem("refreshToken");
-  } catch {
-    return null;
-  }
 }
 
 export { redirectByRole, roleSafe };

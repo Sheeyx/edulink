@@ -19,13 +19,11 @@ type LoginResult = {
     memberFullName?: string | null;
     memberImage?: string | null;
     memberRole?: "STUDENT" | "MENTOR" | "ADMIN" | string | null;
-    accessToken: string;
-    refreshToken: string;
-    accessTokenExpiresIn: number;
-    refreshTokenExpiresIn: number;
   };
 };
 
+// The backend also sets httpOnly access/refresh cookies on this response —
+// no need to request or store the token fields client-side.
 const LOGIN_MUTATION = `
 mutation Login($input: LoginInput!) {
   login(input: $input) {
@@ -34,10 +32,6 @@ mutation Login($input: LoginInput!) {
     memberFullName
     memberImage
     memberRole
-    accessToken
-    refreshToken
-    accessTokenExpiresIn
-    refreshTokenExpiresIn
   }
 }
 `;
@@ -103,11 +97,8 @@ export default function LoginPage() {
       };
       const data = await gqlFetch<LoginResult>(LOGIN_MUTATION, variables);
 
-      // Save tokens + user snapshot
-      localStorage.setItem("accessToken", data.login.accessToken || "");
-      localStorage.setItem("refreshToken", data.login.refreshToken || "");
-      localStorage.setItem("accessTokenExpiresAt", String(Date.now() + (data.login.accessTokenExpiresIn || 0) * 1000));
-      localStorage.setItem("refreshTokenExpiresAt", String(Date.now() + (data.login.refreshTokenExpiresIn || 0) * 1000));
+      // The backend already set httpOnly access/refresh cookies on this
+      // response; only the display profile needs caching client-side.
 
       // Safely cast role to MemberRole
       const roleValue = (data.login.memberRole?.toUpperCase() || "").trim();

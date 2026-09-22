@@ -4,7 +4,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useAuth, getAccessToken } from "@/providers/auth-context";
+import { useAuth } from "@/providers/auth-context";
 import { gqlFetchAuth } from "@/libs/graphql";
 import { useUpdateMember } from "@/hooks/mutations/useUpdateMember";
 import type { MemberUpdateInput } from "@/libs/types/member/types";
@@ -45,8 +45,6 @@ export default function UpdateMemberForm({ memberId, initial, onDone }: Props) {
   const qc = useQueryClient();
   const { user, setUser, ready } = useAuth();
 
-  const accessToken = getAccessToken() ?? undefined;
-
   const shouldFetch =
     !initial ||
     initial.memberFullName == null ||
@@ -56,14 +54,9 @@ export default function UpdateMemberForm({ memberId, initial, onDone }: Props) {
 
   const { data: member, isLoading: isMemberLoading, error: memberError } = useQuery({
     queryKey: ["member", memberId],
-    enabled: !!memberId && shouldFetch && !!accessToken,
+    enabled: !!memberId && shouldFetch,
     queryFn: async () => {
-      const res = await gqlFetchAuth<{ getMember: MemberBasic }>(
-        GET_MEMBER,
-        { id: memberId },
-        accessToken,
-        { withCredentials: true }
-      );
+      const res = await gqlFetchAuth<{ getMember: MemberBasic }>(GET_MEMBER, { id: memberId });
       return res.getMember;
     },
   });
@@ -131,7 +124,7 @@ export default function UpdateMemberForm({ memberId, initial, onDone }: Props) {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!accessToken) {
+    if (!memberId) {
       router.push("/auth/login");
       return;
     }
@@ -142,7 +135,7 @@ export default function UpdateMemberForm({ memberId, initial, onDone }: Props) {
       memberBio: form.memberBio?.trim(),
       memberImage: form.memberImage?.trim(),
     };
-    await updateMember({ input, token: accessToken });
+    await updateMember({ input });
   }
 
   const disabled = isPending || !ready || isMemberLoading;
@@ -242,12 +235,6 @@ export default function UpdateMemberForm({ memberId, initial, onDone }: Props) {
           Cancel
         </button>
       </div>
-
-      {!accessToken && (
-        <p className="text-xs text-amber-600 mt-2">
-          No access token found. Please log in again.
-        </p>
-      )}
     </form>
   );
 }

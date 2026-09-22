@@ -3,7 +3,6 @@
 
 import * as React from "react";
 import { uploadFilesToB2 } from "@/services/b2Upload";
-import { getAccessToken } from "@/providers/auth-context";
 
 type UseUploadFilesToB2Options = {
   folder: string;
@@ -21,12 +20,7 @@ export function useUploadFilesToB2({ folder }: UseUploadFilesToB2Options) {
       setError(null);
 
       try {
-        const token = await getAccessToken();
-        if (!token) {
-          throw new Error("Not authenticated. Please log in again.");
-        }
-
-        const urls = await uploadFilesToB2(files, folder, token);
+        const urls = await uploadFilesToB2(files, folder);
         return urls;
       } catch (err) {
         console.error(err);

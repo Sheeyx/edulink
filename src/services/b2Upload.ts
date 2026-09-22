@@ -16,7 +16,7 @@
 export async function uploadFilesToB2(
   files: File[],
   target: string,
-  token: string
+  token?: string
 ): Promise<string[]> {
   const backendBase = process.env.NEXT_PUBLIC_BACKEND_URL;
   if (!backendBase) throw new Error("NEXT_PUBLIC_BACKEND_URL is not set");
@@ -52,7 +52,7 @@ export async function uploadFilesToB2(
     res = await fetch(url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         // Apollo Server's CSRF prevention blocks "simple" (non-preflighted)
         // requests like multipart/form-data uploads unless one of its documented
         // exemption headers is present. This one is allow-listed in the backend's
@@ -60,6 +60,8 @@ export async function uploadFilesToB2(
         "apollo-require-preflight": "true",
       },
       body: formData,
+      // Cookie-authenticated sessions (e.g. Google login) have no token to
+      // pass above — the httpOnly cookie carries auth instead.
       credentials: "include",
     });
   } catch (err) {

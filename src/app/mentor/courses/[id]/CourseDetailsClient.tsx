@@ -54,7 +54,6 @@ import { useAttendanceStats } from "@/hooks/useAttendanceStats";
 import { gqlFetchAuth } from "@/libs/graphql";
 import { REMOVE_LESSON, UPDATE_LESSON } from "@/graphql/mutation/lessons/lesson";
 import { buildDownloadUrl } from "@/libs/buildDownloadUrl";
-import { getAccessToken } from "@/providers/auth-context";
 import { uploadFilesToB2 } from "@/services/b2Upload";
 
 type CourseDetailsClientProps = {
@@ -490,14 +489,10 @@ export default function CourseDetailsClient({
 
     // ✅ REPLACE: upload new video
     if (data.newVideoFile) {
-      const token = await getAccessToken();
-      if (!token) throw new Error("Not authenticated. Please log in again.");
-
       // upload to /lesson/video
       const uploaded = await uploadFilesToB2(
         [data.newVideoFile],
-        "lesson/video",
-        token
+        "lesson/video"
       );
 
       // B2 returns array of keys/paths

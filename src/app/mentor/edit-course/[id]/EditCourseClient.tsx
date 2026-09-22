@@ -10,7 +10,6 @@ import { FiCalendar } from "react-icons/fi";
 import { gqlFetchAuth } from "@/libs/graphql";
 import { GET_COURSE, UPDATE_COURSE, UPDATE_COURSE_SETTINGS } from "@/graphql/query/courses/courses";
 import { uploadFilesToB2 } from "@/services/b2Upload";
-import { getAccessToken } from "@/providers/auth-context";
 import {
   COURSE_LEVEL,
   COURSE_STATUS,
@@ -215,10 +214,7 @@ export default function EditCourseClient({ courseId }: { courseId: string }) {
       if (imageFile) {
         setUploadingImage(true);
         try {
-          const token = getAccessToken();
-          if (!token) throw new Error("Not authenticated: missing access token.");
-
-          const uploadedKeys = await uploadFilesToB2([imageFile], "courses-images", token);
+          const uploadedKeys = await uploadFilesToB2([imageFile], "courses-images");
           if (!uploadedKeys.length) throw new Error("File upload failed: empty response.");
 
           courseImageKey = uploadedKeys[0];

@@ -28,13 +28,11 @@ type SignupResult = {
     memberEmail: string;
     memberFullName: string;
     memberImage?: string | null;
-    accessToken: string;
-    refreshToken: string;
-    accessTokenExpiresIn: number;
-    refreshTokenExpiresIn: number;
   };
 };
 
+// The backend also sets httpOnly access/refresh cookies on this response —
+// no need to request or store the token fields client-side.
 const SIGNUP_MUTATION = `
 mutation Signup($input: MemberInput!) {
   signup(input: $input) {
@@ -54,10 +52,6 @@ mutation Signup($input: MemberInput!) {
     updatedAt
     memberPhone
     memberMedals { medalType awardedAt }
-    accessToken
-    refreshToken
-    accessTokenExpiresIn
-    refreshTokenExpiresIn
   }
 }
 `;
@@ -135,17 +129,8 @@ export default function RegisterPage() {
       const data = await gqlFetch<SignupResult>(SIGNUP_MUTATION, { input });
       const res = data.signup;
 
-      // Save tokens
-      localStorage.setItem("accessToken", res.accessToken || "");
-      localStorage.setItem("refreshToken", res.refreshToken || "");
-      localStorage.setItem(
-        "accessTokenExpiresAt",
-        String(Date.now() + (res.accessTokenExpiresIn || 0) * 1000)
-      );
-      localStorage.setItem(
-        "refreshTokenExpiresAt",
-        String(Date.now() + (res.refreshTokenExpiresIn || 0) * 1000)
-      );
+      // The backend already set httpOnly access/refresh cookies on this
+      // response; only the display profile needs caching client-side.
 
       // Safely cast role to MemberRole
       const roleValue = (res.memberRole?.toUpperCase() || "").trim();

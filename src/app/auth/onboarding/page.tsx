@@ -6,6 +6,8 @@ import { useState } from "react";
 import { gqlFetch } from "@/libs/graphql";
 import { useAuth } from "@/providers/auth-context";
 
+// The backend also sets httpOnly access/refresh cookies on this response —
+// no need to request or store the token fields client-side.
 const SIGNUP = `
 mutation Signup($input: MemberInput!) {
   signup(input: $input) {
@@ -14,10 +16,6 @@ mutation Signup($input: MemberInput!) {
     memberEmail
     memberFullName
     memberImage
-    accessToken
-    refreshToken
-    accessTokenExpiresIn
-    refreshTokenExpiresIn
   }
 }
 `;
@@ -33,10 +31,6 @@ type SignupResp = {
     memberEmail: string;
     memberFullName?: string | null;
     memberImage?: string | null;
-    accessToken: string;
-    refreshToken: string;
-    accessTokenExpiresIn: number;
-    refreshTokenExpiresIn: number;
   };
 };
 
@@ -88,16 +82,8 @@ export default function OnboardingPage() {
       });
 
       const s = res.signup;
-      localStorage.setItem("accessToken", s.accessToken);
-      localStorage.setItem("refreshToken", s.refreshToken);
-      localStorage.setItem(
-        "accessTokenExpiresAt",
-        String(Date.now() + (s.accessTokenExpiresIn ?? 0) * 1000)
-      );
-      localStorage.setItem(
-        "refreshTokenExpiresAt",
-        String(Date.now() + (s.refreshTokenExpiresIn ?? 0) * 1000)
-      );
+      // The backend already set httpOnly access/refresh cookies on this
+      // response; only the display profile needs caching client-side.
       const u = {
         id: s._id,
         email: s.memberEmail,

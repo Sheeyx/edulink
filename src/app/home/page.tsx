@@ -3,20 +3,22 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { gqlFetch } from "@/libs/graphql";
-import { useAuth, redirectByRole } from "@/providers/auth-context";
+import { useAuth, redirectByRole, roleSafe } from "@/providers/auth-context";
 
 /**
  * Landing spot for the backend's Google OAuth redirect
  * (`GET /auth/google/callback` → `${FRONTEND_URL}/home`).
  *
- * The backend hands back httpOnly cookies only — no member JSON — so all we
- * can do here is confirm the session via the cookie-authenticated `checkAuth`
- * query and send the visitor on. New Google sign-ups are always STUDENT on
- * the backend, so `/user` is correct for them; an existing MENTOR/ADMIN
- * account signing in via Google will land on `/user` too until a page that
- * loads their full profile runs.
+ * The backend hands back httpOnly cookies only — no member JSON — so we
+ * confirm the session via the cookie-authenticated `checkAuthRoles` query,
+ * which packs email/role/id into a string ("Hi {email} you are {role}
+ * (memberId) {id}") without needing to already know our own id. New Google
+ * sign-ups are always STUDENT on the backend, but an *existing* MENTOR/ADMIN
+ * account signing in via Google keeps their real role — so we route by the
+ * role this query reports instead of assuming STUDENT.
  */
-const CHECK_AUTH = `query CheckAuth { checkAuth }`;
+const CHECK_AUTH_ROLES = `query CheckAuthRoles { checkAuthRoles }`;
+const CHECK_AUTH_PATTERN = /^Hi\s+(.+?)\s+you are\s+(\S+)\s+\(memberId\)\s+(\S+)$/;
 
 export default function GoogleAuthLandingPage() {
   const router = useRouter();
@@ -29,20 +31,20 @@ export default function GoogleAuthLandingPage() {
 
     (async () => {
       try {
-        const data = await gqlFetch<{ checkAuth: string }>(CHECK_AUTH, undefined, {
-          withCredentials: true,
-        });
-        const email = data.checkAuth.replace(/^Hi\s+/, "").trim();
+        const data = await gqlFetch<{ checkAuthRoles: string }>(CHECK_AUTH_ROLES);
+        const match = CHECK_AUTH_PATTERN.exec(data.checkAuthRoles);
+        const [, email, rawRole, id] = match ?? [];
+        const role = roleSafe(rawRole);
 
         setUser((prev) => ({
-          id: prev?.id ?? "",
+          id: id || prev?.id || "",
           email: email || prev?.email || "",
           name: prev?.name ?? null,
-          role: prev?.role ?? "STUDENT",
+          role,
           image: prev?.image ?? null,
         }));
 
-        router.replace(redirectByRole("STUDENT"));
+        router.replace(redirectByRole(role));
       } catch {
         router.replace("/auth/login?error=google_auth_failed");
       }

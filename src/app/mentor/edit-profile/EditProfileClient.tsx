@@ -4,7 +4,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useAuth, getAccessToken } from "@/providers/auth-context";
+import { useAuth } from "@/providers/auth-context";
 import { gqlFetchAuth } from "@/libs/graphql";
 import { useUpdateMember } from "@/hooks/mutations/useUpdateMember";
 import type { MemberUpdateInput } from "@/libs/types/member/types";
@@ -48,18 +48,11 @@ export default function EditProfileClient() {
 
   const memberId = user?.id ?? "";
 
-  const accessToken = getAccessToken() ?? undefined;
-
   const { data: member, isLoading: isMemberLoading } = useQuery({
     queryKey: ["member", memberId],
-    enabled: !!memberId && !!accessToken,
+    enabled: !!memberId,
     queryFn: async () => {
-      const res = await gqlFetchAuth<{ getMember: MemberBasic }>(
-        GET_MEMBER,
-        { id: memberId },
-        accessToken,
-        { withCredentials: true }
-      );
+      const res = await gqlFetchAuth<{ getMember: MemberBasic }>(GET_MEMBER, { id: memberId });
       return res.getMember;
     },
   });
@@ -130,7 +123,7 @@ export default function EditProfileClient() {
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!accessToken) {
+    if (!memberId) {
       router.push("/auth/login");
       return;
     }
@@ -144,7 +137,7 @@ export default function EditProfileClient() {
 
     try {
       // 2️⃣ Upload to B2 -> returns key: "members/xxx.png"
-      const [rawKey] = await uploadFilesToB2([file], "members", accessToken);
+      const [rawKey] = await uploadFilesToB2([file], "members");
       const key = sanitizeKey(rawKey);
 
       // store key in form (DB will save this)
@@ -169,7 +162,7 @@ export default function EditProfileClient() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!accessToken) {
+    if (!memberId) {
       router.push("/auth/login");
       return;
     }
@@ -182,7 +175,7 @@ export default function EditProfileClient() {
       memberImage: form.memberImage.trim(), // saved as "members/xxx.png"
     };
 
-    await updateMember({ input, token: accessToken });
+    await updateMember({ input });
   }
 
   const disabled = isPending || isMemberLoading || !ready;
@@ -402,12 +395,6 @@ export default function EditProfileClient() {
             Cancel
           </button>
         </div>
-
-        {!accessToken && (
-          <p className="text-sm text-amber-600 mt-4 p-3 bg-amber-50 rounded-lg">
-            ⚠️ No access token found. Please log in again.
-          </p>
-        )}
       </form>
     </div>
   );
