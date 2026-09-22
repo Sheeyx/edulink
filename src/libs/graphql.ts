@@ -107,7 +107,7 @@ export async function gqlFetchAuth<T = unknown>(
   }
   return doFetch<T>(query, variables, {
     token: resolved,
-    withCredentials: options?.withCredentials,
+    withCredentials: options?.withCredentials ?? true,
     signal: options?.signal,
   });
 }
