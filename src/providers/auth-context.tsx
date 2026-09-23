@@ -1,7 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { gqlFetch, gqlFetchAuth } from "@/libs/graphql";
+import { gqlFetch } from "@/libs/graphql";
+import { logoutRequest } from "@/libs/auth/logout";
 
 /* ===== Types ===== */
 export type MemberRole = "STUDENT" | "MENTOR" | "ADMIN";
@@ -65,8 +66,6 @@ function redirectByRole(r?: string | null) {
   if (v === "ADMIN") return "/dashboard";
   return "/user";
 }
-
-const LOGOUT_MUTATION = `mutation Logout { logout }`;
 
 // The backend has no REST "/auth/me" — this GraphQL query is its
 // cookie-only equivalent, packing email/role/id into a string ("Hi {email}
@@ -187,7 +186,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // the user is logged out locally either way, and the cookie will also
     // expire on its own if this call fails (offline, already-expired token).
     try {
-      await gqlFetchAuth(LOGOUT_MUTATION);
+      await logoutRequest();
     } catch {}
   };
 
